@@ -16,7 +16,7 @@ def render_calendar(apply_date):
         width: 100%;
         border-collapse: collapse;
         margin: 0 auto;
-        background-color: #1e1e1e; /* Dark background */
+        background-color: #1e1e1e; /* Dark background to match image */
     }
     .calendar-table th, .calendar-table td {
         border: 1px solid #444; /* Subtle border for table cells */
@@ -52,14 +52,14 @@ def render_calendar(apply_date):
         background-color: transparent;
         color: white;
     }
-    /* Hover effect */
+    /* Hover and selected effect */
     .calendar-table button[kind="secondary"]:hover {
         border: 2px solid #00ff00; /* Green border on hover */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
     /* Selected button style */
     .calendar-table button.selected {
-        border: 2px solid #00ff00; /* Green circle for selected days */
+        border: 2px solid #00ff00; /* Green border for selected days */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
     /* Disabled (future) day style */
@@ -87,8 +87,7 @@ def render_calendar(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    # Calculate the range from April 1st to apply_date
-    start_date = date(2025, 4, 1)
+    start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
@@ -111,7 +110,7 @@ def render_calendar(apply_date):
             table_html += f'<th>{day}</th>'
         table_html += '</tr>'
 
-        # Calendar grid with buttons
+        # Calendar grid
         for week in cal:
             table_html += '<tr>'
             for day in week:
@@ -119,18 +118,22 @@ def render_calendar(apply_date):
                     table_html += '<td></td>'
                 else:
                     date_obj = date(year, month, day)
-                    button_key = f"btn_{date_obj}"
-                    is_selected = date_obj in selected_dates
                     if date_obj > apply_date:
+                        button_key = f"btn_{date_obj}"
                         button_html = f'<button disabled>{day}</button>'
+                        table_html += f'<td>{button_html}</td>'
                     else:
-                        button_html = f'<button {"class=selected" if is_selected else ""} key="{button_key}">{day}</button>'
-                    table_html += f'<td>{button_html}</td>'
+                        button_key = f"btn_{date_obj}"
+                        is_selected = date_obj in selected_dates
+                        # Add selected class if the date is selected
+                        button_class = "selected" if is_selected else ""
+                        button_html = f'<div id="{button_key}"></div>'
+                        table_html += f'<td>{button_html}</td>'
             table_html += '</tr>'
         table_html += '</table>'
         st.markdown(table_html, unsafe_allow_html=True)
 
-        # Handle button clicks for the current month
+        # Render buttons separately to handle clicks
         for week in cal:
             for day in week:
                 if day != 0:
@@ -138,35 +141,39 @@ def render_calendar(apply_date):
                     if date_obj > apply_date:
                         continue
                     button_key = f"btn_{date_obj}"
-                    if st.button(
-                        str(day),
-                        key=button_key,
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date_obj,)
-                    ):
-                        st.rerun()
+                    is_selected = date_obj in selected_dates
+                    # Use class to indicate selected state
+                    with st.container():
+                        if st.button(
+                            str(day),
+                            key=button_key,
+                            on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                            help="클릭하여 근무일을 선택하거나 해제하세요",
+                            args=(date_obj,)
+                        ):
+                            st.rerun()
 
-    # Display the count of selected dates
-    st.markdown(f"### 선택된 근무일 수: **{len(selected_dates)}일**")
+    if selected_dates:
+        st.markdown("### ✅ 선택된 근무일자")
+        st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
 
 def daily_worker_eligibility_app():
     st.markdown("""
-    <style>
-    div[data-testid="stRadio"] label {
-        color: white !important;
-        font-size: 18px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+div[data-testid="stRadio"] label {
+    color: white !important;
+    font-size: 18px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
