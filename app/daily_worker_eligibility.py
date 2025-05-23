@@ -8,68 +8,73 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
-    # Inject custom CSS for compact layout and button styling
+    # Inject custom CSS for table layout and button styling
     st.markdown("""
     <style>
-    /* Reduce padding and margins for calendar columns */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important; /* Reduce gap between columns */
+    /* Table styling */
+    .calendar-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
     }
-    div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important; /* Reduce padding inside columns */
-        margin: 0 !important; /* Remove margins */
+    .calendar-table th, .calendar-table td {
+        border: 1px solid #444; /* Subtle border for table cells */
+        padding: 5px;
+        text-align: center; /* Center align text and buttons */
+        vertical-align: middle;
+        min-width: 40px;
+    }
+    /* Day header styling */
+    .calendar-table th {
+        font-size: 0.9rem;
+        color: white;
+    }
+    .calendar-table th:first-child {
+        color: red; /* Sunday */
+    }
+    .calendar-table th:last-child {
+        color: blue; /* Saturday */
     }
     /* Style for calendar day buttons */
-    div[data-testid="stButton"] button {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 50% !important; /* Circular buttons */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 0.9rem !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        border: 2px solid transparent !important;
-        background-color: transparent !important;
-        color: white !important;
+    .calendar-table button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%; /* Circular buttons */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        padding: 0;
+        margin: 0 auto;
+        border: 2px solid transparent;
+        background-color: transparent;
+        color: white;
     }
     /* Hover effect */
-    div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important; /* Green circle on hover */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
-    }
-    /* Selected button style (using emoji in label, no dynamic CSS) */
-    div[data-testid="stButton"] button[kind="secondary"] {
-        transition: all 0.2s ease !important; /* Smooth transition */
+    .calendar-table button[kind="secondary"]:hover {
+        border: 2px solid #00ff00; /* Green circle on hover */
+        background-color: rgba(0, 255, 0, 0.2); /* Light green background */
     }
     /* Disabled (future) day style */
-    div[data-testid="stButton"] button[disabled] {
-        color: gray !important;
-        background-color: transparent !important;
-        border: 2px solid transparent !important;
-    }
-    /* Day header styles */
-    div[data-testid="stHorizontalBlock"] span {
-        font-size: 0.9rem !important;
-        text-align: center !important;
+    .calendar-table button[disabled] {
+        color: gray;
+        background-color: transparent;
+        border: 2px solid transparent;
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            gap: 0.3rem !important;
+        .calendar-table {
+            width: 100%;
+            table-layout: fixed; /* Ensure equal column widths */
         }
-        div[data-testid="stHorizontalBlock"] > div {
-            flex: 1 !important;
-            min-width: 40px !important;
-            padding: 0.1rem !important;
+        .calendar-table th, .calendar-table td {
+            min-width: 35px;
+            padding: 3px;
         }
-        div[data-testid="stButton"] button {
-            font-size: 0.8rem !important;
-            width: 35px !important;
-            height: 35px !important;
+        .calendar-table button {
+            font-size: 0.8rem;
+            width: 35px;
+            height: 35px;
         }
     }
     </style>
@@ -90,41 +95,57 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # Create columns for day headers
-        cols = st.columns(7, gap="small")
-        for i, day in enumerate(days):
-            if i == 0:
-                color = "red"
-            elif i == 6:
-                color = "blue"
-            else:
-                color = "white"
-            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
+        # Create HTML table for calendar
+        table_html = '<table class="calendar-table">'
+        # Header row
+        table_html += '<tr>'
+        for day in days:
+            table_html += f'<th>{day}</th>'
+        table_html += '</tr>'
 
-        # Create calendar grid
+        # Calendar grid
         for week in cal:
-            cols = st.columns(7, gap="small")
-            for i, day in enumerate(week):
+            table_html += '<tr>'
+            for day in week:
                 if day == 0:
-                    cols[i].markdown(" ")
+                    table_html += '<td></td>'
                 else:
-                    date_obj = date(year, month, day)  # Use date instead of datetime.date
+                    date_obj = date(year, month, day)
                     if date_obj > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
+                        button_key = f"btn_{date_obj}"
+                        button_html = f'<button disabled>{day}</button>'
+                        table_html += f'<td>{button_html}</td>'
+                    else:
+                        button_key = f"btn_{date_obj}"
+                        is_selected = date_obj in selected_dates
+                        label = f"✅ {day}" if is_selected else str(day)
+                        # Use st.button and capture its output in a container
+                        button_html = f'<div id="{button_key}"></div>'
+                        table_html += f'<td>{button_html}</td>'
+            table_html += '</tr>'
+        table_html += '</table>'
+        st.markdown(table_html, unsafe_allow_html=True)
+
+        # Render buttons separately to handle clicks
+        for week in cal:
+            for day in week:
+                if day != 0:
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
                         continue
                     button_key = f"btn_{date_obj}"
-                    # Check if date is selected and modify label
                     is_selected = date_obj in selected_dates
                     label = f"✅ {day}" if is_selected else str(day)
-                    if cols[i].button(
-                        label,
-                        key=button_key,
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date_obj,)
-                    ):
-                        # Force rerender to update button labels
-                        st.rerun()
+                    # Place button in the correct container
+                    with st.container():
+                        if st.button(
+                            label,
+                            key=button_key,
+                            on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                            help="클릭하여 근무일을 선택하거나 해제하세요",
+                            args=(date_obj,)
+                        ):
+                            st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -146,7 +167,7 @@ div[data-testid="stRadio"] label {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
