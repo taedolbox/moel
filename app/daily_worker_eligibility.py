@@ -66,18 +66,36 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
-    /* Center checkbox below button */
+    /* Checkbox styling */
     div[data-testid="stCheckbox"] {
         display: flex !important;
         justify-content: center !important;
         margin: 0 !important;
         padding: 0 !important;
+        font-size: 0.7rem !important;
     }
     div[data-testid="stCheckbox"] label {
         margin: 0 !important;
         padding: 0 !important;
     }
-    /* Force horizontal layout on mobile */
+    /* PC layout (above 600px) - vertical alignment */
+    @media (min-width: 601px) {
+        div[data-testid="stHorizontalBlock"] > div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            min-width: 50px !important;
+        }
+        div[data-testid="stButton"] button {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        div[data-testid="stCheckbox"] {
+            margin-top: 2px !important;
+            min-width: 40px !important;
+        }
+    }
+    /* Mobile layout (below 600px) - horizontal alignment */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -118,16 +136,23 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()  # Current date is 07:51 AM KST on Saturday, May 24, 2025
+    current_date = datetime.now().date()  # Current date is 07:56 AM KST on Saturday, May 24, 2025
+
+    # Korean month names
+    korean_months = [
+        "", "1월", "2월", "3월", "4월", "5월", "6월",
+        "7월", "8월", "9월", "10월", "11월", "12월"
+    ]
+    # Korean day names
+    korean_days = ["일", "월", "화", "수", "목", "금", "토"]
 
     for year, month in months:
-        st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
+        st.markdown(f"### {year} {korean_months[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
-        days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
         # Create columns for day headers
         cols = st.columns(7, gap="small")
-        for i, day in enumerate(days):
+        for i, day in enumerate(korean_days):
             color = "red" if i == 0 else "blue" if i == 6 else "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
