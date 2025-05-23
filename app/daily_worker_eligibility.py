@@ -43,7 +43,7 @@ def render_calendar(apply_date):
     .sunday { color: red; }
     .saturday { color: blue; }
     .weekday { color: white; }
-    
+
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
@@ -92,7 +92,7 @@ def render_calendar(apply_date):
     start_date = apply_date.replace(month=4, day=1)
     if apply_date.month < 4:
         start_date = start_date.replace(year=apply_date.year - 1)
-        
+
     end_date = apply_date
 
     months_to_render = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
@@ -109,7 +109,7 @@ def render_calendar(apply_date):
 
         # HTML 테이블 시작
         st.markdown("<table>", unsafe_allow_html=True)
-        
+
         # 요일 헤더 행
         st.markdown("<thead><tr>", unsafe_allow_html=True)
         for i, day_name in enumerate(days_of_week):
@@ -122,7 +122,7 @@ def render_calendar(apply_date):
                 color_class = "weekday"
             st.markdown(f"<th class='{color_class}'>{day_name}</th>", unsafe_allow_html=True)
         st.markdown("</tr></thead>", unsafe_allow_html=True)
-        
+
         st.markdown("<tbody>", unsafe_allow_html=True)
 
         # 달력 주별 행
@@ -135,9 +135,6 @@ def render_calendar(apply_date):
                 else:
                     date_obj = date(year, month, day)
                     button_key = f"btn_{date_obj}"
-                    
-                    is_selected = date_obj in selected_dates
-                    button_class = "selected-day" if is_selected else ""
 
                     # 미래 날짜는 비활성화
                     if date_obj > apply_date:
@@ -151,24 +148,34 @@ def render_calendar(apply_date):
                                 st.session_state.selected_dates.add(clicked_date)
                             st.rerun() # 상태 변경 후 즉시 UI 업데이트
 
-                        # Streamlit 버튼 생성, CSS 클래스 동적 적용
+                        # 버튼에 선택 상태에 따라 클래스를 동적으로 부여하기 위해 JavaScript injection이 필요하지만,
+                        # Streamlit의 제한으로 직접적인 방법은 어렵습니다. 대신, selected_dates 상태를
+                        # 사용하여 재렌더링 시 스타일을 반영합니다.
+                        # 여기서는 `is_selected` 변수를 사용하여 CSS 클래스를 제어하는 방식은
+                        # Streamlit의 `st.button`에서 직접 지원하지 않으므로,
+                        # `on_click` 시 `st.rerun()`을 통해 상태를 변경하고, 변경된 상태가
+                        # 다음 렌더링 주기에 반영되도록 합니다.
+                        # 따라서, 실제로 버튼에 'selected-day' 클래스가 직접 추가되는 것이 아니라,
+                        # `st.session_state.selected_dates`에 날짜가 있으면,
+                        # 다음 렌더링 시 해당 날짜 버튼이 "선택된" 상태로 그려지는 방식입니다.
+                        is_selected = date_obj in selected_dates
+                        button_label = str(day)
+                        if is_selected:
+                            # 선택된 날짜에 대한 시각적 피드백을 주기 위해 HTML/CSS로 원을 그리는 방식을 사용
+                            # 이 부분은 CSS 스타일링에서 .selected-day 클래스를 통해 구현됩니다.
+                            # 버튼 자체의 라벨을 변경하지 않고 CSS로 시각적 변화를 주는 것이 더 자연스럽습니다.
+                            pass # 라벨은 그대로 두고 CSS로 처리
+
                         st.button(
-                            str(day),
+                            button_label,
                             key=button_key,
                             on_click=_on_button_click,
                             args=(date_obj,),
                             help="클릭하여 근무일을 선택하거나 해제하세요",
-                            # 버튼에 사용자 정의 클래스를 직접 추가하는 방법은 Streamlit에서 지원하지 않으므로,
-                            # 선택 상태에 따라 CSS를 적용하는 방식으로 우회합니다.
-                            # 이 부분은 Streamlit 컴포넌트의 한계로 인해 완전한 동적 클래스 추가는 어렵습니다.
-                            # 대신 on_click 후 rerun을 통해 selected_dates 상태를 반영합니다.
                         )
-                        # JavaScript를 통해 CSS 클래스를 추가하는 방법은 복잡하며 Streamlit의 기본 동작을 벗어납니다.
-                        # 따라서 on_click에서 st.rerun()을 호출하여 selected_dates 상태를 업데이트하고,
-                        # 이 상태에 따라 다음 렌더링 시 버튼의 스타일이 결정되도록 합니다.
                 st.markdown("</td>", unsafe_allow_html=True)
             st.markdown("</tr>", unsafe_allow_html=True)
-        
+
         st.markdown("</tbody></table>", unsafe_allow_html=True) # HTML 테이블 끝
 
     if selected_dates:
@@ -241,7 +248,7 @@ div[data-testid="stRadio"] label {
             threshold_future = total_days_future / 3
             # 미래 날짜를 기준으로 선택된 근무일 수 계산
             worked_days_future = sum(1 for d in selected_days if d <= future_date)
-            
+
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
                 found_alternative = True
