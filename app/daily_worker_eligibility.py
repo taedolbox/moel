@@ -4,6 +4,10 @@ from datetime import datetime, timedelta, date
 import calendar
 from streamlit_javascript import st_javascript # 추가: JavaScript 연동을 위함
 
+# Streamlit에 JavaScript 호출 가능한 함수 등록
+st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 여기에 추가
+# ... (나머지 코드)
+
 # --- 헬퍼 함수들은 동일하게 유지 ---
 def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
