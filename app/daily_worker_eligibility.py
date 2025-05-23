@@ -34,7 +34,7 @@ def render_table(apply_date):
         position: relative !important;
     }
     /* Hover effect for unselected cells */
-    .calendar-table td:not(.selected):not(.current):hover {
+    .calendar-table td:not(.selected):not(.current):not(.disabled):hover {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
@@ -177,7 +177,7 @@ def render_table(apply_date):
                     is_disabled = date_obj > apply_date
 
                     # Define cell classes
-                    cell_classes = "day-cell"
+                    cell_classes = ""
                     if is_selected:
                         cell_classes += " selected"
                     if is_current:
@@ -187,10 +187,10 @@ def render_table(apply_date):
 
                     # Create cell content
                     if is_disabled:
-                        table_html += f"<td class='{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
+                        table_html += f"<td class='day-cell{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
                     else:
                         table_html += f"""
-                        <td class='{cell_classes}' onclick="toggleCheckbox('{date_str}')">
+                        <td class='day-cell{cell_classes}' onclick="toggleCheckbox('{date_str}')">
                             <div class='day-number'>{day}</div>
                             <input type='checkbox' id='checkbox-{date_str}' class='day-checkbox' {'checked' if is_selected else ''} onchange="this.closest('td').classList.toggle('selected', this.checked)">
                         </td>
@@ -314,7 +314,7 @@ div[data-testid="stRadio"] label {
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
