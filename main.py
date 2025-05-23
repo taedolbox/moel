@@ -17,7 +17,6 @@ def main():
     daily_worker_eligibility_app()
 
 if __name__ == "__main__":
-    main()
     
 def main():
     st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
