@@ -4,35 +4,19 @@ from datetime import datetime, timedelta, date
 import calendar
 
 def get_date_range(apply_date):
-    # Start from the first day of the previous month
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
     return pd.date_range(start=start_date, end=apply_date), start_date
 
 def toggle_date(date_obj):
-    # 이 함수는 session_state를 올바르게 업데이트합니다.
     if date_obj in st.session_state.selected_dates:
         st.session_state.selected_dates.remove(date_obj)
     else:
         st.session_state.selected_dates.add(date_obj)
 
 def render_calendar(apply_date):
-    # CSS 스타일을 여기에 직접 삽입합니다.
-    # 각 버튼의 ID를 직접 타겟팅하여 스타일을 적용합니다.
-    # st.button의 key가 "date_btn_YYYY-MM-DD"일 때, Streamlit은 대략 "st-b-key-date_btn_YYYY-MM-DD" 형태의 ID를 생성합니다.
-    # 이 ID를 CSS에서 정확히 타겟팅해야 합니다.
-    
-    # 세션 상태에 'selected_dates'가 없으면 초기화합니다.
-    if 'selected_dates' not in st.session_state:
-        st.session_state.selected_dates = set()
-
-    selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()
-
-    # 동적으로 생성할 스타일 규칙들을 담을 리스트
-    dynamic_styles = []
-
-    # 기본 CSS는 변경하지 않고 유지합니다.
-    # 특정 날짜에 대한 스타일 오버라이드를 동적으로 주입합니다.
+    # 기존 CSS는 그대로 유지하되, 선택된 날짜에 대한 복잡한 ID 타겟팅은 필요 없습니다.
+    # 배경색/테두리 변경 대신, 텍스트 이모지로 대체될 것이기 때문입니다.
+    # 만약 기존 CSS가 다른 버튼들에 대한 일반 스타일링이라면 그대로 두세요.
     st.markdown("""
     <style>
     /* Reduce padding and margins for calendar columns */
@@ -60,7 +44,7 @@ def render_calendar(apply_date):
         transition: all 0.2s ease !important; /* Smooth transition for hover */
     }
     /* Hover effect for unselected buttons */
-    div[data-testid="stButton"] button:not([data-selected="true"]):not([disabled]):hover { /* data-selected 속성 사용 */
+    div[data-testid="stButton"] button:not([disabled]):hover { /* 모든 활성 버튼에 적용 */
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
@@ -109,6 +93,12 @@ def render_calendar(apply_date):
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
+    if 'selected_dates' not in st.session_state:
+        st.session_state.selected_dates = set()
+
+    selected_dates = st.session_state.selected_dates
+    current_date = datetime.now().date()
+
     for year, month in months:
         st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
@@ -121,56 +111,43 @@ def render_calendar(apply_date):
 
         for week in cal:
             cols = st.columns(7, gap="small")
-            for i, day in enumerate(week):
-                if day == 0:
+            for i, day_num in enumerate(week):
+                if day_num == 0:
                     cols[i].markdown(" ")
                 else:
-                    date_obj = date(year, month, day)
-                    # **버튼 키는 항상 고정되어야 합니다.**
-                    button_key = f"date_btn_{date_obj.strftime('%Y-%m-%d')}"
-                    
+                    date_obj = date(year, month, day_num)
+                    is_disabled = (date_obj > apply_date)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
 
-                    # **동적 CSS를 여기에 추가하여 선택된/현재 날짜 버튼의 스타일을 직접 오버라이드합니다.**
-                    # Streamlit이 생성하는 버튼의 실제 ID는 "st-b-key-" + key 값입니다.
-                    actual_html_id = f"st-b-key-{button_key}"
-
+                    # --- 핵심 수정 부분 ---
+                    button_label = str(day_num)
+                    
                     if is_selected:
-                        dynamic_styles.append(f"""
-                            button[id="{actual_html_id}"] {{
-                                background-color: #00ff00 !important; /* Green background for selected dates */
-                                color: white !important;
-                                border: 2px solid #0000ff !important; /* Blue border for selected dates */
-                            }}
-                        """)
-                    # 현재 날짜 스타일은 선택된 날짜보다 우선순위가 낮도록 하거나,
-                    # 선택된 날짜와 겹치지 않도록 조건을 추가해야 합니다.
-                    # 여기서는 선택되지 않은 경우에만 현재 날짜 스타일을 적용하도록 합니다.
-                    elif is_current: # is_selected가 아닐 때만 적용
-                        dynamic_styles.append(f"""
-                            button[id="{actual_html_id}"] {{
-                                background-color: #0000ff !important; /* Blue background for current date */
-                                color: white !important;
-                                font-weight: bold !important;
-                                border: 1px solid #ccc !important;
-                            }}
-                        """)
-                        
-                    # 버튼 렌더링
+                        # 선택된 날짜에 체크마크 이모지 추가 (직관적!)
+                        button_label = f"{day_num} ✅"
+                    
+                    if is_current:
+                        # 현재 날짜는 다른 강조 표시 (선택 여부와 독립적으로)
+                        # 선택됨 & 현재 날짜: "날짜 ✅ (오늘)"
+                        # 선택 안 됨 & 현재 날짜: "날짜 (오늘)"
+                        # 이모지를 텍스트에 포함하면 CSS로 배경색을 제어하는 것보다 안정적입니다.
+                        if is_selected:
+                             button_label = f"{day_num} ✅ (오늘)"
+                        else:
+                             button_label = f"{day_num} (오늘)"
+
+
+                    # 버튼 렌더링 (key는 항상 고정)
                     if cols[i].button(
-                        str(day),
-                        key=button_key, # 고정된 키 사용
+                        button_label, # 수정된 레이블 사용
+                        key=f"date_btn_{date_obj.strftime('%Y-%m-%d')}", # 키는 항상 고정
                         on_click=toggle_date,
                         help="클릭하여 근무일을 선택하거나 해제하세요",
                         kwargs={"date_obj": date_obj},
-                        disabled=(date_obj > apply_date) # 미래 날짜는 비활성화
+                        disabled=is_disabled # 미래 날짜는 비활성화
                     ):
-                        st.rerun()
-
-    # 모든 동적 스타일 규칙을 한 번에 삽입합니다.
-    if dynamic_styles:
-        st.markdown(f"<style>{' '.join(dynamic_styles)}</style>", unsafe_allow_html=True)
+                        st.rerun() # 클릭 시 리렌더링
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -178,6 +155,7 @@ def render_calendar(apply_date):
 
     return selected_dates
 
+# daily_worker_eligibility_app 함수는 그대로 유지됩니다.
 def daily_worker_eligibility_app():
     st.markdown("""
 <style>
@@ -190,11 +168,9 @@ div[data-testid="stRadio"] label {
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
-    # Display current date and time in Korean
     current_datetime = datetime.now()
     st.markdown(f"**오늘 날짜와 시간**: {current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')}", unsafe_allow_html=True)
 
-    # Display conditions at the top
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근로일 수가 총 일수의 1/3 미만이어야 합니다.")
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
@@ -229,7 +205,6 @@ div[data-testid="stRadio"] label {
         fourteen_days_prior_end = apply_date - timedelta(days=1)
         fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
         fourteen_days_prior = pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end).date
-        # Ensure 'selected_days' elements are date objects for comparison
         fourteen_days_prior_set = set(fourteen_days_prior)
         no_work_14_days = all(day not in selected_days for day in fourteen_days_prior_set)
         condition2 = no_work_14_days
@@ -259,7 +234,7 @@ div[data-testid="stRadio"] label {
 
     if worker_type == "건설일용근로자" and not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        past_worked_days = [d for d in selected_days if d < apply_date]
+        past_worked_days = [d for d in selected_dates if d < apply_date] # selected_days가 아니라 selected_dates
         last_worked_day = max(past_worked_days) if past_worked_days else None
 
         if last_worked_day:
