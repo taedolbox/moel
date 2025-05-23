@@ -8,22 +8,22 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
-    # Inject custom CSS for compact layout and button styling
+    # 커스텀 CSS를 삽입하여 달력 레이아웃과 버튼 스타일 조정
     st.markdown("""
     <style>
-    /* Reduce padding and margins for calendar columns */
+    /* 달력 열의 패딩 및 여백 줄이기 */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important; /* Reduce gap between columns */
+        gap: 0.5rem !important; /* 열 간 간격 줄이기 */
     }
     div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important; /* Reduce padding inside columns */
-        margin: 0 !important; /* Remove margins */
+        padding: 0.2rem !important; /* 열 내부 패딩 줄이기 */
+        margin: 0 !important; /* 여백 제거 */
     }
-    /* Style for calendar day buttons */
+    /* 달력 날짜 버튼 스타일 */
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
-        border-radius: 50% !important; /* Circular buttons */
+        border-radius: 50% !important; /* 원형 버튼 */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -34,27 +34,27 @@ def render_calendar(apply_date):
         background-color: transparent !important;
         color: white !important;
     }
-    /* Hover effect */
+    /* 호버 효과 */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important; /* Green circle on hover */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
+        border: 2px solid #00ff00 !important; /* 호버 시 초록색 원 */
+        background-color: rgba(0, 255, 0, 0.2) !important; /* 연한 초록색 배경 */
     }
-    /* Selected button style (using emoji in label, no dynamic CSS) */
+    /* 선택된 버튼 스타일 (라벨에 이모티콘 사용, 동적 CSS 없음) */
     div[data-testid="stButton"] button[kind="secondary"] {
-        transition: all 0.2s ease !important; /* Smooth transition */
+        transition: all 0.2s ease !important; /* 부드러운 전환 */
     }
-    /* Disabled (future) day style */
+    /* 비활성화된 (미래) 날짜 스타일 */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
         background-color: transparent !important;
         border: 2px solid transparent !important;
     }
-    /* Day header styles */
+    /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
     }
-    /* Force horizontal layout on mobile */
+    /* 모바일에서 가로 레이아웃 강제 */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -80,7 +80,7 @@ def render_calendar(apply_date):
 
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
-    # Initialize selected dates in session state if not already present
+    # 세션 상태에 선택된 날짜가 없으면 초기화
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
     selected_dates = st.session_state.selected_dates
@@ -90,7 +90,7 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # Create columns for day headers
+        # 요일 헤더를 위한 열 생성
         cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
             if i == 0:
@@ -101,14 +101,14 @@ def render_calendar(apply_date):
                 color = "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
-        # Create calendar grid
+        # 달력 그리드 생성
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
                 if day == 0:
                     cols[i].markdown(" ")
                 else:
-                    date_obj = date(year, month, day)  # Use date instead of datetime.date
+                    date_obj = date(year, month, day)  # datetime.date 대신 date 객체 사용
 
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
@@ -116,11 +116,11 @@ def render_calendar(apply_date):
 
                     button_key = f"btn_{date_obj}"
                     
-                    # Check if date is selected and modify label
+                    # 날짜가 선택되었는지 확인하고 라벨 수정
                     is_selected = date_obj in selected_dates
                     label = f"✅ {day}" if is_selected else str(day)
 
-                    # Use a function to handle the click for better state management
+                    # 클릭 처리를 위한 함수 사용 (상태 관리에 용이)
                     def on_button_click(clicked_date):
                         if clicked_date in st.session_state.selected_dates:
                             st.session_state.selected_dates.remove(clicked_date)
@@ -154,7 +154,7 @@ div[data-testid="stRadio"] label {
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # date 객체인지 확인
 
     date_range = get_date_range(apply_date)
 
@@ -220,7 +220,7 @@ div[data-testid="stRadio"] label {
             st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
-    else:
+    else: # 건설일용근로자
         if condition1 or condition2:
             st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
         else:
