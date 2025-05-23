@@ -16,7 +16,7 @@ def render_calendar(apply_date):
         width: 100%;
         border-collapse: collapse;
         margin: 0 auto;
-        background-color: #1e1e1e; /* Dark background to match image */
+        background-color: #1e1e1e; /* Dark background */
     }
     .calendar-table th, .calendar-table td {
         border: 1px solid #444; /* Subtle border for table cells */
@@ -52,14 +52,14 @@ def render_calendar(apply_date):
         background-color: transparent;
         color: white;
     }
-    /* Hover and selected effect */
+    /* Hover effect */
     .calendar-table button[kind="secondary"]:hover {
         border: 2px solid #00ff00; /* Green border on hover */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
     /* Selected button style */
     .calendar-table button.selected {
-        border: 2px solid #00ff00; /* Green border for selected days */
+        border: 2px solid #00ff00; /* Green circle for selected days */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
     /* Disabled (future) day style */
@@ -111,10 +111,10 @@ def render_calendar(apply_date):
             table_html += f'<th>{day}</th>'
         table_html += '</tr>'
 
-        # Calendar grid
+        # Calendar grid with buttons
         for week in cal:
             table_html += '<tr>'
-            for i, day in enumerate(week):
+            for day in week:
                 if day == 0:
                     table_html += '<td></td>'
                 else:
@@ -124,13 +124,13 @@ def render_calendar(apply_date):
                     if date_obj > apply_date:
                         button_html = f'<button disabled>{day}</button>'
                     else:
-                        button_html = f'<button {f"class=\\'selected\\'" if is_selected else ""} key="{button_key}">{day}</button>'
+                        button_html = f'<button {"class=selected" if is_selected else ""} key="{button_key}">{day}</button>'
                     table_html += f'<td>{button_html}</td>'
             table_html += '</tr>'
         table_html += '</table>'
         st.markdown(table_html, unsafe_allow_html=True)
 
-        # Handle button clicks
+        # Handle button clicks for the current month
         for week in cal:
             for day in week:
                 if day != 0:
@@ -138,7 +138,6 @@ def render_calendar(apply_date):
                     if date_obj > apply_date:
                         continue
                     button_key = f"btn_{date_obj}"
-                    is_selected = date_obj in selected_dates
                     if st.button(
                         str(day),
                         key=button_key,
@@ -148,9 +147,8 @@ def render_calendar(apply_date):
                     ):
                         st.rerun()
 
-    if selected_dates:
-        st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
+    # Display the count of selected dates
+    st.markdown(f"### 선택된 근무일 수: **{len(selected_dates)}일**")
 
     return selected_dates
 
