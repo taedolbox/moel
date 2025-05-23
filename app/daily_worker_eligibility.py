@@ -59,10 +59,14 @@ label[data-testid="stRadio"] > div {
     color: white !important;
     font-size: 18px !important;
 }
+label[data-testid="stRadio"] > div > div > div > p {
+    color: white !important;
+    font-size: 18px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
-    st.header("일용근로자 수급자격 요건 모의계산")
+    st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
@@ -104,7 +108,6 @@ label[data-testid="stRadio"] > div {
     # 조건 불충족 시 대안 신청일 계산
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
-
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
         for future_date in future_dates:
             date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
@@ -129,7 +132,7 @@ label[data-testid="stRadio"] > div {
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
+            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
