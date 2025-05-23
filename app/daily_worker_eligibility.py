@@ -53,11 +53,18 @@ def render_calendar(apply_date):
     return selected_dates
 
 def daily_worker_eligibility_app():
+    st.markdown("""
+<style>
+label[data-testid="stRadio"] > div {
+    color: white;
+    font-size: 1.1rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
     st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
-    # 근로자 유형 선택 텍스트 커스텀 스타일
-    st.markdown("<p style='color:white; font-size:18px;'>근로자 유형을 선택하세요</p>", unsafe_allow_html=True)
-    worker_type = st.radio("", ["일반일용근로자", "건설일용근로자"])
+    worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
@@ -66,33 +73,6 @@ def daily_worker_eligibility_app():
     st.markdown("#### ✅ 근무일 선택 달력")
     selected_days = render_calendar(apply_date)
     st.markdown("---")
-
-        # 조건 불충족 시 대안 신청일 계산
-    if not condition1:
-        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
-
-        # 앞으로 30일 간 날짜 후보를 탐색
-        future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
-        for future_date in future_dates:
-            date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
-            total_days_future = len(date_range_future)
-            threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_days if d <= future_date)
-            if worked_days_future < threshold_future:
-                st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
-                break
-        else:
-            st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
-
-    if worker_type == "건설일용근로자" and not condition2:
-        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
-        if last_worked_day:
-            suggested_date = last_worked_day + timedelta(days=15)
-            st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
-        else:
-            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
-
 
     total_days = len(date_range)
     worked_days = len(selected_days)
@@ -120,10 +100,36 @@ def daily_worker_eligibility_app():
             st.warning("❌ 조건 2 불충족: 신청일 이전 14일 내 근무기록이 존재합니다.")
 
     st.markdown("---")
+
+    # 조건 불충족 시 대안 신청일 계산
+    if not condition1:
+        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
+
+        future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
+        for future_date in future_dates:
+            date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
+            total_days_future = len(date_range_future)
+            threshold_future = total_days_future / 3
+            worked_days_future = sum(1 for d in selected_days if d <= future_date)
+            if worked_days_future < threshold_future:
+                st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
+                break
+        else:
+            st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
+
+    if worker_type == "건설일용근로자" and not condition2:
+        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
+        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
+        if last_worked_day:
+            suggested_date = last_worked_day + timedelta(days=15)
+            st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
+        else:
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만입니다.**")
+            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
