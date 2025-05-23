@@ -6,7 +6,7 @@ import calendar
 def get_date_range(apply_date):
     # Start from the first day of the previous month
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
-    return pd.date_range(start=start_date, end=apply_date)
+    return pd.date_range(start=start_date, end=apply_date), start_date
 
 def render_calendar(apply_date):
     # Inject custom CSS for compact layout and button styling
@@ -177,7 +177,7 @@ div[data-testid="stRadio"] label {
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
-    date_range = get_date_range(apply_date)
+    date_range, start_date = get_date_range(apply_date)
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
@@ -217,10 +217,10 @@ div[data-testid="stRadio"] label {
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
         for future_date in future_dates:
-            date_range_future = pd.date_range(start=(future_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1), end=future_date)
+            date_range_future, _ = get_date_range(future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
+            worked_days_future = sum(1 for d in selected_days if d <= future_date)
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
                 break
@@ -229,7 +229,7 @@ div[data-testid="stRadio"] label {
 
     if worker_type == "건설일용근로자" and not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
+        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
         if last_worked_day:
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
