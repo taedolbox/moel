@@ -35,8 +35,12 @@ def render_calendar(apply_date):
         color: white !important;
     }
     /* Selected button style */
-    div[data-testid="stButton"] button[kind="secondary"]:hover,
-    div[data-testid="stButton"] button[aria-selected="true"] {
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
+        border: 2px solid #00ff00 !important; /* Green circle on hover */
+        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
+    }
+    /* Custom class for selected buttons */
+    div[data-testid="stButton"] button.selected {
         border: 2px solid #00ff00 !important; /* Green circle for selected days */
         background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
     }
@@ -110,18 +114,18 @@ def render_calendar(apply_date):
                         cols[i].button(str(day), key=f"btn_{date}", disabled=True)
                         continue
                     button_key = f"btn_{date}"
-                    # Check if date is selected to set button state
+                    # Check if date is selected
                     is_selected = date in selected_dates
-                    # Use aria-selected for CSS styling of selected state
+                    # Add custom class for selected buttons
+                    button_class = "selected" if is_selected else ""
                     if cols[i].button(
                         str(day),
                         key=button_key,
-                        args=(date,),
                         on_click=lambda d=date: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
                         help="클릭하여 근무일을 선택하거나 해제하세요",
-                        **{"aria-selected": "true" if is_selected else "false"}
+                        args=(date,),
+                        **{"class": button_class}  # Use custom class instead of aria-selected
                     ):
-                        # Button click toggles the date in selected_dates
                         pass  # The on_click lambda handles the toggle
 
     if selected_dates:
