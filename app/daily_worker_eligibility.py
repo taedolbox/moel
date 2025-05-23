@@ -26,7 +26,7 @@ def render_calendar(apply_date):
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        justify-content: center !important;
+        justify-content: space-between !important;
         width: 40px !important;
         height: 60px !important;
         border: 1px solid #ccc !important;
@@ -66,8 +66,11 @@ def render_calendar(apply_date):
         color: white !important;
         margin: 0 !important;
         padding: 0 !important;
-        line-height: 40px !important;
         text-align: center !important;
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     /* Checkbox styling */
     .day-checkbox {
@@ -75,6 +78,7 @@ def render_calendar(apply_date):
         padding: 0 !important;
         width: 16px !important;
         height: 16px !important;
+        align-self: center !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
@@ -117,7 +121,6 @@ def render_calendar(apply_date):
         }
         .day-number {
             font-size: 0.8rem !important;
-            line-height: 35px !important;
         }
         .day-checkbox {
             width: 14px !important;
