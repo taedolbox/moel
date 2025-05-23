@@ -8,7 +8,7 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
-    # Inject custom CSS to reduce spacing and ensure horizontal layout
+    # Inject custom CSS for compact layout and button styling
     st.markdown("""
     <style>
     /* Reduce padding and margins for calendar columns */
@@ -19,30 +19,54 @@ def render_calendar(apply_date):
         padding: 0.2rem !important; /* Reduce padding inside columns */
         margin: 0 !important; /* Remove margins */
     }
-    /* Style for calendar day checkboxes */
-    div[data-testid="stCheckbox"] {
-        margin: 0 !important; /* Remove margins around checkboxes */
-        padding: 0.1rem !important; /* Reduce padding */
+    /* Style for calendar day buttons */
+    div[data-testid="stButton"] button {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important; /* Circular buttons */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.9rem !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        border: 2px solid transparent !important;
+        background-color: transparent !important;
+        color: white !important;
     }
-    /* Ensure day labels are compact */
+    /* Selected button style */
+    div[data-testid="stButton"] button[kind="secondary"]:hover,
+    div[data-testid="stButton"] button[aria-selected="true"] {
+        border: 2px solid #00ff00 !important; /* Green circle for selected days */
+        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
+    }
+    /* Disabled (future) day style */
+    div[data-testid="stButton"] button[disabled] {
+        color: gray !important;
+        background-color: transparent !important;
+        border: 2px solid transparent !important;
+    }
+    /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
-        font-size: 0.9rem !important; /* Smaller font for day labels */
+        font-size: 0.9rem !important;
         text-align: center !important;
     }
-    /* Force horizontal layout even on mobile */
+    /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
-            flex-wrap: nowrap !important; /* Prevent wrapping */
-            gap: 0.3rem !important; /* Smaller gap for mobile */
+            flex-wrap: nowrap !important;
+            gap: 0.3rem !important;
         }
         div[data-testid="stHorizontalBlock"] > div {
-            flex: 1 !important; /* Equal width for columns */
-            min-width: 40px !important; /* Minimum width for each day */
+            flex: 1 !important;
+            min-width: 40px !important;
             padding: 0.1rem !important;
         }
-        div[data-testid="stCheckbox"] label {
-            font-size: 0.8rem !important; /* Smaller font for checkboxes on mobile */
+        div[data-testid="stButton"] button {
+            font-size: 0.8rem !important;
+            width: 35px !important;
+            height: 35px !important;
         }
     }
     </style>
@@ -52,7 +76,11 @@ def render_calendar(apply_date):
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
-    selected_dates = set()
+    # Initialize selected dates in session state if not already present
+    if 'selected_dates' not in st.session_state:
+        st.session_state.selected_dates = set()
+
+    selected_dates = st.session_state.selected_dates
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월")
@@ -60,7 +88,7 @@ def render_calendar(apply_date):
         days = ["일", "월", "화", "수", "목", "금", "토"]
 
         # Create columns for day headers
-        cols = st.columns(7, gap="small")  # Use Streamlit's gap parameter for tighter spacing
+        cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
             if i == 0:
                 color = "red"
@@ -72,21 +100,29 @@ def render_calendar(apply_date):
 
         # Create calendar grid
         for week in cal:
-            cols = st.columns(7, gap="small")  # Use small gap for weeks
+            cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
                 if day == 0:
                     cols[i].markdown(" ")
                 else:
                     date = datetime(year, month, day).date()
                     if date > apply_date:
-                        cols[i].markdown(f"<span style='color:gray'>{day}</span>", unsafe_allow_html=True)
+                        cols[i].button(str(day), key=f"btn_{date}", disabled=True)
                         continue
-                    checkbox_key = f"cb_{date}"
-                    checked = st.session_state.get(checkbox_key, False)
-                    if cols[i].checkbox(str(day), key=checkbox_key):
-                        selected_dates.add(date)
-                    elif checked:
-                        selected_dates.add(date)
+                    button_key = f"btn_{date}"
+                    # Check if date is selected to set button state
+                    is_selected = date in selected_dates
+                    # Use aria-selected for CSS styling of selected state
+                    if cols[i].button(
+                        str(day),
+                        key=button_key,
+                        args=(date,),
+                        on_click=lambda d=date: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                        help="클릭하여 근무일을 선택하거나 해제하세요",
+                        **{"aria-selected": "true" if is_selected else "false"}
+                    ):
+                        # Button click toggles the date in selected_dates
+                        pass  # The on_click lambda handles the toggle
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
