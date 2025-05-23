@@ -4,7 +4,8 @@ from datetime import datetime, timedelta, date
 import calendar
 
 def get_date_range(apply_date):
-    start_date = apply_date.replace(month=1, day=1)  # Start from January 1st for the year
+    # Calculate the start date: 2 months before the application date
+    start_date = (apply_date - pd.DateOffset(months=2)).replace(day=1)
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
@@ -31,8 +32,8 @@ def render_calendar(apply_date):
         padding: 0 !important;
         margin: 0 !important;
         border: 1px solid #ccc !important; /* Light border for all dates */
-        background-color: #fff !important; /* White background for unselected */
-        color: black !important;
+        background-color: #1e1e1e !important; /* Match app background */
+        color: white !important;
     }
     /* Hover effect */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
@@ -45,7 +46,7 @@ def render_calendar(apply_date):
         color: white !important;
         border: 1px solid #ccc !important;
     }
-    /* Current date style - blue border */
+    /* Current date style - blue background */
     div[data-testid="stButton"] button[id*="current-"] {
         background-color: #0000ff !important; /* Blue background for current date */
         color: white !important;
@@ -55,14 +56,14 @@ def render_calendar(apply_date):
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: #f0f0f0 !important;
+        background-color: #1e1e1e !important;
         border: 1px solid #ccc !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
-        color: black !important;
+        color: white !important;
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
@@ -86,13 +87,14 @@ def render_calendar(apply_date):
     div[data-testid="stMarkdownContainer"] h3 {
         margin: 0.5rem 0 !important;
         padding: 0.2rem !important;
-        background-color: #f0f0f0 !important;
+        background-color: #2e2e2e !important; /* Slightly lighter than app background */
         text-align: center !important;
+        color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    start_date = apply_date.replace(month=1, day=1)  # Start from January 1st for the year
+    start_date = (apply_date - pd.DateOffset(months=2)).replace(day=1)
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
@@ -104,14 +106,14 @@ def render_calendar(apply_date):
     current_date = datetime.now().date()  # Current date is 2025-05-24
 
     for year, month in months:
-        st.markdown(f"### {year} {calendar.month_name[month]} {apply_date.day}", unsafe_allow_html=True)
+        st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
         days = ["Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"]
 
         # Create columns for day headers
         cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
-            color = "red" if i == 0 else "blue" if i == 6 else "black"
+            color = "red" if i == 0 else "blue" if i == 6 else "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         # Create calendar grid
@@ -133,13 +135,13 @@ def render_calendar(apply_date):
                         str(day),
                         key=button_key,
                         on_click=toggle_date,
-                        help="Click to select or deselect a work day",
+                        help="클릭하여 근무일을 선택하거나 해제하세요",
                         kwargs={"date_obj": date_obj}
                     ):
                         st.rerun()
 
     if selected_dates:
-        st.markdown("### ✅ Selected Work Dates")
+        st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
@@ -154,7 +156,7 @@ def daily_worker_eligibility_app():
     st.markdown("""
 <style>
 div[data-testid="stRadio"] label {
-    color: black !important;
+    color: white !important;
     font-size: 18px !important;
 }
 </style>
@@ -215,7 +217,7 @@ div[data-testid="stRadio"] label {
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
         for future_date in future_dates:
-            date_range_future = pd.date_range(start=future_date.replace(month=1, day=1), end=future_date)
+            date_range_future = pd.date_range(start=(future_date - pd.DateOffset(months=2)).replace(day=1), end=future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
             worked_days_future = sum(1 for d in selected_days if d <= future_date)
