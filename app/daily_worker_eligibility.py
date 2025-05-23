@@ -17,11 +17,12 @@ def render_calendar(apply_date):
     for year, month in months:
         st.markdown(f"### {year}년 {month}월")
         cal = calendar.monthcalendar(year, month)
-        days = ["월", "화", "수", "목", "금", "토", "일"]
+        days = ["일", "월", "화", "수", "목", "금", "토"]
 
         cols = st.columns(7)
-        for col, day in zip(cols, days):
-            col.markdown(f"**{day}**")
+        for i, day in enumerate(days):
+            color = "red" if i == 0 else "blue" if i == 6 else "black"
+            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         for week in cal:
             cols = st.columns(7)
@@ -30,6 +31,9 @@ def render_calendar(apply_date):
                     cols[i].markdown(" ")
                 else:
                     date = datetime(year, month, day).date()
+                    if date > apply_date:
+                        cols[i].markdown(f"<span style='color:gray'>{day}</span>", unsafe_allow_html=True)
+                        continue
                     checkbox_key = f"cb_{date}"
                     checked = st.session_state.get(checkbox_key, False)
                     if cols[i].checkbox(str(day), key=checkbox_key):
@@ -61,8 +65,8 @@ def daily_worker_eligibility_app():
     threshold = total_days / 3
 
     st.markdown(f"- 총 기간 일수: **{total_days}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
     st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
+    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
 
     condition1 = worked_days < threshold
     if condition1:
@@ -85,14 +89,14 @@ def daily_worker_eligibility_app():
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success("✅ 일반일용근로자 요건 충족")
+            st.success("✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ 신청일) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
         else:
-            st.error("❌ 일반일용근로자 요건 미충족")
+            st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
         if condition1 or condition2:
-            st.success("✅ 건설일용근로자 요건 충족")
+            st.success("✅ 건설일용근로자 요건 충족\n\n**조건 1 또는 조건 2 중 하나를 충족하므로 요건을 만족합니다.**")
         else:
-            st.error("❌ 건설일용근로자 요건 미충족")
+            st.error("❌ 건설일용근로자 요건 미충족\n\n**조건 1 및 조건 2를 모두 충족하지 못하였으므로 요건을 만족하지 않습니다.**")
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
