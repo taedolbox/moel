@@ -66,6 +66,9 @@ label[data-testid="stRadio"] > div {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
+    st.markdown("<p style='color:white; font-size:18px;'>근로자 유형을 선택하세요</p>", unsafe_allow_html=True)
+    worker_type = st.radio("", ["일반일용근로자", "건설일용근로자"])
+
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
 
