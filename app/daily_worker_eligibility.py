@@ -87,12 +87,10 @@ def render_calendar(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    # Only render the calendar for April 2025 to match the image
-    year = 2025
-    month = 4
-    st.markdown(f"### {year}년 {month}월")
-    cal = calendar.monthcalendar(year, month)
-    days = ["일", "월", "화", "수", "목", "금", "토"]
+    # Calculate the range from April 1st to apply_date
+    start_date = date(2025, 4, 1)
+    end_date = apply_date
+    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
     # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
@@ -100,46 +98,47 @@ def render_calendar(apply_date):
 
     selected_dates = st.session_state.selected_dates
 
-    # Create HTML table for calendar
-    table_html = '<table class="calendar-table">'
-    # Header row
-    table_html += '<tr>'
-    for day in days:
-        table_html += f'<th>{day}</th>'
-    table_html += '</tr>'
+    for year, month in months:
+        st.markdown(f"### {year}년 {month}월")
+        cal = calendar.monthcalendar(year, month)
+        days = ["일", "월", "화", "수", "목", "금", "토"]
 
-    # Calendar grid
-    for week in cal:
+        # Create HTML table for calendar
+        table_html = '<table class="calendar-table">'
+        # Header row
         table_html += '<tr>'
-        for day in week:
-            if day == 0:
-                table_html += '<td></td>'
-            else:
-                date_obj = date(year, month, day)
-                if date_obj > apply_date:
-                    button_key = f"btn_{date_obj}"
-                    button_html = f'<button disabled>{day}</button>'
-                    table_html += f'<td>{button_html}</td>'
+        for day in days:
+            table_html += f'<th>{day}</th>'
+        table_html += '</tr>'
+
+        # Calendar grid
+        for week in cal:
+            table_html += '<tr>'
+            for i, day in enumerate(week):
+                if day == 0:
+                    table_html += '<td></td>'
                 else:
+                    date_obj = date(year, month, day)
                     button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
-                    # Add selected class if the date is selected
-                    button_html = f'<div id="{button_key}"></div>'
+                    if date_obj > apply_date:
+                        button_html = f'<button disabled>{day}</button>'
+                    else:
+                        button_html = f'<button {f"class=\\'selected\\'" if is_selected else ""} key="{button_key}">{day}</button>'
                     table_html += f'<td>{button_html}</td>'
-        table_html += '</tr>'
-    table_html += '</table>'
-    st.markdown(table_html, unsafe_allow_html=True)
+            table_html += '</tr>'
+        table_html += '</table>'
+        st.markdown(table_html, unsafe_allow_html=True)
 
-    # Render buttons separately to handle clicks
-    for week in cal:
-        for day in week:
-            if day != 0:
-                date_obj = date(year, month, day)
-                if date_obj > apply_date:
-                    continue
-                button_key = f"btn_{date_obj}"
-                is_selected = date_obj in selected_dates
-                with st.container():
+        # Handle button clicks
+        for week in cal:
+            for day in week:
+                if day != 0:
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
+                        continue
+                    button_key = f"btn_{date_obj}"
+                    is_selected = date_obj in selected_dates
                     if st.button(
                         str(day),
                         key=button_key,
@@ -169,7 +168,7 @@ def daily_worker_eligibility_app():
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
