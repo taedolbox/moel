@@ -21,8 +21,8 @@ def render_calendar(apply_date):
 
         cols = st.columns(7)
         for i, day in enumerate(days):
-            color = "red" if day == "일" else "blue" if day == "토" else "black"
-            cols[i].markdown(f"<div style='text-align: center; color:{color}; font-weight: bold; background-color:#f0f0f0; padding: 1px; font-size: 12px;'>{day}</div>", unsafe_allow_html=True)
+            color = "red" if i == 0 else "blue" if i == 6 else "black"
+            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         for week in cal:
             cols = st.columns(7)
@@ -32,7 +32,7 @@ def render_calendar(apply_date):
                 else:
                     date = datetime(year, month, day).date()
                     if date > apply_date:
-                        cols[i].markdown(f"<div style='text-align: center; color: gray; background-color: #f0f0f0; padding: 5px; border-radius: 4px'>{day}</div>", unsafe_allow_html=True)
+                        cols[i].markdown(f"<span style='color:gray'>{day}</span>", unsafe_allow_html=True)
                         continue
                     checkbox_key = f"cb_{date}"
                     checked = st.session_state.get(checkbox_key, False)
@@ -48,8 +48,6 @@ def render_calendar(apply_date):
     return selected_dates
 
 def daily_worker_eligibility_app():
-    st.markdown("<style>div.block-container { background-color: #f0f0f0; } .sidebar .block-container { background-color: #ffffff; }</style>", unsafe_allow_html=True)
-
     st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
@@ -87,22 +85,18 @@ def daily_worker_eligibility_app():
         else:
             st.warning("❌ 조건 2 불충족: 신청일 이전 14일 내 근무기록이 존재합니다.")
 
-        st.markdown("---")
-        st.markdown(f"**[조건 1] 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지 근무일 수의 합이 총 일수의 3분의 1 미만임을 확인합니다.**")
-        st.markdown(f"**[조건 2] 수급자격 인정신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근무 사실이 없어야 합니다.**")
-
     st.markdown("---")
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
+            st.success("✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ 신청일) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
         if condition1 or condition2:
-            st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
+            st.success("✅ 건설일용근로자 요건 충족\n\n**조건 1 또는 조건 2 중 하나를 충족하므로 요건을 만족합니다.**")
         else:
-            st.error(f"❌ 건설일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되고, 신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 내 근무기록이 존재하므로 요건을 충족하지 못합니다.**")
+            st.error("❌ 건설일용근로자 요건 미충족\n\n**조건 1 및 조건 2를 모두 충족하지 못하였으므로 요건을 만족하지 않습니다.**")
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
