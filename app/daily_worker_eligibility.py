@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
+import pytz
 
 def get_date_range(apply_date):
     # Start from the first day of the previous month
@@ -66,17 +67,31 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
-    /* Checkbox styling */
+    /* Checkbox styling with rectangular border */
     div[data-testid="stCheckbox"] {
         display: flex !important;
         justify-content: center !important;
         margin: 0 !important;
         padding: 0 !important;
         font-size: 0.7rem !important;
+        width: 20px !important;
+        height: 20px !important;
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        background-color: #1e1e1e !important;
     }
     div[data-testid="stCheckbox"] label {
         margin: 0 !important;
         padding: 0 !important;
+        display: flex !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        height: 100% !important;
+    }
+    div[data-testid="stCheckbox"] input[type="checkbox"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        align-self: flex-end !important;
     }
     /* PC layout (above 600px) - vertical alignment */
     @media (min-width: 601px) {
@@ -93,6 +108,7 @@ def render_calendar(apply_date):
         div[data-testid="stCheckbox"] {
             margin-top: 2px !important;
             min-width: 40px !important;
+            height: 20px !important;
         }
     }
     /* Mobile layout (below 600px) - horizontal alignment */
@@ -114,6 +130,7 @@ def render_calendar(apply_date):
         }
         div[data-testid="stCheckbox"] {
             min-width: 35px !important;
+            height: 20px !important;
         }
     }
     /* Month boundary styling */
@@ -136,7 +153,9 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()  # Current date is 07:56 AM KST on Saturday, May 24, 2025
+    # Set current date with KST
+    kst = pytz.timezone('Asia/Seoul')
+    current_date = datetime.now(kst).date()
 
     # Korean month names
     korean_months = [
@@ -211,8 +230,9 @@ div[data-testid="stRadio"] label {
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
-    # Display current date and time in Korean
-    current_datetime = datetime.now()
+    # Display current date and time in Korean with KST
+    kst = pytz.timezone('Asia/Seoul')
+    current_datetime = datetime.now(kst)
     st.markdown(f"**오늘 날짜와 시간**: {current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')}", unsafe_allow_html=True)
 
     # Display conditions at the top
@@ -223,7 +243,10 @@ div[data-testid="stRadio"] label {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
+    # Set initial apply_date to today
+    kst = pytz.timezone('Asia/Seoul')
+    initial_date = datetime.now(kst).date()
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=initial_date)
     date_range, start_date = get_date_range(apply_date)
 
     st.markdown("---")
