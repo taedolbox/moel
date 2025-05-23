@@ -40,11 +40,11 @@ def render_calendar(apply_date):
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - green background */
+    /* Selected button style - green background with blue border */
     div[data-testid="stButton"] button[id*="selected-"] {
         background-color: #00ff00 !important; /* Green background for selected dates */
         color: white !important;
-        border: 1px solid #ccc !important;
+        border: 2px solid #0000ff !important; /* Blue border for selected dates */
     }
     /* Current date style - blue background */
     div[data-testid="stButton"] button[id*="current-"] {
@@ -103,7 +103,7 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()  # Current date is 05:40 AM KST on Saturday, May 24, 2025
+    current_date = datetime.now().date()  # Current date is 2025-05-24
 
     for year, month in months:
         st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
