@@ -21,7 +21,12 @@ def render_calendar(apply_date):
 
         cols = st.columns(7)
         for i, day in enumerate(days):
-            color = "red" if i == 0 else "blue" if i == 6 else "black"
+            if i == 0:
+                color = "red"
+            elif i == 6:
+                color = "blue"
+            else:
+                color = "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         for week in cal:
@@ -50,7 +55,9 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
-    worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
+    # 근로자 유형 선택 텍스트 커스텀 스타일
+    st.markdown("<p style='color:white; font-size:18px;'>근로자 유형을 선택하세요</p>", unsafe_allow_html=True)
+    worker_type = st.radio("", ["일반일용근로자", "건설일용근로자"])
 
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
@@ -88,7 +95,6 @@ def daily_worker_eligibility_app():
     st.markdown("---")
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
-        
         if condition1:
             st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
         else:
