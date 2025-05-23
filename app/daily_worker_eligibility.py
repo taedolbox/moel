@@ -31,7 +31,7 @@ def render_calendar(apply_date):
         font-size: 1rem !important;
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #ccc !important; /* Light border for all dates */
+        border: 1px solid #ccc !important; /* Default light border */
         background-color: #1e1e1e !important; /* Match app background */
         color: white !important;
     }
@@ -42,9 +42,9 @@ def render_calendar(apply_date):
     }
     /* Selected button style - blue border */
     div[data-testid="stButton"] button[id*="selected-"] {
+        border: 2px solid #0000ff !important; /* Blue border for selected dates */
         background-color: #1e1e1e !important; /* Keep background dark */
         color: white !important;
-        border: 2px solid #0000ff !important; /* Blue border for selected dates */
     }
     /* Current date style - blue background */
     div[data-testid="stButton"] button[id*="current-"] {
