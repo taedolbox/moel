@@ -1,4 +1,5 @@
 import streamlit as st
+from app.daily_worker_eligibility import main as daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
 from app.wage_delay import wage_delay_app
