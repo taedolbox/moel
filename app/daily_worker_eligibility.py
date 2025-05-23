@@ -3,6 +3,16 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 
+def load_custom_css():
+    with open("moel/static/styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+...
+
+def daily_worker_eligibility_app():
+    load_custom_css()
+
+
 def get_date_range(apply_date):
     start_date = apply_date.replace(month=4, day=1)
     return pd.date_range(start=start_date, end=apply_date)
