@@ -34,6 +34,7 @@ def render_calendar(apply_date):
         border: 1px solid #ccc !important; /* Default light border */
         background-color: #1e1e1e !important; /* Default dark background */
         color: white !important;
+        transition: all 0.2s ease !important; /* Smooth transition for hover */
     }
     /* Hover effect for unselected buttons */
     div[data-testid="stButton"] button:not([id*="selected-"]):hover {
@@ -103,7 +104,7 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()  # Current date is 2025-05-24
+    current_date = datetime.now().date()  # Current date is 05:54 AM KST on Saturday, May 24, 2025
 
     for year, month in months:
         st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
