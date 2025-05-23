@@ -17,3 +17,12 @@
 .sidebar .sidebar-content {
     background-color: #f8f9fa;
 }
+
+st.markdown("""
+<style>
+div[data-testid="stRadioLabel"] {
+    color: white !important;
+    font-size: 18px !important;
+}
+</style>
+""", unsafe_allow_html=True)
