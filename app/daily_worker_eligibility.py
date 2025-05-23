@@ -10,8 +10,8 @@ def get_date_range(base_date):
     return pd.date_range(start=first_day_prev_month, end=base_date)
 
 
-def main():
-    st.title("일용근로자 수급자격 요건 모의계산")
+def daily_worker_eligibility_app():
+    st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
     st.markdown("""
     수급자격 인정신청일 기준으로 직전 달 초일부터 신청일까지의 총 일수 중 근무일이 3분의 1 미만이거나,
@@ -51,4 +51,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    daily_worker_eligibility_app()
+
