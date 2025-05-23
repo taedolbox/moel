@@ -30,8 +30,8 @@ def render_calendar(apply_date):
         font-size: 1rem !important;
         padding: 0 !important;
         margin: 0 auto !important;
-        border: 2px solid transparent !important;
-        background-color: #1e1e1e !important;
+        border: 2px solid white !important; /* White circle border for all dates */
+        background-color: transparent !important; /* Transparent background for unselected */
         color: white !important;
     }
     /* Hover effect */
@@ -39,22 +39,24 @@ def render_calendar(apply_date):
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - identified by a custom key prefix */
+    /* Selected button style */
     div[data-testid="stButton"] button[id*="selected-"] {
         background-color: black !important;
         color: white !important;
+        border: 2px solid white !important; /* Keep the white border */
     }
-    /* Current date style - identified by a custom key prefix */
+    /* Current date style */
     div[data-testid="stButton"] button[id*="current-"] {
         background-color: black !important;
         color: white !important;
         font-weight: bold !important;
+        border: 2px solid white !important;
     }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: #1e1e1e !important;
-        border: 2px solid transparent !important;
+        background-color: transparent !important;
+        border: 2px solid gray !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
@@ -118,7 +120,6 @@ def render_calendar(apply_date):
                         continue
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    # Use a custom key prefix to identify selected and current dates for CSS
                     key_prefix = "selected-" if is_selected else "current-" if is_current else "btn-"
                     button_key = f"{key_prefix}{date_obj}"
                     if cols[i].button(
