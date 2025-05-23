@@ -22,14 +22,15 @@ def main():
         
         # Menu and question definitions
         menus = {
-            "수급자격": ["임금 체불 판단", "원거리 발령 판단"],
+            "수급자격": ["임금 체불 판단", "원거리 발령 판단", "일용근로자 수급자격 요건 모의계산"],  # ✅ 추가
             "실업인정": ["실업인정"],
             "취업촉진수당": ["조기재취업수당"]
         }
         all_questions = {
             "임금 체불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
-            "실업인정": [],  # Unemployment recognition questions are placeholder
+            "일용근로자 수급자격 요건 모의계산": [],  # ❕질문 리스트 필요시 채울 수 있음
+            "실업인정": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions()
         }
 
@@ -77,6 +78,8 @@ def main():
             wage_delay_app()
         elif sub_menu == "원거리 발령 판단":
             remote_assignment_app()
+        elif sub_menu == "일용근로자 수급자격 요건 모의계산":  # ✅ 추가
+            daily_worker_eligibility_app()
     elif menu == "실업인정" and sub_menu:
         if sub_menu == "실업인정":
             unemployment_recognition_app()
@@ -90,6 +93,8 @@ def main():
             wage_delay_app()
         elif selected_sub_menu == "원거리 발령 판단":
             remote_assignment_app()
+        elif selected_sub_menu == "일용근로자 수급자격 요건 모의계산":  # ✅ 추가
+            daily_worker_eligibility_app()
         elif selected_sub_menu == "실업인정":
             unemployment_recognition_app()
         elif selected_sub_menu == "조기재취업수당":
@@ -101,3 +106,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
