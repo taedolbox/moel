@@ -1,8 +1,8 @@
 import streamlit as st
-from early_reemployment import early_reemployment_app
-from remote_assignment import remote_assignment_app
-from wage_delay import wage_delay_app
-from unemployment_recognition import unemployment_recognition_app
+from app.early_reemployment import early_reemployment_app
+from app.remote_assignment import remote_assignment_app
+from app.wage_delay import wage_delay_app
+from app.unemployment_recognition import unemployment_recognition_app
 from app.questions import get_employment_questions, get_self_employment_questions, get_remote_assignment_questions, get_wage_delay_questions
 
 def main():
