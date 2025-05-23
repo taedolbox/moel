@@ -21,6 +21,20 @@ def render_calendar(apply_date):
         padding: 0 !important;
         margin: 0 !important;
     }
+    /* Container for button and checkbox */
+    .day-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 40px !important;
+        height: 60px !important;
+        border: 1px solid #ccc !important;
+        border-radius: 4px !important;
+        background-color: #1e1e1e !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
     /* Style for calendar day buttons */
     div[data-testid="stButton"] button {
         width: 40px !important;
@@ -32,34 +46,34 @@ def render_calendar(apply_date):
         font-size: 1rem !important;
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #ccc !important; /* Default light border */
-        background-color: #1e1e1e !important; /* Default dark background */
+        border: none !important; /* Remove default border */
+        background-color: transparent !important; /* Transparent background */
         color: white !important;
         transition: all 0.2s ease !important; /* Smooth transition for hover */
     }
     /* Hover effect for unselected buttons */
     div[data-testid="stButton"] button:not([id*="selected-"]):hover {
-        border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - green background with blue border */
-    div[data-testid="stButton"] button[id*="selected-"] {
+    /* Selected button style - green background with blue border for the container */
+    .day-container:has(button[id*="selected-"]) {
         background-color: #00ff00 !important; /* Green background for selected dates */
-        color: white !important;
         border: 2px solid #0000ff !important; /* Blue border for selected dates */
     }
-    /* Current date style - blue background */
-    div[data-testid="stButton"] button[id*="current-"] {
+    div[data-testid="stButton"] button[id*="selected-"] {
+        color: white !important;
+    }
+    /* Current date style - blue background for the container */
+    .day-container:has(button[id*="current-"]) {
         background-color: #0000ff !important; /* Blue background for current date */
+    }
+    div[data-testid="stButton"] button[id*="current-"] {
         color: white !important;
         font-weight: bold !important;
-        border: 1px solid #ccc !important;
     }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: #1e1e1e !important;
-        border: 1px solid #ccc !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
@@ -67,7 +81,7 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
-    /* Checkbox styling with rectangular border */
+    /* Checkbox styling */
     div[data-testid="stCheckbox"] {
         display: flex !important;
         justify-content: center !important;
@@ -76,37 +90,33 @@ def render_calendar(apply_date):
         font-size: 0.7rem !important;
         width: 20px !important;
         height: 20px !important;
-        border: 1px solid #ccc !important;
-        border-radius: 4px !important;
-        background-color: #1e1e1e !important;
     }
     div[data-testid="stCheckbox"] label {
         margin: 0 !important;
         padding: 0 !important;
         display: flex !important;
-        align-items: flex-end !important;
+        align-items: center !important;
         justify-content: center !important;
         height: 100% !important;
     }
     div[data-testid="stCheckbox"] input[type="checkbox"] {
         margin: 0 !important;
         padding: 0 !important;
-        align-self: flex-end !important;
     }
     /* PC layout (above 600px) - vertical alignment */
     @media (min-width: 601px) {
         div[data-testid="stHorizontalBlock"] > div {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
             min-width: 50px !important;
+        }
+        .day-container {
+            width: 40px !important;
+            height: 60px !important;
         }
         div[data-testid="stButton"] button {
             width: 40px !important;
             height: 40px !important;
         }
         div[data-testid="stCheckbox"] {
-            margin-top: 2px !important;
             min-width: 40px !important;
             height: 20px !important;
         }
@@ -122,6 +132,10 @@ def render_calendar(apply_date):
             flex: 1 !important;
             min-width: 35px !important;
             padding: 0 !important;
+        }
+        .day-container {
+            width: 35px !important;
+            height: 55px !important;
         }
         div[data-testid="stButton"] button {
             font-size: 0.8rem !important;
@@ -165,6 +179,9 @@ def render_calendar(apply_date):
     # Korean day names
     korean_days = ["일", "월", "화", "수", "목", "금", "토"]
 
+    # Set calendar to start on Sunday
+    calendar.setfirstweekday(calendar.SUNDAY)
+
     for year, month in months:
         st.markdown(f"### {year} {korean_months[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
@@ -184,27 +201,35 @@ def render_calendar(apply_date):
                 else:
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
-                        cols[i].markdown(" ")
+                        # Create a container for disabled days
+                        with cols[i].container():
+                            st.markdown('<div class="day-container">', unsafe_allow_html=True)
+                            cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
+                            cols[i].markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
                         continue
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
                     key_prefix = "selected-" if is_selected else "current-" if is_current else "btn-"
                     button_key = f"{key_prefix}{date_obj}"
-                    if cols[i].button(
-                        str(day),
-                        key=button_key,
-                        on_click=toggle_date,
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        kwargs={"date_obj": date_obj}
-                    ):
-                        st.rerun()
-                    # Add checkbox below the button
-                    checkbox_key = f"checkbox_{date_obj}"
-                    is_checked = cols[i].checkbox("", value=is_selected, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": date_obj})
-                    if is_checked != is_selected:
-                        toggle_date(date_obj)
-                        st.rerun()
+                    # Create a container for button and checkbox
+                    with cols[i].container():
+                        st.markdown('<div class="day-container">', unsafe_allow_html=True)
+                        if cols[i].button(
+                            str(day),
+                            key=button_key,
+                            on_click=toggle_date,
+                            help="클릭하여 근무일을 선택하거나 해제하세요",
+                            kwargs={"date_obj": date_obj}
+                        ):
+                            st.rerun()
+                        # Add checkbox below the button
+                        checkbox_key = f"checkbox_{date_obj}"
+                        is_checked = cols[i].checkbox("", value=is_selected, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": date_obj})
+                        if is_checked != is_selected:
+                            toggle_date(date_obj)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -273,7 +298,10 @@ div[data-testid="stRadio"] label {
         fourteen_days_prior_end = apply_date - timedelta(days=1)
         fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
         fourteen_days_prior = pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)
-        no_work_14_days = all(day not in selected_days for day in fourteen_days_prior)
+        # Convert selected_days to a set of dates for comparison
+        selected_dates_set = set(d for d in selected_days)
+        # Check if any date in the 14-day range is in selected_dates
+        no_work_14_days = all(day not in selected_dates_set for day in fourteen_days_prior)
         condition2 = no_work_14_days
 
         if no_work_14_days:
