@@ -51,10 +51,9 @@ def render_calendar(apply_date):
         border: 2px solid transparent;
         background-color: transparent;
         color: white;
-        cursor: pointer; /* Indicate clickable */
     }
     /* Hover effect */
-    .calendar-table button:hover {
+    .calendar-table button[kind="secondary"]:hover {
         border: 2px solid #00ff00; /* Green border on hover */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
@@ -68,7 +67,6 @@ def render_calendar(apply_date):
         color: gray;
         background-color: transparent;
         border: 2px solid transparent;
-        cursor: not-allowed; /* Indicate non-clickable */
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
@@ -89,10 +87,10 @@ def render_calendar(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    # Only render April 2025 to match the image
-    year = 2025
-    month = 4
-    months = [(year, month)]
+    # Calculate the range from April 1st to apply_date
+    start_date = date(2025, 4, 1)
+    end_date = apply_date
+    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
     # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
@@ -121,12 +119,12 @@ def render_calendar(apply_date):
                     table_html += '<td></td>'
                 else:
                     date_obj = date(year, month, day)
-                    button_key = f"btn_{date_obj.strftime('%Y-%m-%d')}"
+                    button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
                     if date_obj > apply_date:
                         button_html = f'<button disabled>{day}</button>'
                     else:
-                        button_html = f'<button id="{button_key}" {"class=selected" if is_selected else ""}>{day}</button>'
+                        button_html = f'<button {"class=selected" if is_selected else ""} key="{button_key}">{day}</button>'
                     table_html += f'<td>{button_html}</td>'
             table_html += '</tr>'
         table_html += '</table>'
@@ -139,7 +137,7 @@ def render_calendar(apply_date):
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
                         continue
-                    button_key = f"btn_{date_obj.strftime('%Y-%m-%d')}"
+                    button_key = f"btn_{date_obj}"
                     if st.button(
                         str(day),
                         key=button_key,
