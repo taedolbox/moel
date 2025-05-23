@@ -8,63 +8,31 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
+    # CSS 정의: 선택된 날짜는 동그라미로 강조
     st.markdown("""
     <style>
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important;
+    .calendar-day {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        background-color: transparent;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
-    div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important;
-        margin: 0 !important;
+    .calendar-day.selected {
+        border: 2px solid #00ff00;
+        background-color: rgba(0, 255, 0, 0.2);
+        font-weight: bold;
     }
-    div[data-testid="stButton"] button {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 50% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 0.9rem !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        border: 2px solid transparent !important;
-        background-color: transparent !important;
-        color: white !important;
-    }
-    div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important;
-        background-color: rgba(0, 255, 0, 0.2) !important;
-    }
-    div[data-testid="stButton"] button[disabled] {
-        color: gray !important;
-        background-color: transparent !important;
-        border: 2px solid transparent !important;
-    }
-    div[data-testid="stHorizontalBlock"] span {
-        font-size: 0.9rem !important;
-        text-align: center !important;
-    }
-    div[data-testid="stButton"] button.selected-day {
-        background-color: #00bfff !important;
-        color: white !important;
-        border: 2px solid #00bfff !important;
-    }
-    @media (max-width: 600px) {
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            gap: 0.3rem !important;
-        }
-        div[data-testid="stHorizontalBlock"] > div {
-            flex: 1 !important;
-            min-width: 40px !important;
-            padding: 0.1rem !important;
-        }
-        div[data-testid="stButton"] button {
-            font-size: 0.8rem !important;
-            width: 35px !important;
-            height: 35px !important;
-        }
+    .calendar-day:hover {
+        border: 2px solid #00ff00;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -95,20 +63,33 @@ def render_calendar(apply_date):
                     cols[i].markdown(" ")
                 else:
                     date_obj = date(year, month, day)
-                    if date_obj > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
-                        continue
                     button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
-                    label = str(day)
-                    if cols[i].button(label, key=button_key, on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d), args=(date_obj,)):
-                        st.rerun()
+
+                    # label을 HTML로 동그라미 스타일 적용
+                    label_html = f"""
+                    <div class="calendar-day {'selected' if is_selected else ''}">
+                        {day}
+                    </div>
+                    """
+
+                    if date_obj <= apply_date:
+                        if cols[i].markdown(f'<div onclick="document.getElementById(\'{button_key}\').click();">{label_html}</div><input type="hidden" id="{button_key}">', unsafe_allow_html=True):
+                            pass
+                        if st.button("", key=button_key, on_click=lambda d=date_obj: (
+                            selected_dates.remove(d) if d in selected_dates else selected_dates.add(d),
+                            st.rerun()
+                        )):
+                            pass
+                    else:
+                        cols[i].markdown(f"<div class='calendar-day' style='color:gray'>{day}</div>", unsafe_allow_html=True)
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
+
 
 def daily_worker_eligibility_app():
     st.markdown("""
