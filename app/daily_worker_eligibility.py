@@ -3,16 +3,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 
-def load_custom_css():
-    with open("moel/static/styles.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-...
-
-def daily_worker_eligibility_app():
-    load_custom_css()
-
-
 def get_date_range(apply_date):
     start_date = apply_date.replace(month=4, day=1)
     return pd.date_range(start=start_date, end=apply_date)
@@ -32,7 +22,7 @@ def render_calendar(apply_date):
         cols = st.columns(7)
         for i, day in enumerate(days):
             color = "red" if day == "일" else "blue" if day == "토" else "black"
-            cols[i].markdown(f"<div class='calendar-day-header' style='color:{color}'>{day}</div>", unsafe_allow_html=True)
+            cols[i].markdown(f"<div style='text-align: center; color:{color}; font-weight: bold; background-color:#f2f2f2; padding: 5px; border-radius: 4px'>{day}</div>", unsafe_allow_html=True)
 
         for week in cal:
             cols = st.columns(7)
@@ -42,7 +32,7 @@ def render_calendar(apply_date):
                 else:
                     date = datetime(year, month, day).date()
                     if date > apply_date:
-                        cols[i].markdown(f"<div class='calendar-cell' style='color: gray'>{day}</div>", unsafe_allow_html=True)
+                        cols[i].markdown(f"<div style='text-align: center; color: gray; background-color: #fafafa; padding: 5px; border-radius: 4px'>{day}</div>", unsafe_allow_html=True)
                         continue
                     checkbox_key = f"cb_{date}"
                     checked = st.session_state.get(checkbox_key, False)
@@ -58,45 +48,6 @@ def render_calendar(apply_date):
     return selected_dates
 
 def daily_worker_eligibility_app():
-    st.markdown("""
-<style>
-body {
-    background-color: #2c2c2c;
-    color: #f0f0f0;
-}
-
-/* 본문 */
-div.block-container {
-    background-color: #f5f5f5;
-}
-
-/* 사이드바 */
-.sidebar .block-container {
-    background-color: #333333;
-    color: white;
-}
-
-.calendar-day-header {
-    text-align: center;
-    font-weight: bold;
-    font-size: 11px;
-    padding: 2px;
-    margin: 0px;
-}
-
-.calendar-cell {
-    text-align: center;
-    padding: 4px;
-    border-radius: 4px;
-    background-color: #f5f5f5;
-}
-
-[data-testid="column"] {
-    min-width: 50px !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
     st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
