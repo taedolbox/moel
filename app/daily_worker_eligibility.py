@@ -5,7 +5,7 @@ import calendar
 from streamlit_javascript import st_javascript ## 추가: JavaScript 연동을 위함
 
 # Streamlit에 JavaScript 호출 가능한 함수 등록
-st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 여기에 추가
+# st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 여기에 추가
 # ... (나머지 코드)
 
 # --- 헬퍼 함수들은 동일하게 유지 ---
@@ -24,7 +24,7 @@ def toggle_date_js(date_str):
     st.rerun()
 
 # Streamlit에 JavaScript 호출 가능한 함수 등록
-st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 필요할 수 있습니다.
+# st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 필요할 수 있습니다.
 # JavaScript가 호출할 수 있도록 함수를 등록합니다.
 # 주의: 이 방법은 Streamlit 버전과 환경에 따라 작동 방식이 다를 수 있습니다.
 # 더 안정적인 방법은 st_javascript를 사용하여 명시적으로 JS를 실행하는 것입니다.
