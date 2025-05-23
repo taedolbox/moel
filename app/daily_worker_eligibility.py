@@ -23,15 +23,15 @@ def render_calendar(apply_date):
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
-        border-radius: 50% !important;
+        border-radius: 0 !important; /* Square buttons */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         font-size: 1rem !important;
         padding: 0 !important;
         margin: 0 auto !important;
-        border: 2px solid white !important; /* White circle border for all dates */
-        background-color: transparent !important; /* Transparent background for unselected */
+        border: 2px solid transparent !important; /* Default transparent border */
+        background-color: #1e1e1e !important; /* Match app background */
         color: white !important;
     }
     /* Hover effect */
@@ -39,24 +39,24 @@ def render_calendar(apply_date):
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style */
+    /* Selected button style - blue border */
     div[data-testid="stButton"] button[id*="selected-"] {
         background-color: black !important;
         color: white !important;
-        border: 2px solid white !important; /* Keep the white border */
+        border: 2px solid blue !important; /* Blue border for selected dates */
     }
-    /* Current date style */
+    /* Current date style - blue border */
     div[data-testid="stButton"] button[id*="current-"] {
         background-color: black !important;
         color: white !important;
         font-weight: bold !important;
-        border: 2px solid white !important;
+        border: 2px solid blue !important; /* Blue border for current date */
     }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: transparent !important;
-        border: 2px solid gray !important;
+        background-color: #1e1e1e !important;
+        border: 2px solid transparent !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
