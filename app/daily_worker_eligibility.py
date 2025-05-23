@@ -12,8 +12,6 @@ def get_date_range(apply_date):
 def render_calendar(apply_date, selected_dates):
     start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
-    current = start_date
-
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
     clicked_dates = set()
@@ -21,22 +19,28 @@ def render_calendar(apply_date, selected_dates):
         st.markdown(f"### {year}년 {month}월")
         cal = calendar.monthcalendar(year, month)
         days = ["월", "화", "수", "목", "금", "토", "일"]
-        st.markdown("| " + " | ".join(days) + " |")
-        st.markdown("|" + "---|" * 7)
+
+        table_html = f"<table style='border-collapse: collapse;'>"
+        table_html += "<tr>" + "".join([f"<th style='border: 1px solid #ccc; padding: 4px;'>{day}</th>" for day in days]) + "</tr>"
 
         for week in cal:
-            row = []
+            table_html += "<tr>"
             for day in week:
                 if day == 0:
-                    row.append(" ")
+                    table_html += "<td style='border: 1px solid #ccc; padding: 4px;'></td>"
                 else:
                     date = datetime(year, month, day).date()
-                    label = f"{month:02d}-{day:02d}"
-                    if st.checkbox(label, key=str(date)):
+                    checkbox_key = f"cb_{date}"
+                    checked = st.session_state.get(checkbox_key, False)
+                    if st.checkbox(f"{day}", key=checkbox_key):
                         clicked_dates.add(date)
-                    mark = "⭕" if date in selected_dates else f"{day}"
-                    row.append(mark)
-            st.markdown("| " + " | ".join(row) + " |")
+                    elif checked:
+                        clicked_dates.add(date)
+                    table_html += f"<td style='border: 1px solid #ccc; padding: 4px; text-align: center;'>{day}</td>"
+            table_html += "</tr>"
+        table_html += "</table>"
+
+        st.markdown(table_html, unsafe_allow_html=True)
 
     if clicked_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -102,3 +106,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
