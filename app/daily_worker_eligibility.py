@@ -50,7 +50,7 @@ def daily_worker_eligibility_app():
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today()).date()
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
