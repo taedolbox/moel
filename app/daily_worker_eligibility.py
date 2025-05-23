@@ -110,7 +110,7 @@ def render_calendar(apply_date):
 
     # Calendar grid
     for week in cal:
-        table    table_html += '<tr>'
+        table_html += '<tr>'
         for day in week:
             if day == 0:
                 table_html += '<td></td>'
@@ -157,13 +157,13 @@ def render_calendar(apply_date):
 
 def daily_worker_eligibility_app():
     st.markdown("""
-<style>
-div[data-testid="stRadio"] label {
-    color: white !important;
-    font-size: 18px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+    <style>
+    div[data-testid="stRadio"] label {
+        color: white !important;
+        font-size: 18px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
