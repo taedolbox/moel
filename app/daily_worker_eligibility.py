@@ -56,8 +56,8 @@ def daily_worker_eligibility_app():
     st.markdown("""
 <style>
 label[data-testid="stRadio"] > div {
-    color: white;
-    font-size: 1.1rem;
+    color: white !important;
+    font-size: 18px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -65,9 +65,6 @@ label[data-testid="stRadio"] > div {
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-
-    st.markdown("<p style='color:white; font-size:18px;'>근로자 유형을 선택하세요</p>", unsafe_allow_html=True)
-    worker_type = st.radio("", ["일반일용근로자", "건설일용근로자"])
 
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
@@ -132,7 +129,7 @@ label[data-testid="stRadio"] > div {
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만임을 확인합니다.**")
+            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
