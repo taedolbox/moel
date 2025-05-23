@@ -8,6 +8,46 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
+    # Inject custom CSS to reduce spacing and ensure horizontal layout
+    st.markdown("""
+    <style>
+    /* Reduce padding and margins for calendar columns */
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.5rem !important; /* Reduce gap between columns */
+    }
+    div[data-testid="stHorizontalBlock"] > div {
+        padding: 0.2rem !important; /* Reduce padding inside columns */
+        margin: 0 !important; /* Remove margins */
+    }
+    /* Style for calendar day checkboxes */
+    div[data-testid="stCheckbox"] {
+        margin: 0 !important; /* Remove margins around checkboxes */
+        padding: 0.1rem !important; /* Reduce padding */
+    }
+    /* Ensure day labels are compact */
+    div[data-testid="stHorizontalBlock"] span {
+        font-size: 0.9rem !important; /* Smaller font for day labels */
+        text-align: center !important;
+    }
+    /* Force horizontal layout even on mobile */
+    @media (max-width: 600px) {
+        div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-wrap: nowrap !important; /* Prevent wrapping */
+            gap: 0.3rem !important; /* Smaller gap for mobile */
+        }
+        div[data-testid="stHorizontalBlock"] > div {
+            flex: 1 !important; /* Equal width for columns */
+            min-width: 40px !important; /* Minimum width for each day */
+            padding: 0.1rem !important;
+        }
+        div[data-testid="stCheckbox"] label {
+            font-size: 0.8rem !important; /* Smaller font for checkboxes on mobile */
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
@@ -19,7 +59,8 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days = ["일", "월", "화", "수", "목", "금", "토"]
 
-        cols = st.columns(7)
+        # Create columns for day headers
+        cols = st.columns(7, gap="small")  # Use Streamlit's gap parameter for tighter spacing
         for i, day in enumerate(days):
             if i == 0:
                 color = "red"
@@ -29,8 +70,9 @@ def render_calendar(apply_date):
                 color = "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
+        # Create calendar grid
         for week in cal:
-            cols = st.columns(7)
+            cols = st.columns(7, gap="small")  # Use small gap for weeks
             for i, day in enumerate(week):
                 if day == 0:
                     cols[i].markdown(" ")
