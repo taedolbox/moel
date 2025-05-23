@@ -89,10 +89,10 @@ def render_calendar(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    # Calculate the range from April 1st to apply_date
-    start_date = date(2025, 4, 1)
-    end_date = apply_date
-    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
+    # Only render April 2025 to match the image
+    year = 2025
+    month = 4
+    months = [(year, month)]
 
     # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
