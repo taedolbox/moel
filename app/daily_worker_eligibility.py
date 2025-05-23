@@ -1,136 +1,191 @@
 import streamlit as st
-from datetime import date, timedelta
 import pandas as pd
+from datetime import datetime, timedelta, date
+import calendar
 
-st.set_page_config(page_title="일용근로자 수급자격 모의계산", layout="wide")
+def get_date_range(apply_date):
+    start_date = apply_date.replace(month=4, day=1)
+    return pd.date_range(start=start_date, end=apply_date)
 
-# ⛱️ CSS for calendar
-st.markdown("""
+def render_calendar(apply_date):
+    # Inject custom CSS for compact layout and styled buttons
+    st.markdown("""
     <style>
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.5rem !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div {
+        padding: 0.2rem !important;
+        margin: 0 !important;
+    }
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
         border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         font-size: 0.9rem !important;
         padding: 0 !important;
         margin: 0 auto !important;
+        border: 2px solid transparent !important;
         background-color: transparent !important;
         color: white !important;
-        border: 2px solid transparent !important;
+        transition: all 0.2s ease !important;
     }
-    div[data-testid="stButton"] button:hover {
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
     div[data-testid="stButton"] button.selected-day {
-        border: 2px solid white !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
-        font-weight: bold !important;
+        border: 2px solid #00ff00 !important;
+        background-color: rgba(0, 255, 0, 0.2) !important;
+    }
+    div[data-testid="stButton"] button[disabled] {
+        color: gray !important;
+        background-color: transparent !important;
+        border: 2px solid transparent !important;
+    }
+    div[data-testid="stHorizontalBlock"] span {
+        font-size: 0.9rem !important;
+        text-align: center !important;
     }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-st.title("🧮 일용근로자 수급자격 요건 모의계산")
+    start_date = apply_date.replace(month=4, day=1)
+    end_date = apply_date
+    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
-# 📆 수급자격 신청일
-apply_date = st.date_input("📌 수급자격 신청일을 선택하세요", date.today())
+    if 'selected_dates' not in st.session_state:
+        st.session_state.selected_dates = set()
 
-# 📌 조건 설명
-start_14 = apply_date - timedelta(days=14)
-end_14 = apply_date - timedelta(days=1)
+    selected_dates = st.session_state.selected_dates
 
-st.markdown("---")
-st.markdown("### 📌 수급요건 개요")
-st.markdown(f"""
-- **조건 1**: 신청일 기준 **직전 달의 1일 ~ 신청일까지** 전체 일수 중 **근무일 수가 1/3 미만**이어야 합니다.
-- **조건 2 (건설일용)**: 신청일 **직전 14일간({start_14.strftime('%Y-%m-%d')} ~ {end_14.strftime('%Y-%m-%d')})** **근무기록이 없어야** 합니다.
-""")
-st.markdown("---")
+    for year, month in months:
+        st.markdown(f"### {year}년 {month}월")
+        cal = calendar.monthcalendar(year, month)
+        days = ["일", "월", "화", "수", "목", "금", "토"]
 
-# 📆 캘린더 범위 설정 (신청일 기준 지난 두 달)
-start_date = (apply_date.replace(day=1) - timedelta(days=31)).replace(day=1)
-end_date = apply_date
+        cols = st.columns(7, gap="small")
+        for i, day in enumerate(days):
+            color = "red" if i == 0 else "blue" if i == 6 else "white"
+            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
-all_dates = pd.date_range(start=start_date, end=end_date)
+        for week in cal:
+            cols = st.columns(7, gap="small")
+            for i, day in enumerate(week):
+                if day == 0:
+                    cols[i].markdown(" ")
+                else:
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
+                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
+                        continue
 
-# 세션 상태 초기화
-if "selected_days" not in st.session_state:
-    st.session_state.selected_days = set()
+                    is_selected = date_obj in selected_dates
+                    label = str(day)
+                    button_class = "selected-day" if is_selected else ""
 
-st.markdown("### 📅 근무한 날짜를 선택하세요")
-calendar_by_month = all_dates.to_series().groupby(all_dates.to_series().dt.to_period("M"))
+                    button_clicked = cols[i].button(
+                        label,
+                        key=f"btn_{date_obj}",
+                        help="클릭하여 근무일을 선택하거나 해제하세요",
+                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                        args=(date_obj,)
+                    )
+                    if button_clicked:
+                        st.rerun()
 
-for period, dates_in_month in calendar_by_month:
-    st.subheader(f"📆 {period.strftime('%Y년 %m월')}")
+    if selected_dates:
+        st.markdown("### ✅ 선택된 근무일자")
+        st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
-    # 요일 헤더
-    cols = st.columns(7)
-    for i, day_name in enumerate(["월", "화", "수", "목", "금", "토", "일"]):
-        cols[i].markdown(f"**{day_name}**")
+    return selected_dates
 
-    week = []
-    cols = st.columns(7)
-    first_day_weekday = dates_in_month.iloc[0].weekday()
+def daily_worker_eligibility_app():
+    st.markdown("""
+    <style>
+    div[data-testid="stRadio"] label {
+        color: white !important;
+        font-size: 18px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    for _ in range(first_day_weekday):
-        cols[_].markdown("")
+    st.header("일용근로자 수급자격 요건 모의계산")
 
-    for current_day in dates_in_month:
-        weekday = current_day.weekday()
-        if weekday == 0:
-            cols = st.columns(7)
+    worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-        button_label = str(current_day.day)
-        key = f"{current_day.strftime('%Y-%m-%d')}"
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
+    date_range = get_date_range(apply_date)
 
-        is_selected = key in st.session_state.selected_days
-        button_style = "selected-day" if is_selected else ""
+    st.markdown("---")
+    st.markdown("#### ✅ 근무일 선택 달력")
+    selected_days = render_calendar(apply_date)
+    st.markdown("---")
 
-        if cols[weekday].button(button_label, key=key):
-            if is_selected:
-                st.session_state.selected_days.remove(key)
-            else:
-                st.session_state.selected_days.add(key)
+    total_days = len(date_range)
+    worked_days = len(selected_days)
+    threshold = total_days / 3
 
-        # 적용된 스타일 HTML로 표시 (선택 여부 표현)
-        cols[weekday].markdown(
-            f"""
-            <script>
-            const el = window.parent.document.querySelector('button[key="{key}"]');
-            if (el) {{
-                el.classList.add("{button_style}");
-            }}
-            </script>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(f"- 총 기간 일수: **{total_days}일**")
+    st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
+    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
 
-# ✔️ 결과 판단
-st.markdown("---")
-st.markdown("## 🧾 수급 요건 판정 결과")
+    condition1 = worked_days < threshold
+    if condition1:
+        st.success("✅ 조건 1 충족: 근무일 수가 기준 미만입니다.")
+    else:
+        st.warning("❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.")
 
-selected_days = pd.to_datetime(list(st.session_state.selected_days))
-selected_days = selected_days.sort_values()
+    condition2 = False
+    if worker_type == "건설일용근로자":
+        fourteen_days_prior = [apply_date - timedelta(days=i) for i in range(1, 15)]
+        no_work_14_days = all(day not in selected_days for day in fourteen_days_prior)
+        condition2 = no_work_14_days
 
-# 조건 1: 직전달 1일 ~ 신청일까지
-condition1_start = apply_date.replace(day=1)
-condition1_end = apply_date
-total_days = (condition1_end - condition1_start).days + 1
+        if no_work_14_days:
+            st.success("✅ 조건 2 충족: 신청일 이전 14일간 근무내역이 없습니다.")
+        else:
+            st.warning("❌ 조건 2 불충족: 신청일 이전 14일 내 근무기록이 존재합니다.")
 
-condition1_work_days = [d for d in selected_days if condition1_start <= d.date() <= condition1_end]
-if len(condition1_work_days) < total_days / 3:
-    st.success(f"✅ 조건 1 충족: 총 {total_days}일 중 {len(condition1_work_days)}일 근무 (< 1/3)")
-else:
-    st.warning(f"❌ 조건 1 불충족: 총 {total_days}일 중 {len(condition1_work_days)}일 근무 (≥ 1/3)")
+    st.markdown("---")
 
-# 조건 2: 신청일 직전 14일간
-condition2_start = apply_date - timedelta(days=14)
-condition2_end = apply_date - timedelta(days=1)
-condition2_range = pd.date_range(start=condition2_start, end=condition2_end)
-condition2_fail = any(d.date() in condition2_range for d in selected_days)
+    if not condition1:
+        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
+        future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
+        for future_date in future_dates:
+            date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
+            total_days_future = len(date_range_future)
+            threshold_future = total_days_future / 3
+            worked_days_future = sum(1 for d in selected_days if d <= future_date)
+            if worked_days_future < threshold_future:
+                st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
+                break
+        else:
+            st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
 
-if not condition2_fail:
-    st.success(f"✅ 조건 2 충족: 신청일 직전 14일간({condition2_start.strftime('%Y-%m-%d')} ~ {condition2_end.strftime('%Y-%m-%d')}) 근무내역이 없습니다.")
-else:
-    st.warning(f"❌ 조건 2 불충족: 신청일 직전 14일간({condition2_start.strftime('%Y-%m-%d')} ~ {condition2_end.strftime('%Y-%m-%d')}) 내 근무기록이 존재합니다.")
+    if worker_type == "건설일용근로자" and not condition2:
+        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
+        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
+        if last_worked_day:
+            suggested_date = last_worked_day + timedelta(days=15)
+            st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
+        else:
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
+    st.subheader("📌 최종 판단")
+    if worker_type == "일반일용근로자":
+        if condition1:
+            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
+        else:
+            st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
+    else:
+        if condition1 or condition2:
+            st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
+        else:
+            st.error(f"❌ 건설일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되고, 신청일 이전 14일간({(apply_date - timedelta(days=14)).strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 내 근무기록이 존재하므로 요건을 충족하지 못합니다.**")
+
+if __name__ == "__main__":
+    daily_worker_eligibility_app()
