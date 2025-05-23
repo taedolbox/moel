@@ -2,24 +2,35 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
+from streamlit_javascript import st_javascript # 추가: JavaScript 연동을 위함
 
+# --- 헬퍼 함수들은 동일하게 유지 ---
 def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
     return pd.date_range(start=start_date, end=apply_date), start_date
 
-def toggle_date(date_obj):
+def toggle_date_js(date_str):
+    """JavaScript에서 호출될 Python 함수. st.session_state를 업데이트합니다."""
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
     if date_obj in st.session_state.selected_dates:
         st.session_state.selected_dates.remove(date_obj)
     else:
         st.session_state.selected_dates.add(date_obj)
+    # Streamlit을 다시 실행하여 변경된 상태를 반영합니다.
+    st.rerun()
 
+# Streamlit에 JavaScript 호출 가능한 함수 등록
+st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 필요할 수 있습니다.
+# JavaScript가 호출할 수 있도록 함수를 등록합니다.
+# 주의: 이 방법은 Streamlit 버전과 환경에 따라 작동 방식이 다를 수 있습니다.
+# 더 안정적인 방법은 st_javascript를 사용하여 명시적으로 JS를 실행하는 것입니다.
+
+# --- 캘린더 렌더링 함수 수정 ---
 def render_calendar(apply_date):
-    # 기존 CSS는 그대로 유지하되, 선택된 날짜에 대한 복잡한 ID 타겟팅은 필요 없습니다.
-    # 배경색/테두리 변경 대신, 텍스트 이모지로 대체될 것이기 때문입니다.
-    # 만약 기존 CSS가 다른 버튼들에 대한 일반 스타일링이라면 그대로 두세요.
+    # --- CSS 스타일 정의 (HTML 구조에 맞게 수정) ---
     st.markdown("""
     <style>
-    /* Reduce padding and margins for calendar columns */
+    /* 전체 블록 간격 줄이기 */
     div[data-testid="stHorizontalBlock"] {
         gap: 0.1rem !important;
     }
@@ -27,135 +38,185 @@ def render_calendar(apply_date):
         padding: 0 !important;
         margin: 0 !important;
     }
-    /* Style for calendar day buttons */
-    div[data-testid="stButton"] button {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 0 !important; /* Square buttons */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 1rem !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: 1px solid #ccc !important; /* Default light border */
-        background-color: #1e1e1e !important; /* Default dark background */
+    /* 달력 날짜 셀 스타일 */
+    .calendar-day-cell {
+        display: flex;
+        flex-direction: column; /* 숫자 위에 체크박스를 두기 위해 세로 배열 */
+        align-items: center; /* 가운데 정렬 */
+        justify-content: center;
+        width: 45px !important; /* 셀 너비 조정 */
+        height: 55px !important; /* 셀 높이 조정 */
+        border: 1px solid #333 !important; /* 기본 테두리 */
+        background-color: #1e1e1e !important;
         color: white !important;
-        transition: all 0.2s ease !important; /* Smooth transition for hover */
+        font-size: 1rem;
+        cursor: pointer; /* 클릭 가능하도록 커서 변경 */
+        border-radius: 0 !important;
+        transition: all 0.2s ease;
+        position: relative; /* 체크마크 절대 위치 지정을 위함 */
     }
-    /* Hover effect for unselected buttons */
-    div[data-testid="stButton"] button:not([disabled]):hover { /* 모든 활성 버튼에 적용 */
+    /* 날짜 숫자 스타일 */
+    .calendar-day-number {
+        font-weight: bold;
+        margin-bottom: 3px; /* 체크박스와 간격 */
+    }
+    /* 체크박스 스타일 */
+    .calendar-day-checkbox {
+        width: 15px; /* 체크박스 크기 */
+        height: 15px;
+        accent-color: #00ff00; /* 체크박스 색상 */
+        cursor: pointer;
+        margin-top: 3px; /* 숫자와 간격 */
+    }
+    /* 비활성화된 날짜 스타일 */
+    .calendar-day-cell.disabled-date {
+        color: gray !important;
+        background-color: #1e1e1e !important;
+        cursor: not-allowed;
+    }
+    /* 선택된 날짜 스타일 (체크박스 클릭으로 제어되므로 배경색은 불필요할 수 있음) */
+    /* .calendar-day-cell.selected-date {
+        border: 2px solid #0000ff !important;
+        background-color: rgba(0, 255, 0, 0.2) !important;
+    } */
+    /* 현재 날짜 스타일 (선택 여부와 별개) */
+    .calendar-day-cell.current-date {
+        background-color: #0000ff !important; /* 파란색 배경 */
+        color: white !important;
+    }
+    /* 호버 효과 */
+    .calendar-day-cell:not(.disabled-date):hover {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Disabled (future) day style */
-    div[data-testid="stButton"] button[disabled] {
-        color: gray !important;
-        background-color: #1e1e1e !important;
-        border: 1px solid #ccc !important;
-    }
-    /* Day header styles */
+    /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
         color: white !important;
     }
-    /* Force horizontal layout on mobile */
+    /* 월 헤더 스타일 */
+    div[data-testid="stMarkdownContainer"] h3 {
+        margin: 0.5rem 0 !important;
+        padding: 0.2rem !important;
+        background-color: #2e2e2e !important;
+        text-align: center !important;
+        color: white !important;
+    }
+    /* 모바일 반응형 (기존과 동일) */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
             flex-wrap: nowrap !important;
             gap: 0.1rem !important;
         }
         div[data-testid="stHorizontalBlock"] > div {
             flex: 1 !important;
-            min-width: 35px !important;
+            min-width: 40px !important; /* 조금 더 넓게 */
             padding: 0 !important;
         }
-        div[data-testid="stButton"] button {
+        .calendar-day-cell {
             font-size: 0.8rem !important;
-            width: 35px !important;
-            height: 35px !important;
+            width: 40px !important;
+            height: 50px !important;
         }
-    }
-    /* Month boundary styling */
-    div[data-testid="stMarkdownContainer"] h3 {
-        margin: 0.5rem 0 !important;
-        padding: 0.2rem !important;
-        background-color: #2e2e2e !important; /* Slightly lighter than app background */
-        text-align: center !important;
-        color: white !important;
+        .calendar-day-checkbox {
+            width: 12px;
+            height: 12px;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
 
-    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
-    end_date = apply_date
-    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
-
+    # --- 세션 상태 초기화 ---
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
-    for year, month in months:
-        st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
-        cal = calendar.monthcalendar(year, month)
-        days = ["Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"]
+    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
+    end_date = apply_date
+    months_to_display = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
+    # --- 달력 렌더링 로직 ---
+    for year, month in months_to_display:
+        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True) # 월을 한글로 변경
+
+        # 요일 헤더 (한글로 변경)
+        days_korean = ["일", "월", "화", "수", "목", "금", "토"]
         cols = st.columns(7, gap="small")
-        for i, day in enumerate(days):
+        for i, day_name in enumerate(days_korean):
             color = "red" if i == 0 else "blue" if i == 6 else "white"
-            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
+            cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
+        cal = calendar.monthcalendar(year, month)
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day_num in enumerate(week):
-                if day_num == 0:
-                    cols[i].markdown(" ")
+                if day_num == 0: # 빈 날짜 (이전 달/다음 달)
+                    cols[i].markdown("<div class='calendar-day-cell' style='border:none; background-color:transparent;'></div>", unsafe_allow_html=True)
                 else:
                     date_obj = date(year, month, day_num)
-                    is_disabled = (date_obj > apply_date)
+                    is_disabled = (date_obj > apply_date) # 미래 날짜 비활성화
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
 
-                    # --- 핵심 수정 부분 ---
-                    button_label = str(day_num)
+                    # --- HTML 구성 ---
+                    classes = ["calendar-day-cell"]
+                    if is_disabled:
+                        classes.append("disabled-date")
+                    if is_current: # 현재 날짜는 선택 여부와 무관하게 표시
+                        classes.append("current-date")
+                    # 'selected-date' 클래스는 이제 체크박스 상태로 대체되므로 필요 없을 수 있습니다.
+                    # 하지만 배경색 변경을 원하면 다시 추가하세요.
                     
-                    if is_selected:
-                        # 선택된 날짜에 체크마크 이모지 추가 (직관적!)
-                        button_label = f"{day_num} ✅"
+                    class_str = " ".join(classes)
+                    date_str = date_obj.strftime('%Y-%m-%d')
+
+                    # JavaScript 함수를 호출하기 위한 스니펫 (st_javascript를 활용)
+                    # 체크박스 클릭 시 toggle_date_js Python 함수를 호출하도록 합니다.
+                    onclick_js = f"window.parent.streamlit_app_callbacks.toggle_date('{date_str}');"
                     
-                    if is_current:
-                        # 현재 날짜는 다른 강조 표시 (선택 여부와 독립적으로)
-                        # 선택됨 & 현재 날짜: "날짜 ✅ (오늘)"
-                        # 선택 안 됨 & 현재 날짜: "날짜 (오늘)"
-                        # 이모지를 텍스트에 포함하면 CSS로 배경색을 제어하는 것보다 안정적입니다.
-                        if is_selected:
-                             button_label = f"{day_num} ✅ (오늘)"
-                        else:
-                             button_label = f"{day_num} (오늘)"
+                    # 체크박스 상태 (checked/unchecked)
+                    checked_attr = "checked" if is_selected else ""
+                    disabled_attr = "disabled" if is_disabled else ""
 
+                    html_content = f"""
+                    <div class='{class_str}' onclick="{'' if is_disabled else onclick_js}">
+                        <span class='calendar-day-number'>{day_num}</span>
+                        <input type='checkbox' class='calendar-day-checkbox' {checked_attr} {disabled_attr}
+                               onclick="event.stopPropagation(); {'' if is_disabled else onclick_js}">
+                    </div>
+                    """
+                    cols[i].markdown(html_content, unsafe_allow_html=True)
+    
+    # --- JavaScript 콜백 함수 등록 ---
+    # Python 함수를 JavaScript에서 호출할 수 있도록 등록합니다.
+    # 이는 앱 초기 로드 시 한 번만 실행되어야 합니다.
+    st_javascript(
+        f"""
+        if (window.parent.streamlit_app_callbacks === undefined) {{
+            window.parent.streamlit_app_callbacks = {{}};
+        }}
+        window.parent.streamlit_app_callbacks.toggle_date = function(date_str) {{
+            return window.parent.streamlit_app_callbacks.toggle_date_callback(date_str);
+        }};
+        """,
+        key="init_js_callbacks",
+        args=(toggle_date_js,), # Python 함수를 JS로 전달
+        func_name="toggle_date_callback", # JS에서 호출할 함수 이름
+        # 원하는 대로 변경 가능합니다.
+        # st_javascript(js_code, key, args, func_name, disable_function_callback)
+    )
 
-                    # 버튼 렌더링 (key는 항상 고정)
-                    if cols[i].button(
-                        button_label, # 수정된 레이블 사용
-                        key=f"date_btn_{date_obj.strftime('%Y-%m-%d')}", # 키는 항상 고정
-                        on_click=toggle_date,
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        kwargs={"date_obj": date_obj},
-                        disabled=is_disabled # 미래 날짜는 비활성화
-                    ):
-                        st.rerun() # 클릭 시 리렌더링
-
+    # --- 선택된 근무일자 표시 (기존과 동일) ---
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
 
-# daily_worker_eligibility_app 함수는 그대로 유지됩니다.
+# --- 나머지 daily_worker_eligibility_app 함수는 거의 동일하게 유지 ---
 def daily_worker_eligibility_app():
     st.markdown("""
 <style>
@@ -224,7 +285,7 @@ div[data-testid="stRadio"] label {
             date_range_future, _ = get_date_range(future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_days if d <= future_date)
+            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
                 found_suggestion = True
@@ -234,7 +295,7 @@ div[data-testid="stRadio"] label {
 
     if worker_type == "건설일용근로자" and not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        past_worked_days = [d for d in selected_dates if d < apply_date] # selected_days가 아니라 selected_dates
+        past_worked_days = [d for d in selected_dates if d < apply_date]
         last_worked_day = max(past_worked_days) if past_worked_days else None
 
         if last_worked_day:
