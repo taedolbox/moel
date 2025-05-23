@@ -51,9 +51,10 @@ def render_calendar(apply_date):
         border: 2px solid transparent;
         background-color: transparent;
         color: white;
+        cursor: pointer; /* Indicate clickable */
     }
     /* Hover effect */
-    .calendar-table button[kind="secondary"]:hover {
+    .calendar-table button:hover {
         border: 2px solid #00ff00; /* Green border on hover */
         background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
@@ -67,6 +68,7 @@ def render_calendar(apply_date):
         color: gray;
         background-color: transparent;
         border: 2px solid transparent;
+        cursor: not-allowed; /* Indicate non-clickable */
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
@@ -119,12 +121,12 @@ def render_calendar(apply_date):
                     table_html += '<td></td>'
                 else:
                     date_obj = date(year, month, day)
-                    button_key = f"btn_{date_obj}"
+                    button_key = f"btn_{date_obj.strftime('%Y-%m-%d')}"
                     is_selected = date_obj in selected_dates
                     if date_obj > apply_date:
                         button_html = f'<button disabled>{day}</button>'
                     else:
-                        button_html = f'<button {"class=selected" if is_selected else ""} key="{button_key}">{day}</button>'
+                        button_html = f'<button id="{button_key}" {"class=selected" if is_selected else ""}>{day}</button>'
                     table_html += f'<td>{button_html}</td>'
             table_html += '</tr>'
         table_html += '</table>'
@@ -137,7 +139,7 @@ def render_calendar(apply_date):
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
                         continue
-                    button_key = f"btn_{date_obj}"
+                    button_key = f"btn_{date_obj.strftime('%Y-%m-%d')}"
                     if st.button(
                         str(day),
                         key=button_key,
