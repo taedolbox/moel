@@ -13,63 +13,66 @@ def render_calendar(apply_date):
     <style>
     /* Reduce padding and margins for calendar columns */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important; /* Reduce gap between columns */
+        gap: 0.2rem !important;
     }
     div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important; /* Reduce padding inside columns */
-        margin: 0 !important; /* Remove margins */
+        padding: 0.1rem !important;
+        margin: 0 !important;
     }
     /* Style for calendar day buttons */
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
-        border-radius: 50% !important; /* Circular buttons */
+        border-radius: 50% !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 0.9rem !important;
+        font-size: 1rem !important;
         padding: 0 !important;
         margin: 0 auto !important;
         border: 2px solid transparent !important;
-        background-color: transparent !important;
+        background-color: #1e1e1e !important; /* Match app background */
         color: white !important;
     }
     /* Hover effect */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important; /* Green circle on hover */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
-    }
-    /* Selected button style */
-    div[data-testid="stButton"] button[kind="secondary"] {
-        transition: all 0.2s ease !important; /* Smooth transition */
+        border: 2px solid #00ff00 !important;
+        background-color: rgba(0, 255, 0, 0.2) !important;
     }
     /* Selected button style - black background */
     div[data-testid="stButton"] button[aria-label="selected"] {
         background-color: black !important;
         color: white !important;
     }
+    /* Current date style */
+    div[data-testid="stButton"] button[aria-label="current"] {
+        background-color: black !important;
+        color: white !important;
+        font-weight: bold !important;
+    }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: transparent !important;
+        background-color: #1e1e1e !important;
         border: 2px solid transparent !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
+        color: white !important;
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-wrap: nowrap !important;
-            gap: 0.3rem !important;
+            gap: 0.2rem !important;
         }
         div[data-testid="stHorizontalBlock"] > div {
             flex: 1 !important;
-            min-width: 40px !important;
-            padding: 0.1rem !important;
+            min-width: 35px !important;
+            padding: 0 !important;
         }
         div[data-testid="stButton"] button {
             font-size: 0.8rem !important;
@@ -89,6 +92,7 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
+    current_date = datetime.now().date()  # Current date is 2025-05-24
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월")
@@ -98,12 +102,7 @@ def render_calendar(apply_date):
         # Create columns for day headers
         cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
-            if i == 0:
-                color = "red"
-            elif i == 6:
-                color = "blue"
-            else:
-                color = "white"
+            color = "red" if i == 0 else "blue" if i == 6 else "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         # Create calendar grid
@@ -113,24 +112,23 @@ def render_calendar(apply_date):
                 if day == 0:
                     cols[i].markdown(" ")
                 else:
-                    date_obj = date(year, month, day)  # Use date instead of datetime.date
+                    date_obj = date(year, month, day)
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
                     button_key = f"btn_{date_obj}"
-                    # Check if date is selected and set aria-label for CSS targeting
                     is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
                     label = str(day)
-                    aria_label = "selected" if is_selected else "not-selected"
+                    aria_label = "selected" if is_selected else "current" if is_current else "not-selected"
                     if cols[i].button(
                         label,
                         key=button_key,
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                        on_click=lambda d=date_obj: toggle_date(d),
                         help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date_obj,),
-                        kwargs={"aria-label": aria_label}
+                        kwargs={"date_obj": date_obj},
+                        aria_label=aria_label
                     ):
-                        # Force rerender to update button labels
                         st.rerun()
 
     if selected_dates:
@@ -138,6 +136,12 @@ def render_calendar(apply_date):
         st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
+
+def toggle_date(date_obj):
+    if date_obj in st.session_state.selected_dates:
+        st.session_state.selected_dates.remove(date_obj)
+    else:
+        st.session_state.selected_dates.add(date_obj)
 
 def daily_worker_eligibility_app():
     st.markdown("""
@@ -159,7 +163,7 @@ div[data-testid="stRadio"] label {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())  # Use current date
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
@@ -183,7 +187,6 @@ div[data-testid="stRadio"] label {
 
     condition2 = False
     if worker_type == "건설일용근로자":
-        # Adjust the 14-day period to end the day before apply_date
         fourteen_days_prior_end = apply_date - timedelta(days=1)
         fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
         fourteen_days_prior = pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)
@@ -197,7 +200,6 @@ div[data-testid="stRadio"] label {
 
     st.markdown("---")
 
-    # 조건 불충족 시 대안 신청일 계산
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
@@ -219,7 +221,7 @@ div[data-testid="stRadio"] label {
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
