@@ -238,6 +238,10 @@ def render_calendar(apply_date):
     return selected_dates
 
 def toggle_date(date_obj):
+    # Ensure selected_dates exists in session state
+    if 'selected_dates' not in st.session_state:
+        st.session_state.selected_dates = set()
+    
     if date_obj in st.session_state.selected_dates:
         st.session_state.selected_dates.remove(date_obj)
     else:
