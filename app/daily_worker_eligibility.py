@@ -8,22 +8,19 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
-    # Inject custom CSS for compact layout and button styling
     st.markdown("""
     <style>
-    /* Reduce padding and margins for calendar columns */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important; /* Reduce gap between columns */
+        gap: 0.5rem !important;
     }
     div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important; /* Reduce padding inside columns */
-        margin: 0 !important; /* Remove margins */
+        padding: 0.2rem !important;
+        margin: 0 !important;
     }
-    /* Style for calendar day buttons */
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
-        border-radius: 50% !important; /* Circular buttons */
+        border-radius: 50% !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -34,27 +31,24 @@ def render_calendar(apply_date):
         background-color: transparent !important;
         color: white !important;
     }
-    /* Hover effect */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important; /* Green circle on hover */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
+        border: 2px solid #00ff00 !important;
+        background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style (using emoji in label, no dynamic CSS) */
-    div[data-testid="stButton"] button[kind="secondary"] {
-        transition: all 0.2s ease !important; /* Smooth transition */
-    }
-    /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
         background-color: transparent !important;
         border: 2px solid transparent !important;
     }
-    /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
     }
-    /* Force horizontal layout on mobile */
+    div[data-testid="stButton"] button.selected-day {
+        background-color: #00bfff !important;
+        color: white !important;
+        border: 2px solid #00bfff !important;
+    }
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -79,7 +73,6 @@ def render_calendar(apply_date):
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
-    # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
@@ -90,40 +83,25 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # Create columns for day headers
         cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
-            if i == 0:
-                color = "red"
-            elif i == 6:
-                color = "blue"
-            else:
-                color = "white"
+            color = "red" if i == 0 else "blue" if i == 6 else "white"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
-        # Create calendar grid
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
                 if day == 0:
                     cols[i].markdown(" ")
                 else:
-                    date_obj = date(year, month, day)  # Use date instead of datetime.date
+                    date_obj = date(year, month, day)
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
                     button_key = f"btn_{date_obj}"
-                    # Check if date is selected and modify label
                     is_selected = date_obj in selected_dates
-                    label = f"✅ {day}" if is_selected else str(day)
-                    if cols[i].button(
-                        label,
-                        key=button_key,
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date_obj,)
-                    ):
-                        # Force rerender to update button labels
+                    label = str(day)
+                    if cols[i].button(label, key=button_key, on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d), args=(date_obj,)):
                         st.rerun()
 
     if selected_dates:
@@ -134,19 +112,18 @@ def render_calendar(apply_date):
 
 def daily_worker_eligibility_app():
     st.markdown("""
-<style>
-div[data-testid="stRadio"] label {
-    color: white !important;
-    font-size: 18px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+    <style>
+    div[data-testid="stRadio"] label {
+        color: white !important;
+        font-size: 18px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
@@ -181,7 +158,6 @@ div[data-testid="stRadio"] label {
 
     st.markdown("---")
 
-    # 조건 불충족 시 대안 신청일 계산
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
