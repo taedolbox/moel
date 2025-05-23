@@ -31,7 +31,7 @@ def render_calendar(apply_date):
         padding: 0 !important;
         margin: 0 auto !important;
         border: 2px solid transparent !important;
-        background-color: #1e1e1e !important; /* Match app background */
+        background-color: #1e1e1e !important;
         color: white !important;
     }
     /* Hover effect */
@@ -39,13 +39,13 @@ def render_calendar(apply_date):
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - black background */
-    div[data-testid="stButton"] button[aria-label="selected"] {
+    /* Selected button style - identified by a custom key prefix */
+    div[data-testid="stButton"] button[id*="selected-"] {
         background-color: black !important;
         color: white !important;
     }
-    /* Current date style */
-    div[data-testid="stButton"] button[aria-label="current"] {
+    /* Current date style - identified by a custom key prefix */
+    div[data-testid="stButton"] button[id*="current-"] {
         background-color: black !important;
         color: white !important;
         font-weight: bold !important;
@@ -116,18 +116,17 @@ def render_calendar(apply_date):
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
-                    button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    label = str(day)
-                    aria_label = "selected" if is_selected else "current" if is_current else "not-selected"
+                    # Use a custom key prefix to identify selected and current dates for CSS
+                    key_prefix = "selected-" if is_selected else "current-" if is_current else "btn-"
+                    button_key = f"{key_prefix}{date_obj}"
                     if cols[i].button(
-                        label,
+                        str(day),
                         key=button_key,
-                        on_click=lambda d=date_obj: toggle_date(d),
+                        on_click=toggle_date,
                         help="클릭하여 근무일을 선택하거나 해제하세요",
-                        kwargs={"date_obj": date_obj},
-                        aria_label=aria_label
+                        kwargs={"date_obj": date_obj}
                     ):
                         st.rerun()
 
@@ -155,6 +154,10 @@ div[data-testid="stRadio"] label {
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
+    # Display current date and time in Korean
+    current_datetime = datetime.now()
+    st.markdown(f"**오늘 날짜와 시간**: {current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')}", unsafe_allow_html=True)
+
     # Display conditions at the top
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근로일 수가 총 일수의 1/3 미만이어야 합니다.")
@@ -163,7 +166,7 @@ div[data-testid="stRadio"] label {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())  # Use current date
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
@@ -221,7 +224,7 @@ div[data-testid="stRadio"] label {
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
