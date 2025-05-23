@@ -34,13 +34,13 @@ def render_calendar(apply_date):
         background-color: transparent !important;
         color: white !important;
     }
-    /* Selected button style */
+    /* Selected button style using button key */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
         border: 2px solid #00ff00 !important; /* Green circle on hover */
         background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
     }
-    /* Custom class for selected buttons */
-    div[data-testid="stButton"] button.selected {
+    /* Apply selected style based on session state */
+    %s {
         border: 2px solid #00ff00 !important; /* Green circle for selected days */
         background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
     }
@@ -74,7 +74,7 @@ def render_calendar(apply_date):
         }
     }
     </style>
-    """, unsafe_allow_html=True)
+    """ % ", ".join([f'div[data-testid="stButton"] button[key="btn_{d.strftime("%Y-%m-%d")}"]' for d in st.session_state.get('selected_dates', set())]), unsafe_allow_html=True)
 
     start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
@@ -114,17 +114,15 @@ def render_calendar(apply_date):
                         cols[i].button(str(day), key=f"btn_{date}", disabled=True)
                         continue
                     button_key = f"btn_{date}"
-                    # Check if date is selected
+                    # Check if date is selected and modify label
                     is_selected = date in selected_dates
-                    # Add custom class for selected buttons
-                    button_class = "selected" if is_selected else ""
+                    label = f"✅ {day}" if is_selected else str(day)
                     if cols[i].button(
-                        str(day),
+                        label,
                         key=button_key,
                         on_click=lambda d=date: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
                         help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date,),
-                        **{"class": button_class}  # Use custom class instead of aria-selected
+                        args=(date,)
                     ):
                         pass  # The on_click lambda handles the toggle
 
