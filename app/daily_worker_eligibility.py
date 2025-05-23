@@ -87,9 +87,12 @@ def render_calendar(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    start_date = apply_date.replace(month=4, day=1)
-    end_date = apply_date
-    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
+    # Only render the calendar for April 2025 to match the image
+    year = 2025
+    month = 4
+    st.markdown(f"### {year}년 {month}월")
+    cal = calendar.monthcalendar(year, month)
+    days = ["일", "월", "화", "수", "목", "금", "토"]
 
     # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
@@ -97,61 +100,54 @@ def render_calendar(apply_date):
 
     selected_dates = st.session_state.selected_dates
 
-    for year, month in months:
-        st.markdown(f"### {year}년 {month}월")
-        cal = calendar.monthcalendar(year, month)
-        days = ["일", "월", "화", "수", "목", "금", "토"]
+    # Create HTML table for calendar
+    table_html = '<table class="calendar-table">'
+    # Header row
+    table_html += '<tr>'
+    for day in days:
+        table_html += f'<th>{day}</th>'
+    table_html += '</tr>'
 
-        # Create HTML table for calendar
-        table_html = '<table class="calendar-table">'
-        # Header row
-        table_html += '<tr>'
-        for day in days:
-            table_html += f'<th>{day}</th>'
-        table_html += '</tr>'
-
-        # Calendar grid
-        for week in cal:
-            table_html += '<tr>'
-            for day in week:
-                if day == 0:
-                    table_html += '<td></td>'
+    # Calendar grid
+    for week in cal:
+        table    table_html += '<tr>'
+        for day in week:
+            if day == 0:
+                table_html += '<td></td>'
+            else:
+                date_obj = date(year, month, day)
+                if date_obj > apply_date:
+                    button_key = f"btn_{date_obj}"
+                    button_html = f'<button disabled>{day}</button>'
+                    table_html += f'<td>{button_html}</td>'
                 else:
-                    date_obj = date(year, month, day)
-                    if date_obj > apply_date:
-                        button_key = f"btn_{date_obj}"
-                        button_html = f'<button disabled>{day}</button>'
-                        table_html += f'<td>{button_html}</td>'
-                    else:
-                        button_key = f"btn_{date_obj}"
-                        is_selected = date_obj in selected_dates
-                        # Add selected class if the date is selected
-                        button_class = "selected" if is_selected else ""
-                        button_html = f'<div id="{button_key}"></div>'
-                        table_html += f'<td>{button_html}</td>'
-            table_html += '</tr>'
-        table_html += '</table>'
-        st.markdown(table_html, unsafe_allow_html=True)
-
-        # Render buttons separately to handle clicks
-        for week in cal:
-            for day in week:
-                if day != 0:
-                    date_obj = date(year, month, day)
-                    if date_obj > apply_date:
-                        continue
                     button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
-                    # Use class to indicate selected state
-                    with st.container():
-                        if st.button(
-                            str(day),
-                            key=button_key,
-                            on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                            help="클릭하여 근무일을 선택하거나 해제하세요",
-                            args=(date_obj,)
-                        ):
-                            st.rerun()
+                    # Add selected class if the date is selected
+                    button_html = f'<div id="{button_key}"></div>'
+                    table_html += f'<td>{button_html}</td>'
+        table_html += '</tr>'
+    table_html += '</table>'
+    st.markdown(table_html, unsafe_allow_html=True)
+
+    # Render buttons separately to handle clicks
+    for week in cal:
+        for day in week:
+            if day != 0:
+                date_obj = date(year, month, day)
+                if date_obj > apply_date:
+                    continue
+                button_key = f"btn_{date_obj}"
+                is_selected = date_obj in selected_dates
+                with st.container():
+                    if st.button(
+                        str(day),
+                        key=button_key,
+                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                        help="클릭하여 근무일을 선택하거나 해제하세요",
+                        args=(date_obj,)
+                    ):
+                        st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
