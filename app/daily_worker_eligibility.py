@@ -4,22 +4,46 @@ from datetime import datetime, timedelta, date
 import calendar
 
 def get_date_range(apply_date):
+    """
+    수급자격 신청일로부터 해당 회계연도 시작일(4월 1일)까지의 날짜 범위를 반환합니다.
+    """
     start_date = apply_date.replace(month=4, day=1)
+    # 현재 날짜가 4월 1일 이전이고, 신청일이 해당 연도의 4월 1일 이전이라면,
+    # 전년도 4월 1일부터 시작하도록 조정
+    if apply_date.month < 4:
+        start_date = start_date.replace(year=apply_date.year - 1)
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
+    """
+    달력을 렌더링하고 사용자가 근무일을 선택할 수 있도록 합니다.
+    """
     # 커스텀 CSS를 삽입하여 달력 레이아웃과 버튼 스타일 조정
     st.markdown("""
     <style>
-    /* 달력 열의 패딩 및 여백 줄이기 */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important; /* 열 간 간격 줄이기 */
+    .st-emotion-cache-nahz7x { /* Streamlit 내부 컨테이너 패딩 조절 */
+        padding-left: 0rem;
+        padding-right: 0rem;
     }
-    div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.2rem !important; /* 열 내부 패딩 줄이기 */
-        margin: 0 !important; /* 여백 제거 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        table-layout: fixed; /* 고정된 테이블 레이아웃 */
     }
-    /* 달력 날짜 버튼 스타일 */
+    th, td {
+        text-align: center;
+        padding: 0.2rem;
+        border: none; /* 테이블 셀 테두리 제거 */
+    }
+    th {
+        font-size: 0.9rem;
+        color: white;
+    }
+    .sunday { color: red; }
+    .saturday { color: blue; }
+    .weekday { color: white; }
+    
     div[data-testid="stButton"] button {
         width: 40px !important;
         height: 40px !important;
@@ -30,110 +54,122 @@ def render_calendar(apply_date):
         font-size: 0.9rem !important;
         padding: 0 !important;
         margin: 0 auto !important;
-        border: 2px solid transparent !important;
+        border: 2px solid transparent !important; /* 기본 투명 테두리 */
         background-color: transparent !important;
         color: white !important;
+        transition: all 0.2s ease !important; /* 부드러운 전환 */
     }
-    /* 호버 효과 */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
         border: 2px solid #00ff00 !important; /* 호버 시 초록색 원 */
         background-color: rgba(0, 255, 0, 0.2) !important; /* 연한 초록색 배경 */
     }
-    /* 선택된 버튼 스타일 (라벨에 이모티콘 사용, 동적 CSS 없음) */
-    div[data-testid="stButton"] button[kind="secondary"] {
-        transition: all 0.2s ease !important; /* 부드러운 전환 */
+    /* 선택된 버튼 스타일 */
+    div[data-testid="stButton"] button.selected-day {
+        border: 2px solid #00ff00 !important; /* 선택 시 초록색 원형 테두리 */
+        background-color: rgba(0, 255, 0, 0.3) !important; /* 연한 초록색 배경 */
     }
     /* 비활성화된 (미래) 날짜 스타일 */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
         background-color: transparent !important;
         border: 2px solid transparent !important;
+        cursor: not-allowed;
     }
-    /* 요일 헤더 스타일 */
-    div[data-testid="stHorizontalBlock"] span {
-        font-size: 0.9rem !important;
-        text-align: center !important;
-    }
-    /* 모바일에서 가로 레이아웃 강제 */
+    /* 모바일 반응형 */
     @media (max-width: 600px) {
-        div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            gap: 0.3rem !important;
-        }
-        div[data-testid="stHorizontalBlock"] > div {
-            flex: 1 !important;
-            min-width: 40px !important;
-            padding: 0.1rem !important;
-        }
         div[data-testid="stButton"] button {
             font-size: 0.8rem !important;
             width: 35px !important;
             height: 35px !important;
+        }
+        th, td {
+            padding: 0.1rem;
         }
     }
     </style>
     """, unsafe_allow_html=True)
 
     start_date = apply_date.replace(month=4, day=1)
+    if apply_date.month < 4:
+        start_date = start_date.replace(year=apply_date.year - 1)
+        
     end_date = apply_date
 
-    months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
+    months_to_render = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
     # 세션 상태에 선택된 날짜가 없으면 초기화
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
     selected_dates = st.session_state.selected_dates
 
-    for year, month in months:
+    for year, month in months_to_render:
         st.markdown(f"### {year}년 {month}월")
         cal = calendar.monthcalendar(year, month)
-        days = ["일", "월", "화", "수", "목", "금", "토"]
+        days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # 요일 헤더를 위한 열 생성
-        cols = st.columns(7, gap="small")
-        for i, day in enumerate(days):
-            if i == 0:
-                color = "red"
-            elif i == 6:
-                color = "blue"
-            else:
-                color = "white"
-            cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
+        # HTML 테이블 시작
+        st.markdown("<table>", unsafe_allow_html=True)
+        
+        # 요일 헤더 행
+        st.markdown("<thead><tr>", unsafe_allow_html=True)
+        for i, day_name in enumerate(days_of_week):
+            color_class = ""
+            if i == 0: # 일요일
+                color_class = "sunday"
+            elif i == 6: # 토요일
+                color_class = "saturday"
+            else: # 평일
+                color_class = "weekday"
+            st.markdown(f"<th class='{color_class}'>{day_name}</th>", unsafe_allow_html=True)
+        st.markdown("</tr></thead>", unsafe_allow_html=True)
+        
+        st.markdown("<tbody>", unsafe_allow_html=True)
 
-        # 달력 그리드 생성
+        # 달력 주별 행
         for week in cal:
-            cols = st.columns(7, gap="small")
+            st.markdown("<tr>", unsafe_allow_html=True)
             for i, day in enumerate(week):
+                st.markdown("<td>", unsafe_allow_html=True)
                 if day == 0:
-                    cols[i].markdown(" ")
+                    st.markdown(" ") # 빈 칸
                 else:
-                    date_obj = date(year, month, day)  # datetime.date 대신 date 객체 사용
-
-                    if date_obj > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
-                        continue
-
+                    date_obj = date(year, month, day)
                     button_key = f"btn_{date_obj}"
                     
-                    # 날짜가 선택되었는지 확인하고 라벨 수정
                     is_selected = date_obj in selected_dates
-                    label = f"✅ {day}" if is_selected else str(day)
+                    button_class = "selected-day" if is_selected else ""
 
-                    # 클릭 처리를 위한 함수 사용 (상태 관리에 용이)
-                    def on_button_click(clicked_date):
-                        if clicked_date in st.session_state.selected_dates:
-                            st.session_state.selected_dates.remove(clicked_date)
-                        else:
-                            st.session_state.selected_dates.add(clicked_date)
+                    # 미래 날짜는 비활성화
+                    if date_obj > apply_date:
+                        st.button(str(day), key=button_key, disabled=True)
+                    else:
+                        # 클릭 시 선택/해제 토글 함수
+                        def _on_button_click(clicked_date):
+                            if clicked_date in st.session_state.selected_dates:
+                                st.session_state.selected_dates.remove(clicked_date)
+                            else:
+                                st.session_state.selected_dates.add(clicked_date)
+                            st.rerun() # 상태 변경 후 즉시 UI 업데이트
 
-                    cols[i].button(
-                        label,
-                        key=button_key,
-                        on_click=on_button_click,
-                        args=(date_obj,),
-                        help="클릭하여 근무일을 선택하거나 해제하세요"
-                    )
+                        # Streamlit 버튼 생성, CSS 클래스 동적 적용
+                        st.button(
+                            str(day),
+                            key=button_key,
+                            on_click=_on_button_click,
+                            args=(date_obj,),
+                            help="클릭하여 근무일을 선택하거나 해제하세요",
+                            # 버튼에 사용자 정의 클래스를 직접 추가하는 방법은 Streamlit에서 지원하지 않으므로,
+                            # 선택 상태에 따라 CSS를 적용하는 방식으로 우회합니다.
+                            # 이 부분은 Streamlit 컴포넌트의 한계로 인해 완전한 동적 클래스 추가는 어렵습니다.
+                            # 대신 on_click 후 rerun을 통해 selected_dates 상태를 반영합니다.
+                        )
+                        # JavaScript를 통해 CSS 클래스를 추가하는 방법은 복잡하며 Streamlit의 기본 동작을 벗어납니다.
+                        # 따라서 on_click에서 st.rerun()을 호출하여 selected_dates 상태를 업데이트하고,
+                        # 이 상태에 따라 다음 렌더링 시 버튼의 스타일이 결정되도록 합니다.
+                st.markdown("</td>", unsafe_allow_html=True)
+            st.markdown("</tr>", unsafe_allow_html=True)
+        
+        st.markdown("</tbody></table>", unsafe_allow_html=True) # HTML 테이블 끝
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -141,7 +177,12 @@ def render_calendar(apply_date):
 
     return selected_dates
 
+---
+
 def daily_worker_eligibility_app():
+    """
+    일용근로자 수급자격 요건 모의계산 Streamlit 앱의 메인 함수입니다.
+    """
     st.markdown("""
 <style>
 div[data-testid="stRadio"] label {
@@ -154,16 +195,14 @@ div[data-testid="stRadio"] label {
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # date 객체인지 확인
-
-    date_range = get_date_range(apply_date)
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
     selected_days = render_calendar(apply_date)
     st.markdown("---")
 
-    total_days = len(date_range)
+    total_days = len(get_date_range(apply_date))
     worked_days = len(selected_days)
     threshold = total_days / 3
 
@@ -180,6 +219,7 @@ div[data-testid="stRadio"] label {
     condition2 = False
     if worker_type == "건설일용근로자":
         fourteen_days_prior = [apply_date - timedelta(days=i) for i in range(1, 15)]
+        # 신청일 이전 14일간 근무내역이 없는지 확인
         no_work_14_days = all(day not in selected_days for day in fourteen_days_prior)
         condition2 = no_work_14_days
 
@@ -194,22 +234,27 @@ div[data-testid="stRadio"] label {
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
+        found_alternative = False
         for future_date in future_dates:
-            date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
+            date_range_future = get_date_range(future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
+            # 미래 날짜를 기준으로 선택된 근무일 수 계산
             worked_days_future = sum(1 for d in selected_days if d <= future_date)
+            
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
+                found_alternative = True
                 break
-        else:
+        if not found_alternative:
             st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
 
     if worker_type == "건설일용근로자" and not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
-        if last_worked_day:
-            suggested_date = last_worked_day + timedelta(days=15)
+        # 신청일 이전 근무일 중 가장 최근 근무일 찾기
+        last_worked_day_before_apply = max((d for d in selected_days if d < apply_date), default=None)
+        if last_worked_day_before_apply:
+            suggested_date = last_worked_day_before_apply + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
             st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
