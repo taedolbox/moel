@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import calendar
 
 def get_date_range(apply_date):
@@ -34,15 +34,14 @@ def render_calendar(apply_date):
         background-color: transparent !important;
         color: white !important;
     }
-    /* Selected button style using button key */
+    /* Hover effect */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
         border: 2px solid #00ff00 !important; /* Green circle on hover */
         background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
     }
-    /* Apply selected style based on session state */
-    %s {
-        border: 2px solid #00ff00 !important; /* Green circle for selected days */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* Light green background */
+    /* Selected button style (using emoji in label, no dynamic CSS) */
+    div[data-testid="stButton"] button[kind="secondary"] {
+        transition: all 0.2s ease !important; /* Smooth transition */
     }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
@@ -74,7 +73,7 @@ def render_calendar(apply_date):
         }
     }
     </style>
-    """ % ", ".join([f'div[data-testid="stButton"] button[key="btn_{d.strftime("%Y-%m-%d")}"]' for d in st.session_state.get('selected_dates', set())]), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
@@ -109,22 +108,23 @@ def render_calendar(apply_date):
                 if day == 0:
                     cols[i].markdown(" ")
                 else:
-                    date = datetime(year, month, day).date()
-                    if date > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date}", disabled=True)
+                    date_obj = date(year, month, day)  # Use date instead of datetime.date
+                    if date_obj > apply_date:
+                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
-                    button_key = f"btn_{date}"
+                    button_key = f"btn_{date_obj}"
                     # Check if date is selected and modify label
-                    is_selected = date in selected_dates
+                    is_selected = date_obj in selected_dates
                     label = f"✅ {day}" if is_selected else str(day)
                     if cols[i].button(
                         label,
                         key=button_key,
-                        on_click=lambda d=date: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
+                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
                         help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date,)
+                        args=(date_obj,)
                     ):
-                        pass  # The on_click lambda handles the toggle
+                        # Force rerender to update button labels
+                        st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -146,7 +146,7 @@ div[data-testid="stRadio"] label {
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
