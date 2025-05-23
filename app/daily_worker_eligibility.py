@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, date
 import calendar
 
 def get_date_range(apply_date):
-    start_date = apply_date.replace(month=4, day=1)
+    start_date = apply_date.replace(month=1, day=1)  # Start from January 1st for the year
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
@@ -13,10 +13,10 @@ def render_calendar(apply_date):
     <style>
     /* Reduce padding and margins for calendar columns */
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.2rem !important;
+        gap: 0.1rem !important;
     }
     div[data-testid="stHorizontalBlock"] > div {
-        padding: 0.1rem !important;
+        padding: 0 !important;
         margin: 0 !important;
     }
     /* Style for calendar day buttons */
@@ -29,47 +29,47 @@ def render_calendar(apply_date):
         justify-content: center !important;
         font-size: 1rem !important;
         padding: 0 !important;
-        margin: 0 auto !important;
-        border: 2px solid transparent !important; /* Default transparent border */
-        background-color: #1e1e1e !important; /* Match app background */
-        color: white !important;
+        margin: 0 !important;
+        border: 1px solid #ccc !important; /* Light border for all dates */
+        background-color: #fff !important; /* White background for unselected */
+        color: black !important;
     }
     /* Hover effect */
     div[data-testid="stButton"] button[kind="secondary"]:hover {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - blue border */
+    /* Selected button style - red background */
     div[data-testid="stButton"] button[id*="selected-"] {
-        background-color: black !important;
+        background-color: #ff0000 !important; /* Red background for selected dates */
         color: white !important;
-        border: 2px solid blue !important; /* Blue border for selected dates */
+        border: 1px solid #ccc !important;
     }
     /* Current date style - blue border */
     div[data-testid="stButton"] button[id*="current-"] {
-        background-color: black !important;
+        background-color: #0000ff !important; /* Blue background for current date */
         color: white !important;
         font-weight: bold !important;
-        border: 2px solid blue !important; /* Blue border for current date */
+        border: 1px solid #ccc !important;
     }
     /* Disabled (future) day style */
     div[data-testid="stButton"] button[disabled] {
         color: gray !important;
-        background-color: #1e1e1e !important;
-        border: 2px solid transparent !important;
+        background-color: #f0f0f0 !important;
+        border: 1px solid #ccc !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
-        color: white !important;
+        color: black !important;
     }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-wrap: nowrap !important;
-            gap: 0.2rem !important;
+            gap: 0.1rem !important;
         }
         div[data-testid="stHorizontalBlock"] > div {
             flex: 1 !important;
@@ -82,10 +82,17 @@ def render_calendar(apply_date):
             height: 35px !important;
         }
     }
+    /* Month boundary styling */
+    div[data-testid="stMarkdownContainer"] h3 {
+        margin: 0.5rem 0 !important;
+        padding: 0.2rem !important;
+        background-color: #f0f0f0 !important;
+        text-align: center !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    start_date = apply_date.replace(month=4, day=1)
+    start_date = apply_date.replace(month=1, day=1)  # Start from January 1st for the year
     end_date = apply_date
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
@@ -97,14 +104,14 @@ def render_calendar(apply_date):
     current_date = datetime.now().date()  # Current date is 2025-05-24
 
     for year, month in months:
-        st.markdown(f"### {year}년 {month}월")
+        st.markdown(f"### {year} {calendar.month_name[month]} {apply_date.day}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
-        days = ["일", "월", "화", "수", "목", "금", "토"]
+        days = ["Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"]
 
         # Create columns for day headers
         cols = st.columns(7, gap="small")
         for i, day in enumerate(days):
-            color = "red" if i == 0 else "blue" if i == 6 else "white"
+            color = "red" if i == 0 else "blue" if i == 6 else "black"
             cols[i].markdown(f"<span style='color:{color}'><strong>{day}</strong></span>", unsafe_allow_html=True)
 
         # Create calendar grid
@@ -126,13 +133,13 @@ def render_calendar(apply_date):
                         str(day),
                         key=button_key,
                         on_click=toggle_date,
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
+                        help="Click to select or deselect a work day",
                         kwargs={"date_obj": date_obj}
                     ):
                         st.rerun()
 
     if selected_dates:
-        st.markdown("### ✅ 선택된 근무일자")
+        st.markdown("### ✅ Selected Work Dates")
         st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
 
     return selected_dates
@@ -147,7 +154,7 @@ def daily_worker_eligibility_app():
     st.markdown("""
 <style>
 div[data-testid="stRadio"] label {
-    color: white !important;
+    color: black !important;
     font-size: 18px !important;
 }
 </style>
@@ -208,7 +215,7 @@ div[data-testid="stRadio"] label {
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
         for future_date in future_dates:
-            date_range_future = pd.date_range(start=future_date.replace(month=4, day=1), end=future_date)
+            date_range_future = pd.date_range(start=future_date.replace(month=1, day=1), end=future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
             worked_days_future = sum(1 for d in selected_days if d <= future_date)
@@ -230,14 +237,14 @@ div[data-testid="stRadio"] label {
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
         if condition1:
-            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
+            st.success(f"✅ 일반일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
         else:
             st.error("❌ 일반일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
     else:
         fourteen_days_prior_end = apply_date - timedelta(days=1)
         fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
         if condition1 or condition2:
-            st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(2025-04-01 ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
+            st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
         else:
             st.error(f"❌ 건설일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되고, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 내 근무기록이 존재하므로 요건을 충족하지 못합니다.**")
 
