@@ -16,6 +16,7 @@ def render_calendar(apply_date, selected_dates):
 
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
+    clicked_dates = set()
     for year, month in months:
         st.markdown(f"### {year}년 {month}월")
         cal = calendar.monthcalendar(year, month)
@@ -30,9 +31,13 @@ def render_calendar(apply_date, selected_dates):
                     row.append(" ")
                 else:
                     date = datetime(year, month, day).date()
+                    label = f"{month:02d}-{day:02d}"
+                    if st.checkbox(label, key=str(date)):
+                        clicked_dates.add(date)
                     mark = "⭕" if date in selected_dates else f"{day}"
                     row.append(mark)
             st.markdown("| " + " | ".join(row) + " |")
+    return clicked_dates
 
 
 def daily_worker_eligibility_app():
@@ -42,14 +47,10 @@ def daily_worker_eligibility_app():
 
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today())
     date_range = get_date_range(apply_date)
-    date_labels = [d.strftime('%Y-%m-%d') for d in date_range]
-
-    selected_day_labels = st.multiselect("근무일자 선택 (아래 달력에 표시됩니다)", options=date_labels)
-    selected_days = set(pd.to_datetime(selected_day_labels).date)
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    render_calendar(apply_date, selected_days)
+    selected_days = render_calendar(apply_date, set())
     st.markdown("---")
 
     # 조건 1: 직전달 1일부터 신청일까지 총일수 대비 근무일 비율
@@ -70,7 +71,7 @@ def daily_worker_eligibility_app():
     # 조건 2: 신청일 이전 14일간 근무 내역 없음
     condition2 = False
     if worker_type == "건설일용근로자":
-        fourteen_days_prior = [apply_date.date() - timedelta(days=i) for i in range(1, 15)]
+        fourteen_days_prior = [apply_date - timedelta(days=i) for i in range(1, 15)]
         no_work_14_days = all(day not in selected_days for day in fourteen_days_prior)
         condition2 = no_work_14_days
 
@@ -96,4 +97,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-
