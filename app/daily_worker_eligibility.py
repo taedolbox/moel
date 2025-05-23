@@ -62,7 +62,7 @@ label[data-testid="stRadio"] > div {
 </style>
 """, unsafe_allow_html=True)
 
-    st.header("수급자격 - 일용근로자 수급자격 요건 모의계산")
+    st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
