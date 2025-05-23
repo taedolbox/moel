@@ -1,62 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-.stButton>button {
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 16px;
-}
-.stRadio>label {
-    font-size: 16px;
-    color: #333;
-}
-.stMarkdown, .stSuccess, .stWarning {
+body {
+    background-color: #dcdcdc;
+    color: #222;
     font-family: 'Nanum Gothic', sans-serif;
 }
-.sidebar .sidebar-content {
-    background-color: #f8f9fa;
-}
 
-st.markdown("""
-<style>
-/* 바탕색 - 다크모드 더 연하게 */
-body {
-    background-color: #2c2c2c;
-    color: #f0f0f0;
-}
-
-/* 본문은 연회색으로 */
 div.block-container {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
 }
 
-/* 사이드바는 진한 회색으로 */
 .sidebar .block-container {
-    background-color: #333333;
-    color: white;
+    background-color: #f0f0f0;
+    color: #111;
 }
 
-/* 요일 글자 크기와 간격 줄이기 */
 .calendar-day-header {
     text-align: center;
     font-weight: bold;
-    font-size: 11px;
-    padding: 2px;
+    font-size: 10px;
+    padding: 1px;
     margin: 0px;
 }
 
-/* 달력 셀 스타일 */
 .calendar-cell {
     text-align: center;
-    padding: 4px;
+    padding: 3px;
     border-radius: 4px;
-    background-color: #f5f5f5;
+    background-color: #ffffff;
 }
 
-/* 반응형 - 모바일에서도 7칸 유지 */
 [data-testid="column"] {
-    min-width: 50px !important;
+    min-width: 40px !important;
+    padding: 0px !important;
+    margin: 0px !important;
 }
-</style>
-""", unsafe_allow_html=True)
