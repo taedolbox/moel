@@ -95,7 +95,7 @@ def main():
             early_reemployment_app()
 
     st.markdown("---")
-    st.caption("ⓒ 2025 실업급여 도우미. 실제 수급 가능 여부는 고용센터 판단을 기준으로 합니다.")
+    st.caption("ⓒ 2025 실업급여 도우미는 도움을 드리기 위한 목적입니다. 실제 가능 여부는 고용센터의 판단을 기준으로 합니다.")
     st.markdown("[나의 지역 고용센터 찾기](https://www.work24.go.kr/cm/c/d/0190/retrieveInstSrchLst.do)에서 자세한 정보를 확인하세요.")
 
 if __name__ == "__main__":
