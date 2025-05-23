@@ -2,34 +2,23 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
-from streamlit_javascript import st_javascript ## 추가: JavaScript 연동을 위함
+from streamlit_javascript import st_javascript # JavaScript 연동을 위함
 
-# Streamlit에 JavaScript 호출 가능한 함수 등록
-# st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 여기에 추가
-# ... (나머지 코드)
-
-# --- 헬퍼 함수들은 동일하게 유지 ---
+# --- 헬퍼 함수: 날짜 범위 계산 ---
 def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
     return pd.date_range(start=start_date, end=apply_date), start_date
 
+# --- JavaScript에서 호출될 Python 함수: 날짜 선택 토글 ---
 def toggle_date_js(date_str):
-    """JavaScript에서 호출될 Python 함수. st.session_state를 업데이트합니다."""
     date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
     if date_obj in st.session_state.selected_dates:
         st.session_state.selected_dates.remove(date_obj)
     else:
         st.session_state.selected_dates.add(date_obj)
-    # Streamlit을 다시 실행하여 변경된 상태를 반영합니다.
-    st.rerun()
+    st.rerun() # 상태 변경 후 앱 새로고침
 
-# Streamlit에 JavaScript 호출 가능한 함수 등록
-# st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 필요할 수 있습니다.
-# JavaScript가 호출할 수 있도록 함수를 등록합니다.
-# 주의: 이 방법은 Streamlit 버전과 환경에 따라 작동 방식이 다를 수 있습니다.
-# 더 안정적인 방법은 st_javascript를 사용하여 명시적으로 JS를 실행하는 것입니다.
-
-# --- 캘린더 렌더링 함수 수정 ---
+# --- 캘린더 렌더링 함수 ---
 def render_calendar(apply_date):
     # --- CSS 스타일 정의 (HTML 구조에 맞게 수정) ---
     st.markdown("""
@@ -78,11 +67,6 @@ def render_calendar(apply_date):
         background-color: #1e1e1e !important;
         cursor: not-allowed;
     }
-    /* 선택된 날짜 스타일 (체크박스 클릭으로 제어되므로 배경색은 불필요할 수 있음) */
-    /* .calendar-day-cell.selected-date {
-        border: 2px solid #0000ff !important;
-        background-color: rgba(0, 255, 0, 0.2) !important;
-    } */
     /* 현재 날짜 스타일 (선택 여부와 별개) */
     .calendar-day-cell.current-date {
         background-color: #0000ff !important; /* 파란색 배경 */
@@ -107,7 +91,7 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
-    /* 모바일 반응형 (기존과 동일) */
+    /* 모바일 반응형 */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             flex-wrap: nowrap !important;
@@ -115,7 +99,7 @@ def render_calendar(apply_date):
         }
         div[data-testid="stHorizontalBlock"] > div {
             flex: 1 !important;
-            min-width: 40px !important; /* 조금 더 넓게 */
+            min-width: 40px !important;
             padding: 0 !important;
         }
         .calendar-day-cell {
@@ -169,16 +153,13 @@ def render_calendar(apply_date):
                     classes = ["calendar-day-cell"]
                     if is_disabled:
                         classes.append("disabled-date")
-                    if is_current: # 현재 날짜는 선택 여부와 무관하게 표시
+                    if is_current:
                         classes.append("current-date")
-                    # 'selected-date' 클래스는 이제 체크박스 상태로 대체되므로 필요 없을 수 있습니다.
-                    # 하지만 배경색 변경을 원하면 다시 추가하세요.
                     
                     class_str = " ".join(classes)
                     date_str = date_obj.strftime('%Y-%m-%d')
 
-                    # JavaScript 함수를 호출하기 위한 스니펫 (st_javascript를 활용)
-                    # 체크박스 클릭 시 toggle_date_js Python 함수를 호출하도록 합니다.
+                    # JavaScript 함수를 호출하기 위한 스니펫
                     onclick_js = f"window.parent.streamlit_app_callbacks.toggle_date('{date_str}');"
                     
                     # 체크박스 상태 (checked/unchecked)
@@ -194,25 +175,6 @@ def render_calendar(apply_date):
                     """
                     cols[i].markdown(html_content, unsafe_allow_html=True)
     
-    # --- JavaScript 콜백 함수 등록 ---
-    # Python 함수를 JavaScript에서 호출할 수 있도록 등록합니다.
-    # 이는 앱 초기 로드 시 한 번만 실행되어야 합니다.
-    st_javascript(
-        f"""
-        if (window.parent.streamlit_app_callbacks === undefined) {{
-            window.parent.streamlit_app_callbacks = {{}};
-        }}
-        window.parent.streamlit_app_callbacks.toggle_date = function(date_str) {{
-            return window.parent.streamlit_app_callbacks.toggle_date_callback(date_str);
-        }};
-        """,
-        key="init_js_callbacks",
-        args=(toggle_date_js,), # Python 함수를 JS로 전달
-        func_name="toggle_date_callback", # JS에서 호출할 함수 이름
-        # 원하는 대로 변경 가능합니다.
-        # st_javascript(js_code, key, args, func_name, disable_function_callback)
-    )
-
     # --- 선택된 근무일자 표시 (기존과 동일) ---
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -220,8 +182,12 @@ def render_calendar(apply_date):
 
     return selected_dates
 
-# --- 나머지 daily_worker_eligibility_app 함수는 거의 동일하게 유지 ---
+# --- 메인 앱 함수 ---
 def daily_worker_eligibility_app():
+    # 캐시 클리어 (필요시 사용, 현재는 오류 방지를 위해 제거)
+    # st.cache_data.clear()
+    # st.cache_resource.clear()
+
     st.markdown("""
 <style>
 div[data-testid="stRadio"] label {
@@ -289,7 +255,7 @@ div[data-testid="stRadio"] label {
             date_range_future, _ = get_date_range(future_date)
             total_days_future = len(date_range_future)
             threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
+            worked_days_future = sum(1 for d in selected_days if d <= future_date)
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
                 found_suggestion = True
@@ -299,7 +265,7 @@ div[data-testid="stRadio"] label {
 
     if worker_type == "건설일용근로자" and not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        past_worked_days = [d for d in selected_dates if d < apply_date]
+        past_worked_days = [d for d in selected_days if d < apply_date]
         last_worked_day = max(past_worked_days) if past_worked_days else None
 
         if last_worked_day:
@@ -321,6 +287,21 @@ div[data-testid="stRadio"] label {
             st.success(f"✅ 건설일용근로자 요건 충족\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만임을 확인하거나, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
         else:
             st.error(f"❌ 건설일용근로자 요건 미충족\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되고, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 내 근무기록이 존재하므로 요건을 충족하지 못합니다.**")
-
-if __name__ == "__main__":
-    daily_worker_eligibility_app()
+    
+    # --- JavaScript 콜백 함수 등록 ---
+    # 앱 로드 시 한 번만 실행되도록 조건문으로 감쌉니다.
+    if 'js_callbacks_initialized' not in st.session_state:
+        st_javascript(
+            f"""
+            if (window.parent.streamlit_app_callbacks === undefined) {{
+                window.parent.streamlit_app_callbacks = {{}};
+            }}
+            window.parent.streamlit_app_callbacks.toggle_date = function(date_str) {{
+                // 이 함수가 Python의 toggle_date_js (func_name으로 등록된)를 호출합니다.
+                return window.parent.streamlit_app_callbacks.toggle_date_callback(date_str);
+            }};
+            """,
+            key="init_js_callbacks",
+            func_name="toggle_date_callback", # 이 이름으로 Python 함수가 연결됩니다.
+        )
+        st.session_state.js_callbacks_initialized = True
