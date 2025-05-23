@@ -77,12 +77,12 @@ def render_calendar(apply_date):
 
     start_date = apply_date.replace(month=4, day=1)
     end_date = apply_date
+
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=end_date)))
 
     # Initialize selected dates in session state if not already present
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
-
     selected_dates = st.session_state.selected_dates
 
     for year, month in months:
@@ -109,22 +109,31 @@ def render_calendar(apply_date):
                     cols[i].markdown(" ")
                 else:
                     date_obj = date(year, month, day)  # Use date instead of datetime.date
+
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
+
                     button_key = f"btn_{date_obj}"
+                    
                     # Check if date is selected and modify label
                     is_selected = date_obj in selected_dates
                     label = f"✅ {day}" if is_selected else str(day)
-                    if cols[i].button(
+
+                    # Use a function to handle the click for better state management
+                    def on_button_click(clicked_date):
+                        if clicked_date in st.session_state.selected_dates:
+                            st.session_state.selected_dates.remove(clicked_date)
+                        else:
+                            st.session_state.selected_dates.add(clicked_date)
+
+                    cols[i].button(
                         label,
                         key=button_key,
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        args=(date_obj,)
-                    ):
-                        # Force rerender to update button labels
-                        st.rerun()
+                        on_click=on_button_click,
+                        args=(date_obj,),
+                        help="클릭하여 근무일을 선택하거나 해제하세요"
+                    )
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -145,8 +154,8 @@ div[data-testid="stRadio"] label {
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())  # Ensure date object
+
     date_range = get_date_range(apply_date)
 
     st.markdown("---")
