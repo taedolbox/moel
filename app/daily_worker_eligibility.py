@@ -16,6 +16,7 @@ def render_calendar(apply_date):
         width: 100%;
         border-collapse: collapse;
         margin: 0 auto;
+        background-color: #1e1e1e; /* Dark background to match image */
     }
     .calendar-table th, .calendar-table td {
         border: 1px solid #444; /* Subtle border for table cells */
@@ -28,6 +29,7 @@ def render_calendar(apply_date):
     .calendar-table th {
         font-size: 0.9rem;
         color: white;
+        background-color: #2e2e2e; /* Slightly lighter header background */
     }
     .calendar-table th:first-child {
         color: red; /* Sunday */
@@ -50,10 +52,15 @@ def render_calendar(apply_date):
         background-color: transparent;
         color: white;
     }
-    /* Hover effect */
+    /* Hover and selected effect */
     .calendar-table button[kind="secondary"]:hover {
-        border: 2px solid #00ff00; /* Green circle on hover */
-        background-color: rgba(0, 255, 0, 0.2); /* Light green background */
+        border: 2px solid #00ff00; /* Green border on hover */
+        background-color: rgba(0, 255, 0, 0.3); /* Light green background */
+    }
+    /* Selected button style */
+    .calendar-table button.selected {
+        border: 2px solid #00ff00; /* Green border for selected days */
+        background-color: rgba(0, 255, 0, 0.3); /* Light green background */
     }
     /* Disabled (future) day style */
     .calendar-table button[disabled] {
@@ -118,8 +125,8 @@ def render_calendar(apply_date):
                     else:
                         button_key = f"btn_{date_obj}"
                         is_selected = date_obj in selected_dates
-                        label = f"✅ {day}" if is_selected else str(day)
-                        # Use st.button and capture its output in a container
+                        # Add selected class if the date is selected
+                        button_class = "selected" if is_selected else ""
                         button_html = f'<div id="{button_key}"></div>'
                         table_html += f'<td>{button_html}</td>'
             table_html += '</tr>'
@@ -135,11 +142,10 @@ def render_calendar(apply_date):
                         continue
                     button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
-                    label = f"✅ {day}" if is_selected else str(day)
-                    # Place button in the correct container
+                    # Use class to indicate selected state
                     with st.container():
                         if st.button(
-                            label,
+                            str(day),
                             key=button_key,
                             on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
                             help="클릭하여 근무일을 선택하거나 해제하세요",
