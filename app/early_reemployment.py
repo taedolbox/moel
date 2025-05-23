@@ -15,7 +15,7 @@ def early_reemployment_app():
     if st.session_state.early_step == 0:
         q = "새 일자리가 일반 회사 취업인가요, 자영업/특수고용직(예: 예술인, 노무제공자)인가요?"
         st.write(f"**질문: {q}**")
-        ans = st.radio("답변", ["일반 회사 취업", "자영업/특수고용직"], key="early_q0")
+        ans = st.radio("답변", ["일반 회사 취업", "자영업/특수고용직/예술인"], key="early_q0")
         if st.button("다음", key="early_next_0"):
             st.session_state.employment_type = ans
             st.session_state.early_answers.append(ans)
@@ -55,7 +55,7 @@ def early_reemployment_app():
         ]
 
         if not mismatches:
-            st.success("✅ 모든 조건을 충족하였습니다. 고용센터에 확인 및 청구를 진행하세요.")
+            st.success("✅ 질문에 대한 조건이 모두 충족하였습니다. 고용센터에 확인 및 청구를 진행하세요.")
         else:
             st.warning("❌ 아래 조건을 충족하지 못했습니다:")
             for i, q, a, r in mismatches:
