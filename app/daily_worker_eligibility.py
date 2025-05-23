@@ -10,7 +10,7 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date), start_date
 
 def render_calendar(apply_date):
-    # Inject custom CSS for compact layout and button styling
+    # Inject custom CSS and JavaScript for styling and interaction
     st.markdown("""
     <style>
     /* Reduce padding and margins for calendar columns */
@@ -21,7 +21,7 @@ def render_calendar(apply_date):
         padding: 0 !important;
         margin: 0 !important;
     }
-    /* Container for button and checkbox */
+    /* Container for day and checkbox */
     .day-container {
         display: flex !important;
         flex-direction: column !important;
@@ -34,46 +34,47 @@ def render_calendar(apply_date):
         background-color: #1e1e1e !important;
         margin: 0 !important;
         padding: 0 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
     }
-    /* Style for calendar day buttons */
-    div[data-testid="stButton"] button {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 0 !important; /* Square buttons */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 1rem !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important; /* Remove default border */
-        background-color: transparent !important; /* Transparent background */
-        color: white !important;
-        transition: all 0.2s ease !important; /* Smooth transition for hover */
-    }
-    /* Hover effect for unselected buttons */
-    div[data-testid="stButton"] button:not([id*="selected-"]):hover {
+    /* Hover effect for unselected containers */
+    .day-container:not(.selected):not(.current):hover {
+        border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
-    /* Selected button style - green background with blue border for the container */
-    .day-container:has(button[id*="selected-"]) {
-        background-color: #00ff00 !important; /* Green background for selected dates */
-        border: 2px solid #0000ff !important; /* Blue border for selected dates */
+    /* Selected container style - green background with blue border */
+    .day-container.selected {
+        background-color: #00ff00 !important;
+        border: 2px solid #0000ff !important;
     }
-    div[data-testid="stButton"] button[id*="selected-"] {
-        color: white !important;
+    /* Current date style - blue background */
+    .day-container.current {
+        background-color: #0000ff !important;
     }
-    /* Current date style - blue background for the container */
-    .day-container:has(button[id*="current-"]) {
-        background-color: #0000ff !important; /* Blue background for current date */
+    /* Disabled container style */
+    .day-container.disabled {
+        cursor: not-allowed !important;
+        background-color: #1e1e1e !important;
+        border: 1px solid #ccc !important;
     }
-    div[data-testid="stButton"] button[id*="current-"] {
-        color: white !important;
-        font-weight: bold !important;
-    }
-    /* Disabled (future) day style */
-    div[data-testid="stButton"] button[disabled] {
+    .day-container.disabled .day-number {
         color: gray !important;
+    }
+    /* Day number styling */
+    .day-number {
+        font-size: 1rem !important;
+        color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 40px !important;
+        text-align: center !important;
+    }
+    /* Checkbox styling */
+    .day-checkbox {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 16px !important;
+        height: 16px !important;
     }
     /* Day header styles */
     div[data-testid="stHorizontalBlock"] span {
@@ -81,29 +82,7 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
-    /* Checkbox styling */
-    div[data-testid="stCheckbox"] {
-        display: flex !important;
-        justify-content: center !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        font-size: 0.7rem !important;
-        width: 20px !important;
-        height: 20px !important;
-    }
-    div[data-testid="stCheckbox"] label {
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: 100% !important;
-    }
-    div[data-testid="stCheckbox"] input[type="checkbox"] {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    /* PC layout (above 600px) - vertical alignment */
+    /* PC layout (above 600px) */
     @media (min-width: 601px) {
         div[data-testid="stHorizontalBlock"] > div {
             min-width: 50px !important;
@@ -112,16 +91,15 @@ def render_calendar(apply_date):
             width: 40px !important;
             height: 60px !important;
         }
-        div[data-testid="stButton"] button {
-            width: 40px !important;
-            height: 40px !important;
+        .day-number {
+            font-size: 1rem !important;
         }
-        div[data-testid="stCheckbox"] {
-            min-width: 40px !important;
-            height: 20px !important;
+        .day-checkbox {
+            width: 16px !important;
+            height: 16px !important;
         }
     }
-    /* Mobile layout (below 600px) - horizontal alignment */
+    /* Mobile layout (below 600px) */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -137,25 +115,32 @@ def render_calendar(apply_date):
             width: 35px !important;
             height: 55px !important;
         }
-        div[data-testid="stButton"] button {
+        .day-number {
             font-size: 0.8rem !important;
-            width: 35px !important;
-            height: 35px !important;
+            line-height: 35px !important;
         }
-        div[data-testid="stCheckbox"] {
-            min-width: 35px !important;
-            height: 20px !important;
+        .day-checkbox {
+            width: 14px !important;
+            height: 14px !important;
         }
     }
     /* Month boundary styling */
     div[data-testid="stMarkdownContainer"] h3 {
         margin: 0.5rem 0 !important;
         padding: 0.2rem !important;
-        background-color: #2e2e2e !important; /* Slightly lighter than app background */
+        background-color: #2e2e2e !important;
         text-align: center !important;
         color: white !important;
     }
     </style>
+    <script>
+    function toggleCheckbox(dateStr) {
+        var checkbox = document.getElementById('checkbox-' + dateStr);
+        if (checkbox) {
+            checkbox.click();
+        }
+    }
+    </script>
     """, unsafe_allow_html=True)
 
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
@@ -200,36 +185,51 @@ def render_calendar(apply_date):
                     cols[i].markdown(" ")
                 else:
                     date_obj = date(year, month, day)
-                    if date_obj > apply_date:
-                        # Create a container for disabled days
-                        with cols[i].container():
-                            st.markdown('<div class="day-container">', unsafe_allow_html=True)
-                            cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
-                            cols[i].markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-                            st.markdown('</div>', unsafe_allow_html=True)
-                        continue
+                    date_str = date_obj.strftime("%Y-%m-%d")
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    key_prefix = "selected-" if is_selected else "current-" if is_current else "btn-"
-                    button_key = f"{key_prefix}{date_obj}"
-                    # Create a container for button and checkbox
+                    is_disabled = date_obj > apply_date
+
+                    # Define container classes
+                    container_classes = "day-container"
+                    if is_selected:
+                        container_classes += " selected"
+                    if is_current:
+                        container_classes += " current"
+                    if is_disabled:
+                        container_classes += " disabled"
+
+                    # Create a container for day and checkbox
                     with cols[i].container():
-                        st.markdown('<div class="day-container">', unsafe_allow_html=True)
-                        if cols[i].button(
-                            str(day),
-                            key=button_key,
-                            on_click=toggle_date,
-                            help="클릭하여 근무일을 선택하거나 해제하세요",
-                            kwargs={"date_obj": date_obj}
-                        ):
-                            st.rerun()
-                        # Add checkbox below the button
-                        checkbox_key = f"checkbox_{date_obj}"
-                        is_checked = cols[i].checkbox("", value=is_selected, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": date_obj})
-                        if is_checked != is_selected:
-                            toggle_date(date_obj)
-                            st.rerun()
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        # Use HTML to create the clickable container
+                        if not is_disabled:
+                            st.markdown(
+                                f"""
+                                <div class="{container_classes}" onclick="toggleCheckbox('{date_str}')">
+                                    <div class="day-number">{day}</div>
+                                    <input type="checkbox" id="checkbox-{date_str}" class="day-checkbox" {"checked" if is_selected else ""} onchange="this.closest('.day-container').classList.toggle('selected', this.checked)">
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown(
+                                f"""
+                                <div class="{container_classes}">
+                                    <div class="day-number">{day}</div>
+                                    <div style="height: 16px;"></div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
+                        # Hidden Streamlit checkbox to manage state
+                        if not is_disabled:
+                            checkbox_key = f"checkbox_{date_obj}"
+                            is_checked = st.checkbox("", value=is_selected, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": date_obj})
+                            if is_checked != is_selected:
+                                toggle_date(date_obj)
+                                st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
