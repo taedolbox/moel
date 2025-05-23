@@ -66,6 +66,17 @@ def render_calendar(apply_date):
         text-align: center !important;
         color: white !important;
     }
+    /* Center checkbox below button */
+    div[data-testid="stCheckbox"] {
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    div[data-testid="stCheckbox"] label {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
     /* Force horizontal layout on mobile */
     @media (max-width: 600px) {
         div[data-testid="stHorizontalBlock"] {
@@ -82,6 +93,9 @@ def render_calendar(apply_date):
             font-size: 0.8rem !important;
             width: 35px !important;
             height: 35px !important;
+        }
+        div[data-testid="stCheckbox"] {
+            min-width: 35px !important;
         }
     }
     /* Month boundary styling */
@@ -104,12 +118,12 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = datetime.now().date()  # Current date is 07:48 AM KST on Saturday, May 24, 2025
+    current_date = datetime.now().date()  # Current date is 07:51 AM KST on Saturday, May 24, 2025
 
     for year, month in months:
         st.markdown(f"### {year} {calendar.month_name[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
-        days = ["Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"]
+        days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
         # Create columns for day headers
         cols = st.columns(7, gap="small")
@@ -127,6 +141,7 @@ def render_calendar(apply_date):
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
+                        cols[i].markdown(" ")
                         continue
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
@@ -139,6 +154,12 @@ def render_calendar(apply_date):
                         help="클릭하여 근무일을 선택하거나 해제하세요",
                         kwargs={"date_obj": date_obj}
                     ):
+                        st.rerun()
+                    # Add checkbox below the button
+                    checkbox_key = f"checkbox_{date_obj}"
+                    is_checked = cols[i].checkbox("", value=is_selected, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": date_obj})
+                    if is_checked != is_selected:
+                        toggle_date(date_obj)
                         st.rerun()
 
     if selected_dates:
