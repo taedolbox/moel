@@ -7,14 +7,6 @@ from app.unemployment_recognition import unemployment_recognition_app
 from app.questions import get_employment_questions, get_self_employment_questions, get_remote_assignment_questions, get_wage_delay_questions
 
 def main():
-    st.set_page_config(
-        page_title="일용근로자 수급자격 모의계산",
-        page_icon="📅",
-        layout="centered",
-        initial_sidebar_state="auto"
-    )
-
-    daily_worker_eligibility_app()
 
 if __name__ == "__main__":
     
