@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
-from streamlit_javascript import st_javascript # 추가: JavaScript 연동을 위함
+from streamlit_javascript import st_javascript ## 추가: JavaScript 연동을 위함
 
 # Streamlit에 JavaScript 호출 가능한 함수 등록
 st.runtime.legacy_caching.clear_cache() # 캐싱 문제 방지를 위해 여기에 추가
