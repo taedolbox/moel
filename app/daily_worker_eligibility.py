@@ -26,13 +26,8 @@ def render_calendar_with_checkboxes(apply_date):
     # 사용자 정의 CSS 주입
     st.markdown(f"""
     <style>
-    /* Nanum Gothic 폰트 적용 */
-    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
-
-    /* 모든 텍스트에 Nanum Gothic 폰트 적용 (기존 Streamlit 테마와 조화) */
-    body, .stApp, div[data-testid="stSidebar"], div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p, .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf, div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p, div[data-testid="stHorizontalBlock"] span {{
-        font-family: 'Nanum Gothic', sans-serif !important;
-    }}
+    /* Nanum Gothic 폰트 적용 제거 - Streamlit 기본 폰트 사용 */
+    /* @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap'); */
 
     /* 근무일 선택 달력 관련 스타일 */
 
@@ -49,7 +44,7 @@ def render_calendar_with_checkboxes(apply_date):
         color: #000000 !important;
     }}
     div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
-        color: #000000 !important;
+        color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
 
     /* Dark Mode (prefers-color-scheme) */
@@ -66,7 +61,7 @@ def render_calendar_with_checkboxes(apply_date):
             color: #ffffff !important;
         }}
         div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
-            color: #ffffff !important;
+            color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
     }}
 
@@ -326,4 +321,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
