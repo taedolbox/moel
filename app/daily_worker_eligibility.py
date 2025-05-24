@@ -22,7 +22,7 @@ def render_table(apply_date):
         padding: 0 !important;
         background-color: #1e1e1e !important;
     }
-    .calendar-table th, .calendar-table td {
+    .calendar-table th, .calendar-table td.day-cell {
         border: 1px solid #ccc !important;
         width: 40px !important;
         height: 60px !important;
@@ -34,26 +34,26 @@ def render_table(apply_date):
         position: relative !important;
     }
     /* Hover effect for unselected cells */
-    .calendar-table td:not(.selected):not(.current):not(.disabled):hover {
+    .calendar-table td.day-cell:not(.selected):not(.current):not(.disabled):hover {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
     /* Selected cell style - green background with blue border */
-    .calendar-table td.selected {
+    .calendar-table td.day-cell.selected {
         background-color: #00ff00 !important;
         border: 2px solid #0000ff !important;
     }
     /* Current date style - blue background */
-    .calendar-table td.current {
+    .calendar-table td.day-cell.current {
         background-color: #0000ff !important;
     }
     /* Disabled cell style */
-    .calendar-table td.disabled {
+    .calendar-table td.day-cell.disabled {
         cursor: not-allowed !important;
         background-color: #1e1e1e !important;
         border: 1px solid #ccc !important;
     }
-    .calendar-table td.disabled .day-number {
+    .calendar-table td.day-cell.disabled .day-number {
         color: gray !important;
     }
     /* Day number styling */
@@ -81,7 +81,7 @@ def render_table(apply_date):
     }
     /* PC layout (above 600px) */
     @media (min-width: 601px) {
-        .calendar-table td {
+        .calendar-table td.day-cell {
             width: 40px !important;
             height: 60px !important;
         }
@@ -95,7 +95,7 @@ def render_table(apply_date):
     }
     /* Mobile layout (below 600px) */
     @media (max-width: 600px) {
-        .calendar-table td {
+        .calendar-table td.day-cell {
             width: 35px !important;
             height: 55px !important;
         }
@@ -177,7 +177,7 @@ def render_table(apply_date):
                     is_disabled = date_obj > apply_date
 
                     # Define cell classes
-                    cell_classes = ""
+                    cell_classes = "day-cell"
                     if is_selected:
                         cell_classes += " selected"
                     if is_current:
@@ -187,10 +187,10 @@ def render_table(apply_date):
 
                     # Create cell content
                     if is_disabled:
-                        table_html += f"<td class='calendar-table{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
+                        table_html += f"<td class='{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
                     else:
                         table_html += f"""
-                        <td class='calendar-table{cell_classes}' onclick="toggleCheckbox('{date_str}')">
+                        <td class='{cell_classes}' onclick="toggleCheckbox('{date_str}')">
                             <div class='day-number'>{day}</div>
                             <input type='checkbox' id='checkbox-{date_str}' class='day-checkbox' {'checked' if is_selected else ''} onchange="this.closest('td').classList.toggle('selected', this.checked)">
                         </td>
@@ -210,8 +210,8 @@ def render_table(apply_date):
                     st.rerun()
 
     if selected_dates:
-        st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]))
+        st.markdown("### ✅ 선택된 근무일자", unsafe_allow_html=True)
+        st.markdown(", ".join([date.strftime("%Y-%m-%d") for date in sorted(selected_dates)]), unsafe_allow_html=True)
 
     return selected_dates
 
@@ -243,10 +243,10 @@ def daily_worker_eligibility_app():
     st.markdown(f"**오늘 날짜와 시간**: {current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')}", unsafe_allow_html=True)
 
     # Display conditions at the top
-    st.markdown("### 📋 요건 조건")
-    st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근로일 수가 총 일수의 1/3 미만이어야 합니다.")
-    st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
-    st.markdown("---")
+    st.markdown("### 📋 요건 조건", unsafe_allow_html=True)
+    st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근로일 수가 총 일수의 1/3 미만이어야 합니다.", unsafe_allow_html=True)
+    st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).", unsafe_allow_html=True)
+    st.markdown("---", unsafe_allow_html=True)
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
 
@@ -256,18 +256,18 @@ def daily_worker_eligibility_app():
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=initial_date)
     date_range, start_date = get_date_range(apply_date)
 
-    st.markdown("---")
-    st.markdown("#### ✅ 근무일 선택 달력")
+    st.markdown("---", unsafe_allow_html=True)
+    st.markdown("#### ✅ 근무일 선택 달력", unsafe_allow_html=True)
     selected_days = render_table(apply_date)
-    st.markdown("---")
+    st.markdown("---", unsafe_allow_html=True)
 
     total_days = len(date_range)
     worked_days = len(selected_days)
     threshold = total_days / 3
 
-    st.markdown(f"- 총 기간 일수: **{total_days}일**")
-    st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
+    st.markdown(f"- 총 기간 일수: **{total_days}일**", unsafe_allow_html=True)
+    st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**", unsafe_allow_html=True)
+    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**", unsafe_allow_html=True)
 
     condition1 = worked_days < threshold
     if condition1:
@@ -291,10 +291,10 @@ def daily_worker_eligibility_app():
         else:
             st.warning(f"❌ 조건 2 불충족: 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 내 근무기록이 존재합니다.")
 
-    st.markdown("---")
+    st.markdown("---", unsafe_allow_html=True)
 
     if not condition1:
-        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
+        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?", unsafe_allow_html=True)
         future_dates = [apply_date + timedelta(days=i) for i in range(1, 31)]
         for future_date in future_dates:
             date_range_future, _ = get_date_range(future_date)
@@ -308,7 +308,7 @@ def daily_worker_eligibility_app():
             st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
 
     if worker_type == "건설일용근로자" and not condition2:
-        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
+        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?", unsafe_allow_html=True)
         last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
         if last_worked_day:
             suggested_date = last_worked_day + timedelta(days=15)
