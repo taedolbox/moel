@@ -172,11 +172,11 @@ def render_calendar_with_checkboxes(apply_date):
         }}
         div[data-testid="stHorizontalBlock"] > div {{
             flex-basis: calc(100% / 7 - 0.1rem); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
-            min-width: 50px !important;
+            min-width: 56px !important;
         }}
         div[data-testid="stCheckbox"] {{
-            width: 30px !important;
-            height: 30px !important;
+            width: 31px !important;
+            height: 31px !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
             font-size: 0.75rem !important;
