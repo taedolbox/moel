@@ -58,8 +58,8 @@ def render_calendar_with_checkboxes(apply_date):
 
     /* 개별 날짜 체크박스(버튼처럼 보이게) 스타일 */
     div[data-testid="stCheckbox"] {{
-        width: 45px !important; /* 날짜 박스 너비 */
-        height: 45px !important; /* 날짜 박스 높이 */
+        width: 60px !important; /* 날짜 박스 너비 */
+        height: 50px !important; /* 날짜 박스 높이 */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
