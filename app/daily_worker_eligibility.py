@@ -24,39 +24,57 @@ def render_calendar_with_checkboxes(apply_date):
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
     # 사용자 정의 CSS 주입
-    # Streamlit의 기본 테마(라이트/다크)와 조화롭게 작동하도록 background-color와 color 속성 직접 지정 제거
-    # 대신 Streamlit의 CSS 변수를 사용하거나, 단순히 폰트와 레이아웃만 정의
     st.markdown(f"""
     <style>
     /* Nanum Gothic 폰트 적용 */
     @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-    /* 모든 텍스트에 Nanum Gothic 폰트 적용 */
+    /* 모든 텍스트에 Nanum Gothic 폰트 적용 (기존 Streamlit 테마와 조화) */
     body, .stApp, div[data-testid="stSidebar"], div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p, .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf, div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p, div[data-testid="stHorizontalBlock"] span {{
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
 
-    /* 체크박스 공통 스타일 (라이트/다크 모드 공통 적용) */
+    /* 근무일 선택 달력 관련 스타일 - 기존 유지 */
+    /* Light Mode */
     div[data-testid="stCheckbox"] {{
-        border: 1px solid var(--text-color) !important; /* Streamlit의 현재 텍스트 색상 사용 */
-        background-color: var(--background-color) !important; /* Streamlit의 현재 배경 색상 사용 */
+        border: 1px solid #000000 !important;
+        background-color: #ffffff !important;
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: var(--text-color) !important; /* Streamlit의 현재 텍스트 색상 사용 */
+        color: #000000 !important;
+    }}
+    div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+    }}
+
+    /* Dark Mode (prefers-color-scheme) */
+    @media (prefers-color-scheme: dark) {{
+        div[data-testid="stCheckbox"] {{
+            border: 1px solid #ffffff !important;
+            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
+        }}
+        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
+            background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
+            color: #ffffff !important;
+        }}
     }}
 
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important; /* 선택 시 빨간색 배경 */
-        border: 2px solid var(--text-color) !important; /* 선택 시 Streamlit의 텍스트 색상 테두리 */
+        background-color: #ff0000 !important;
+        border: 2px solid var(--primary-color) !important; /* Streamlit의 기본 강조색 사용 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important; /* 선택 시 흰색 글씨 */
+        color: #ffffff !important;
     }}
 
-    /* 요일 헤더 색상 */
+    /* 요일 헤더 색상 (라이트/다크 모드 공통) */
     .stHorizontalBlock span {{
-        /* 기본 텍스트 색상 */
+        /* 기본 텍스트 색상 - Streamlit의 기본 텍스트 색상 사용 */
         color: var(--text-color) !important;
     }}
     /* 일요일 빨간색 */
@@ -67,7 +85,6 @@ def render_calendar_with_checkboxes(apply_date):
     .stHorizontalBlock span:nth-child(7) {{
         color: blue !important;
     }}
-
 
     /* 공통 스타일 - 기존 유지 */
     div[data-testid="stRadio"] label {{
@@ -114,10 +131,6 @@ def render_calendar_with_checkboxes(apply_date):
         justify-content: center;
         height: 100%;
     }}
-    div[data-testid="stHorizontalBlock"] span {{
-        font-size: 0.9rem !important;
-        text-align: center !important;
-    }}
     @media (max-width: 600px) {{
         div[data-testid="stHorizontalBlock"] {{
             display: flex !important;
@@ -137,13 +150,6 @@ def render_calendar_with_checkboxes(apply_date):
             font-size: 0.8rem !important;
         }}
     }}
-    div[data-testid="stMarkdownContainer"] h3 {{
-        margin: 0.5rem 0 !important;
-        padding: 0.2rem !important;
-        text-align: center !important;
-        background-color: var(--secondary-background-color) !important; /* 월별 헤더 배경색 */
-        color: var(--text-color) !important; /* 월별 헤더 글자색 */
-    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -161,7 +167,7 @@ def render_calendar_with_checkboxes(apply_date):
 
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
-        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
+        st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True) # h3 태그를 직접 사용하여 CSS 적용
         cal = calendar.monthcalendar(year, month)
         days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
@@ -316,3 +322,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
