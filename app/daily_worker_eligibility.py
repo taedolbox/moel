@@ -234,7 +234,7 @@ def daily_worker_eligibility_app():
     st.markdown("---")
 
     # 수급자격 신청일 선택 (자유롭게 선택 가능, 정상 유지)
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime(2025, 5, 24).date())
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
 
     # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
