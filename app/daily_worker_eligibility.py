@@ -23,7 +23,7 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입 (prefers-color-scheme에 따라 동적 테마 적용)
+    # 사용자 정의 CSS 주입 (선택된 날짜 빨간색 표시 보장)
     st.markdown(f"""
     <style>
     /* 기본 스타일 (라이트 모드) */
@@ -50,13 +50,6 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
         color: #000000 !important;
-    }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important;
-        border: 2px solid #000000 !important;
-    }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important;
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label, div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
         color: #ffffff !important;
@@ -97,13 +90,6 @@ def render_calendar_with_checkboxes(apply_date):
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
             color: #ffffff !important;
         }}
-        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-            background-color: #ff0000 !important;
-            border: 2px solid #ffffff !important;
-        }}
-        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-            color: #ffffff !important;
-        }}
         div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label, div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
             color: #1e1e1e !important;
             background-color: #1e1e1e !important;
@@ -115,6 +101,20 @@ def render_calendar_with_checkboxes(apply_date):
         div[data-testid="stMarkdownContainer"] h3 {{
             background-color: #2e2e2e !important;
             color: #ffffff !important;
+        }}
+    }}
+
+    /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
+        background-color: #ff0000 !important;
+        border: 2px solid #000000 !important; /* 라이트 모드 */
+    }}
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
+        color: #ffffff !important;
+    }}
+    @media (prefers-color-scheme: dark) {{
+        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
+            border: 2px solid #ffffff !important; /* 다크 모드 */
         }}
     }}
 
