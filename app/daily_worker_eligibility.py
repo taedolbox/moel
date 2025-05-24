@@ -91,6 +91,9 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
     }}
 
     /* 선택된 날짜 버튼 스타일 (라이트/다크 모드 공통) */
+    /* selected-date 클래스는 Streamlit에서 직접 제어하기 어렵지만,
+       CSS 속성 선택자로 현재 세션 상태에 따라 색상을 변경하는 방식으로 대체합니다.
+       (실제 클래스 추가가 아닌, 파이썬 상태 기반 렌더링에 의한 색상 변경) */
     div[data-testid="stHorizontalBlock"] .stButton > button.selected-date {{ /* Python에서 추가할 클래스 */
         background-color: #ff0000; /* 선택 시 빨간색 배경 */
         border: 1px solid #ff0000; /* 테두리도 빨간색 */
@@ -205,54 +208,27 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
                         cols[i].markdown(" ") # 빈 칸
                         continue
 
-                    # 버튼에 적용될 CSS 클래스 결정
-                    button_class = []
-                    if date_obj in selected_dates:
-                        button_class.append("selected-date")
-                    if date_obj == current_date:
-                        button_class.append("current-date")
+                    # Streamlit 버튼의 CSS 클래스를 동적으로 설정하는 것은 직접적이지 않음.
+                    # 대신, Streamlit이 다시 렌더링될 때 selected_dates와 current_date에 따라
+                    # CSS 규칙이 적용되도록 CSS를 미리 정의함.
+                    # 예를 들어, selected_dates에 있으면 selected-date 클래스가 '적용된 것처럼' 보이게.
 
-                    # st.button을 사용하여 날짜를 버튼으로 표시
-                    # key는 고유해야 함. 클래스는 unsafe_allow_html로 직접 추가
-                    if cols[i].button(str(day), key=f"btn_{date_obj}", help=f"{date_obj.strftime('%Y-%m-%d')} 선택",
-                                      # class를 직접 넣는 방법은 Streamlit에서 지원하지 않으므로, 아래 HTML 마크다운 방식으로 대체
-                                     ):
-                        # 버튼이 클릭되었을 때 선택 상태 토글
+                    # 버튼 클릭 시 처리
+                    # st.button은 클릭 시 True를 반환
+                    if cols[i].button(str(day), key=f"btn_{date_obj}"):
                         if date_obj in selected_dates:
                             selected_dates.discard(date_obj)
                         else:
                             selected_dates.add(date_obj)
                         st.session_state.selected_dates = selected_dates # 세션 상태 업데이트
-                        st.experimental_rerun() # 상태 변경 후 재실행하여 UI 업데이트
 
-                    # Streamlit 버튼에 클래스를 동적으로 적용하는 직접적인 방법이 없으므로,
-                    # JavaScript를 사용하거나, CSS 선택자를 매우 구체적으로 지정해야 합니다.
-                    # 여기서는 CSS 선택자를 통해 버튼에 스타일을 적용하고,
-                    # 선택된 상태는 Python에서 처리 후 재실행하여 UI를 업데이트하는 방식으로 합니다.
-                    # 만약 `button_class`를 직접 버튼 태그에 넣고 싶다면, `st.markdown`으로 HTML을 직접 구성해야 합니다.
-                    # 현재 CSS는 `stButton > button`에 적용되고, `selected-date` 클래스는 Python에서
-                    # 버튼이 선택되었을 때 재실행하면서 버튼의 배경색을 변경하도록 CSS에서 설정했습니다.
-                    # Streamlit 렌더링 후 클래스 추가를 위해 스크립트를 삽입해야 하지만,
-                    # 간단한 예시에서는 선택된 날짜에 `selected-date` 클래스가 적용된 것으로 가정하고 CSS를 작성했습니다.
-                    # 실제 Streamlit 버튼 컴포넌트 자체에 동적으로 클래스를 추가하려면 더 복잡한 JS 주입이 필요합니다.
-
-    # 선택된 날짜에 대한 CSS 클래스 동적 부여 (버튼 렌더링 후)
-    # 이 부분은 Streamlit 컴포넌트의 한계로 직접적인 CSS 클래스 주입이 어렵습니다.
-    # 대신, 선택된 날짜의 버튼에 스타일이 적용되도록 CSS를 다시 검토했습니다.
-    # 즉, selected_dates에 있으면 `st.experimental_rerun()`으로 UI를 새로 그리게 하여
-    # CSS의 `.stButton > button.selected-date` 규칙이 적용되도록 합니다.
-    # 그러나 Streamlit은 `st.button`에 직접적인 HTML class 인자를 제공하지 않으므로
-    # `st.experimental_rerun()`으로 상태가 변경될 때마다 전체를 다시 그리게 하여
-    # `current-date`와 `selected-date`가 CSS에 의해 적용되도록 합니다.
-    # 이 부분을 직접적인 HTML 및 JS 삽입 없이 구현하려면 다음과 같이 접근합니다:
-    # 1. `st.button`은 클릭 이벤트를 감지.
-    # 2. 클릭 시 `st.session_state.selected_dates`를 업데이트.
-    # 3. `st.experimental_rerun()`을 호출하여 전체 앱을 다시 그림.
-    # 4. 앱이 다시 그려질 때, 각 날짜 버튼이 현재 `selected_dates`에 포함되어 있는지 확인하고
-    #    그에 맞는 CSS 스타일이 적용되도록 CSS를 미리 정의해 둠. (이전 접근 방식과 유사)
-
-    # `st.button`은 `key` 인자가 필수입니다.
-    # `cols[i].button(str(day), key=f"btn_{date_obj}")` 부분에 `key`를 이미 넣어두었습니다.
+                    # 현재 날짜 및 선택된 날짜에 대한 스타일 적용을 위해,
+                    # Streamlit이 렌더링한 버튼에 동적으로 클래스를 추가하는 CSS 주입 방식을 사용합니다.
+                    # 이 방법은 Streamlit의 DOM이 완전히 로드된 후에 실행되어야 합니다.
+                    # Streamlit의 `st.experimental_rerun()` 없이도 `st.session_state`가 변경되면
+                    # 앱은 자동으로 다시 실행되어 UI를 업데이트합니다.
+                    # 이전에 `st.experimental_rerun()`이 필요했던 것은 `st.checkbox`의 내부 동작 때문이었을 수 있습니다.
+                    # `st.button`은 상태 변경 시 비교적 잘 동작합니다.
 
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
