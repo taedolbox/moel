@@ -23,26 +23,32 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입
+    # 사용자 정의 CSS 주입 (style.css와 충돌 방지)
     st.markdown(f"""
     <style>
+    /* Nanum Gothic 폰트 적용 (style.css와 통합) */
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+
     /* 기본 스타일 (라이트 모드) */
     .stApp {{
-        background-color: #ffffff;
-        color: #000000;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stSidebar"] {{
-        background-color: #ffffff !important;
+        background-color: #f8f9fa !important; /* style.css와 통합 */
         color: #000000 !important;
     }}
     div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
         color: #000000 !important;
     }}
     div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-        color: #000000;
+        color: #333 !important; /* style.css와 통합 */
+        font-family: 'Nanum Gothic', sans-serif !important;
     }}
     .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
         color: #000000 !important;
+        font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stCheckbox"] {{
         border: 1px solid #000000 !important;
@@ -67,21 +73,24 @@ def render_calendar_with_checkboxes(apply_date):
     /* 다크 모드 스타일 */
     @media (prefers-color-scheme: dark) {{
         .stApp {{
-            background-color: #1e1e1e;
-            color: #ffffff;
+            background-color: #1e1e1e !important;
+            color: #ffffff !important;
+            font-family: 'Nanum Gothic', sans-serif !important;
         }}
         div[data-testid="stSidebar"] {{
-            background-color: #1e1e1e !important;
+            background-color: #2e2e2e !important; /* style.css의 밝은 테마 대신 다크 모드에 맞게 조정 */
             color: #ffffff !important;
         }}
         div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
             color: #ffffff !important;
         }}
         div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff;
+            color: #ffffff !important;
+            font-family: 'Nanum Gothic', sans-serif !important;
         }}
         .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
             color: #ffffff !important;
+            font-family: 'Nanum Gothic', sans-serif !important;
         }}
         div[data-testid="stCheckbox"] {{
             border: 1px solid #ffffff !important;
@@ -120,7 +129,7 @@ def render_calendar_with_checkboxes(apply_date):
 
     /* 공통 스타일 */
     div[data-testid="stRadio"] label {{
-        font-size: 18px !important;
+        font-size: 16px !important; /* style.css와 통합 */
     }}
     div[data-testid="stHorizontalBlock"] {{
         gap: 0.1rem !important;
@@ -231,10 +240,12 @@ def render_calendar_with_checkboxes(apply_date):
                     date_obj = date(year, month, day)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    # 신청일 이후를 비활성화 (동적 적용 확인)
+                    # 신청일 이후를 비활성화
                     is_disabled = date_obj > apply_date
 
-                    # 디버깅 출력 (실시간 확인)
+                    # 디버깅 출력 (요일 및 비활성화 상태 확인)
+                    if date_obj == date(2025, 4, 1):
+                        print(f"2025-04-01 요일: {days_of_week_korean[i]} (인덱스: {i})")
                     print(f"Date: {date_obj}, Apply Date: {apply_date}, Disabled: {is_disabled}")
 
                     def on_checkbox_change(current_date_obj_for_callback):
@@ -281,7 +292,7 @@ def daily_worker_eligibility_app():
     st.markdown("---")
 
     # 수급자격 신청일 선택 (자유롭게 선택 가능)
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date(), key="apply_date_input")
 
     # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
