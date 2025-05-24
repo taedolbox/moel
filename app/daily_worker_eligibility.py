@@ -23,98 +23,55 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
-    # 사용자 정의 CSS 주입 (요일 헤더와 날짜 색상 통일)
+    # 사용자 정의 CSS 주입 (본문 바탕색 상단과 통일)
     st.markdown(f"""
     <style>
     /* Nanum Gothic 폰트 적용 */
     @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-    /* 기본 스타일 (라이트 모드) */
+    /* 기본 스타일 (라이트 모드 제거, 다크 모드 통일) */
     .stApp {{
-        background-color: #ffffff !important;
-        color: #000000 !important;
+        background-color: #1e1e1e !important; /* 상단 바와 동일한 진한 검정색 */
+        color: #ffffff !important; /* 텍스트 흰색으로 가독성 유지 */
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stSidebar"] {{
-        background-color: #f8f9fa !important;
-        color: #000000 !important;
+        background-color: #2e2e2e !important; /* 사이드바는 약간 밝게 유지 */
+        color: #ffffff !important;
     }}
     div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
-        color: #000000 !important;
+        color: #ffffff !important;
     }}
     div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-        color: #333 !important;
+        color: #ffffff !important; /* 텍스트 흰색 */
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
-        color: #333 !important; /* style.css와 일치 */
+        color: #ffffff !important;
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stCheckbox"] {{
-        border: 1px solid #333 !important; /* style.css와 일치 */
-        background-color: #ffffff !important;
+        border: 1px solid #ffffff !important; /* 테두리 흰색 */
+        background-color: #1e1e1e !important; /* 체크박스 배경과 통일 */
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #333 !important; /* 요일 헤더와 동일 */
+        color: #ffffff !important; /* 날짜 숫자 흰색 */
     }}
     div[data-testid="stHorizontalBlock"] span {{
-        color: #333 !important; /* 요일 헤더 색상 통일 */
+        color: #ffffff !important; /* 요일 헤더 색상 */
     }}
     div[data-testid="stMarkdownContainer"] h3 {{
-        background-color: #f0f0f0 !important;
-        color: #333 !important;
+        background-color: #1e1e1e !important; /* 헤더 배경 통일 */
+        color: #ffffff !important;
     }}
 
-    /* 다크 모드 스타일 */
-    @media (prefers-color-scheme: dark) {{
-        .stApp {{
-            background-color: #1e1e1e !important;
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        div[data-testid="stSidebar"] {{
-            background-color: #2e2e2e !important;
-            color: #ffffff !important;
-        }}
-        div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
-            color: #ffffff !important;
-        }}
-        div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        div[data-testid="stCheckbox"] {{
-            border: 1px solid #ffffff !important;
-            background-color: #1e1e1e !important;
-        }}
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important; /* 요일 헤더와 동일 */
-        }}
-        div[data-testid="stHorizontalBlock"] span {{
-            color: #ffffff !important; /* 요일 헤더 색상 통일 */
-        }}
-        div[data-testid="stMarkdownContainer"] h3 {{
-            background-color: #2e2e2e !important;
-            color: #ffffff !important;
-        }}
-    }}
-
-    /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
+    /* 선택된 날짜 스타일 (다크 모드에 맞춤) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
         background-color: #ff0000 !important;
-        border: 2px solid #333 !important; /* 라이트 모드 */
+        border: 2px solid #ffffff !important;
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: #ffffff !important;
-    }}
-    @media (prefers-color-scheme: dark) {{
-        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-            border: 2px solid #ffffff !important; /* 다크 모드 */
-        }}
     }}
 
     /* 공통 스타일 */
@@ -213,7 +170,6 @@ def render_calendar_with_checkboxes(apply_date):
         # 요일 헤더 생성 (색상 통일)
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            # 색상 설정 제거, CSS에서 통일된 색상 사용
             cols[i].markdown(f"<span><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
         # 달력 날짜 체크박스 생성 (apply_date 이후 날짜 제외)
