@@ -3,6 +3,9 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 
+# 달력의 시작 요일을 일요일로 설정
+calendar.setfirstweekday(calendar.SUNDAY)
+
 # 현재 날짜와 시간을 기반으로 KST 오후 XX:XX 형식을 생성
 current_datetime = datetime.now()
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
