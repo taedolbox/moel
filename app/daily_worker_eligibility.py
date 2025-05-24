@@ -58,8 +58,8 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     /* 체크박스 컨테이너 (날짜 숫자를 포함하는 부분) */
     div[data-testid="stCheckbox"] {{
-        width: 40px !important;
-        height: 60px !important; /* 직사각형으로 세로 길게 */
+        width: 60px !important;
+        height: 40px !important; /* 직사각형으로 세로 길게 */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
