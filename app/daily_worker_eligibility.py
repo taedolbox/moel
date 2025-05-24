@@ -23,101 +23,53 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
-    # 사용자 정의 CSS 주입 (비활성화 스타일 제거)
+    # 사용자 정의 CSS 주입
+    # Streamlit의 기본 테마(라이트/다크)와 조화롭게 작동하도록 background-color와 color 속성 직접 지정 제거
+    # 대신 Streamlit의 CSS 변수를 사용하거나, 단순히 폰트와 레이아웃만 정의
     st.markdown(f"""
     <style>
     /* Nanum Gothic 폰트 적용 */
     @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-    /* 기본 스타일 (라이트 모드) */
-    .stApp {{
-        background-color: #ffffff !important;
-        color: #000000 !important;
+    /* 모든 텍스트에 Nanum Gothic 폰트 적용 */
+    body, .stApp, div[data-testid="stSidebar"], div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p, .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf, div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p, div[data-testid="stHorizontalBlock"] span {{
         font-family: 'Nanum Gothic', sans-serif !important;
-    }}
-    div[data-testid="stSidebar"] {{
-        background-color: #f8f9fa !important;
-        color: #000000 !important;
-    }}
-    div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
-        color: #000000 !important;
-    }}
-    div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-        color: #333 !important;
-        font-family: 'Nanum Gothic', sans-serif !important;
-    }}
-    .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
-        color: #000000 !important;
-        font-family: 'Nanum Gothic', sans-serif !important;
-    }}
-    div[data-testid="stCheckbox"] {{
-        border: 1px solid #000000 !important;
-        background-color: #ffffff !important;
-    }}
-    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #000000 !important;
-    }}
-    div[data-testid="stHorizontalBlock"] span {{
-        color: #000000 !important;
-    }}
-    div[data-testid="stMarkdownContainer"] h3 {{
-        background-color: #f0f0f0 !important;
-        color: #000000 !important;
     }}
 
-    /* 다크 모드 스타일 */
-    @media (prefers-color-scheme: dark) {{
-        .stApp {{
-            background-color: #1e1e1e !important;
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        div[data-testid="stSidebar"] {{
-            background-color: #2e2e2e !important;
-            color: #ffffff !important;
-        }}
-        div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
-            color: #ffffff !important;
-        }}
-        div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
-            color: #ffffff !important;
-            font-family: 'Nanum Gothic', sans-serif !important;
-        }}
-        div[data-testid="stCheckbox"] {{
-            border: 1px solid #ffffff !important;
-            background-color: #1e1e1e !important;
-        }}
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
-        }}
-        div[data-testid="stHorizontalBlock"] span {{
-            color: #ffffff !important;
-        }}
-        div[data-testid="stMarkdownContainer"] h3 {{
-            background-color: #2e2e2e !important;
-            color: #ffffff !important;
-        }}
+    /* 체크박스 공통 스타일 (라이트/다크 모드 공통 적용) */
+    div[data-testid="stCheckbox"] {{
+        border: 1px solid var(--text-color) !important; /* Streamlit의 현재 텍스트 색상 사용 */
+        background-color: var(--background-color) !important; /* Streamlit의 현재 배경 색상 사용 */
+    }}
+    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+        color: var(--text-color) !important; /* Streamlit의 현재 텍스트 색상 사용 */
     }}
 
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important;
-        border: 2px solid #000000 !important; /* 라이트 모드 */
+        background-color: #ff0000 !important; /* 선택 시 빨간색 배경 */
+        border: 2px solid var(--text-color) !important; /* 선택 시 Streamlit의 텍스트 색상 테두리 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important;
-    }}
-    @media (prefers-color-scheme: dark) {{
-        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-            border: 2px solid #ffffff !important; /* 다크 모드 */
-        }}
+        color: #ffffff !important; /* 선택 시 흰색 글씨 */
     }}
 
-    /* 공통 스타일 */
+    /* 요일 헤더 색상 */
+    .stHorizontalBlock span {{
+        /* 기본 텍스트 색상 */
+        color: var(--text-color) !important;
+    }}
+    /* 일요일 빨간색 */
+    .stHorizontalBlock span:nth-child(1) {{
+        color: red !important;
+    }}
+    /* 토요일 파란색 */
+    .stHorizontalBlock span:nth-child(7) {{
+        color: blue !important;
+    }}
+
+
+    /* 공통 스타일 - 기존 유지 */
     div[data-testid="stRadio"] label {{
         font-size: 16px !important;
     }}
@@ -189,6 +141,8 @@ def render_calendar_with_checkboxes(apply_date):
         margin: 0.5rem 0 !important;
         padding: 0.2rem !important;
         text-align: center !important;
+        background-color: var(--secondary-background-color) !important; /* 월별 헤더 배경색 */
+        color: var(--text-color) !important; /* 월별 헤더 글자색 */
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -196,7 +150,8 @@ def render_calendar_with_checkboxes(apply_date):
     # 달력 표시할 월 범위 계산 (apply_date까지 표시)
     start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     end_date_for_calendar = apply_date
-    months_to_display = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar).date))
+    months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
+
 
     # st.session_state에서 선택된 날짜 집합 가져오기
     if 'selected_dates' not in st.session_state:
@@ -213,8 +168,8 @@ def render_calendar_with_checkboxes(apply_date):
         # 요일 헤더 생성
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            color = "red" if i == 0 else ("blue" if i == 6 else "inherit")
-            cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
+            # 요일 헤더 색상은 CSS에서 처리하도록 변경
+            cols[i].markdown(f"<span><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
         # 달력 날짜 체크박스 생성 (apply_date 이후 날짜 제외)
         for week in cal:
@@ -232,18 +187,11 @@ def render_calendar_with_checkboxes(apply_date):
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
 
-                    # 디버깅 출력
-                    if date_obj == date(2025, 4, 1):
-                        print(f"2025-04-01 요일: {days_of_week_korean[i]} (인덱스: {i})")
-                    print(f"Date: {date_obj}, Apply Date: {apply_date}")
-
                     def on_checkbox_change(current_date_obj_for_callback):
                         if st.session_state[f"chk_{current_date_obj_for_callback}"]:
                             st.session_state.selected_dates.add(current_date_obj_for_callback)
-                            print(f"DEBUG: 날짜 추가됨: {current_date_obj_for_callback}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
                         else:
                             st.session_state.selected_dates.discard(current_date_obj_for_callback)
-                            print(f"DEBUG: 날짜 제거됨: {current_date_obj_for_callback}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
 
                     display_day_text = str(day)
                     if is_current:
