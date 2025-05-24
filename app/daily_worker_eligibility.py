@@ -17,7 +17,7 @@ def get_date_range(apply_date):
 
 def render_calendar_with_checkboxes(apply_date):
     """
-    달력을 렌der링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
+    달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
     # 사용자 정의 CSS 주입
@@ -165,7 +165,7 @@ def render_calendar_with_checkboxes(apply_date):
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
-    # 각 월별 달력 렌der링
+    # 각 월별 달력 렌더링
     for year, month in months_to_display:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)  # 한글화: "2025 May" → "2025년 5월"
         cal = calendar.monthcalendar(year, month)
