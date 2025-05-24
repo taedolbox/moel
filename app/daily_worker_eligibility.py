@@ -21,15 +21,21 @@ def toggle_date(date_obj):
     달력에서 날짜 선택/해제를 처리합니다.
     선택된 날짜는 st.session_state.selected_dates 집합에 추가/제거됩니다.
     """
+    # 디버깅: toggle_date 함수 호출 확인
+    print(f"DEBUG: toggle_date 함수 호출됨 - 대상 날짜: {date_obj}")
+
     # st.session_state에 'selected_dates'가 없으면 초기화
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
-    # 날짜가 이미 선택되어 있다면 제거, 아니면 추가
     if date_obj in st.session_state.selected_dates:
         st.session_state.selected_dates.remove(date_obj)
+        # 디버깅: 날짜 제거 확인
+        print(f"DEBUG: 날짜 제거됨: {date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
     else:
         st.session_state.selected_dates.add(date_obj)
+        # 디버깅: 날짜 추가 확인
+        print(f"DEBUG: 날짜 추가됨: {date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
 
 def render_calendar(apply_date):
     """
@@ -219,6 +225,8 @@ def render_calendar(apply_date):
     # 현재 선택된 근무일자 목록을 표시
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
+        # 디버깅: 현재 세션 상태의 selected_dates 값 출력
+        st.markdown(f"**디버그: 세션 상태에 저장된 선택 날짜:** {sorted(selected_dates)}")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
 
     return selected_dates # 선택된 날짜 집합 반환
