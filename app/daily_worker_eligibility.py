@@ -100,7 +100,7 @@ def render_calendar_interactive(apply_date):
         color: blue !important;
     }}
 
-    /* 커스텀 날짜 박스 스타일 (버튼처럼 동작) */
+    /* 커스텀 날짜 박스 스타일 (클릭 영역) */
     .calendar-day-box {{
         width: 45px; /* 날짜 박스 너비 */
         height: 45px; /* 날짜 박스 높이 */
@@ -109,46 +109,49 @@ def render_calendar_interactive(apply_date):
         justify-content: center;
         padding: 0;
         margin: 2px; /* 박스 간 간격 */
-        border: 1px solid #ddd; /* 기본 테두리색 (라이트 모드) */
-        background-color: #ffffff; /* 기본 배경색 (라이트 모드) */
+        border: 1px solid var(--border-color); /* 기본 테두리색 */
+        background-color: var(--background-color-body); /* 기본 배경색 */
         cursor: pointer;
         transition: all 0.1s ease; /* 부드러운 전환 효과 */
         border-radius: 5px; /* 약간 둥근 모서리 */
         font-size: 1.1em; /* 날짜 숫자 폰트 크기 증가 */
-        color: #000000; /* 날짜 숫자 글자색 (라이트 모드) */
+        color: var(--text-color); /* 날짜 숫자 글자색 */
         box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
         user-select: none; /* 텍스트 선택 방지 */
-    }}
-    /* Dark Mode 날짜 박스 */
-    @media (prefers-color-scheme: dark) {{
-        .calendar-day-box {{
-            border: 1px solid #444; /* 다크 모드 테두리색 */
-            background-color: #1e1e1e; /* 다크 모드 배경색 */
-            color: #ffffff; /* 날짜 숫자 글자색 (다크 모드) */
-        }}
+        position: relative; /* ::after 가상 요소를 위한 position 설정 */
     }}
 
     /* 호버 시 효과 */
     .calendar-day-box:hover {{
-        background-color: #e0e0e0; /* 호버 시 밝은 회색 (라이트 모드) */
-        border-color: #bbb;
+        background-color: var(--secondary-background-color); /* 호버 시 Streamlit 보조 배경색 */
+        border-color: var(--text-color); /* 호버 시 글자색과 유사한 테두리 */
     }}
-    @media (prefers-color-scheme: dark) {{
-        .calendar-day-box:hover {{
-            background-color: #2a2a2a; /* 호버 시 어두운 회색 (다크 모드) */
-            border-color: #666;
-        }}
-    }}
-
+    
     /* 오늘 날짜 스타일 (선택되지 않았을 때만 적용) */
     .calendar-day-box.current-day {{
         border: 2px solid blue !important; /* 오늘 날짜 파란색 테두리 */
     }}
-    /* 오늘 날짜 & 선택된 날짜는 선택된 날짜 스타일이 우선하도록 */
-    .calendar-day-box.current-day.selected-day {{
-        border: 1px solid rgba(255, 0, 0, 0.4) !important; /* 선택된 날짜 테두리 */
+
+    /* 선택된 날짜에 대한 원형 표시 */
+    .calendar-day-box.selected-day::after {{
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px; /* 원의 크기 */
+        height: 30px; /* 원의 크기 */
+        background-color: rgba(255, 0, 0, 0.4); /* 빨간색 40% 투명도 */
+        border-radius: 50%; /* 원형으로 만듦 */
+        z-index: 1; /* 날짜 숫자 위에 오도록 */
     }}
 
+    /* 선택된 날짜의 숫자 글자색 */
+    .calendar-day-box.selected-day span {{
+        position: relative; /* z-index가 작동하도록 */
+        z-index: 2; /* 원형 위에 글자가 오도록 */
+        color: #ffffff !important; /* 선택된 날짜 글자색 흰색 */
+    }}
 
     /* 달력 날짜 그리드를 감싸는 stHorizontalBlock에 flexbox 적용 */
     div[data-testid="stHorizontalBlock"] {{
@@ -190,11 +193,23 @@ def render_calendar_interactive(apply_date):
         .day-header span {{
             font-size: 0.9em !important;
         }}
+        .calendar-day-box.selected-day::after {{
+            width: 25px; /* 모바일에서 원 크기 조절 */
+            height: 25px; /* 모바일에서 원 크기 조절 */
+        }}
     }}
     </style>
     """, unsafe_allow_html=True)
 
-    # JavaScript를 통해 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
+    # JavaScript를 통해 클릭된 날짜를 받아올 숨겨진 st.text_input
+    # 이 인풋의 `on_change` 콜백에서 `st.session_state.selected_dates`를 업데이트합니다.
+    # `value`는 `st.text_input`의 현재 값을 나타냅니다.
+    # 초기화 시 빈 문자열로 설정하여 불필요한 재트리거 방지
+    # 이 컴포넌트는 달력 렌더링 후에 위치하므로, 자동으로 아래쪽에 표시됩니다.
+    st.text_input("Hidden input for date click", key="hidden_date_input_for_js", value="", label_visibility="hidden",
+                  on_change=lambda: _update_selected_dates_from_js(st.session_state.hidden_date_input_for_js))
+    
+    # JavaScript에서 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
     def _update_selected_dates_from_js(date_str):
         if date_str:
             clicked_date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -202,20 +217,10 @@ def render_calendar_interactive(apply_date):
                 st.session_state.selected_dates.discard(clicked_date_obj)
             else:
                 st.session_state.selected_dates.add(clicked_date_obj)
-            st.session_state.clicked_date_from_js = None # 처리 후 초기화
-
-    # 각 날짜를 렌더링할 때 사용될 임시 플레이스홀더 (st.empty())
-    # 이 안에 숨겨진 버튼을 동적으로 생성하고, JavaScript가 이 버튼을 클릭하도록 함
-    # Streamlit의 `st.empty()`는 요소를 숨기지만, 렌더링 영역은 남겨둡니다.
-    # 클릭된 날짜를 전달하기 위해 `st.session_state`를 직접 수정하는 방식
-    # (예: `st.session_state.temp_date = 'YYYY-MM-DD'`)
-    # 이 경우 `st.experimental_rerun()`이 다시 필요할 수 있습니다.
-    # 가장 안정적인 방법은 Streamlit의 `st.button`을 `on_click`과 함께 사용하는 것입니다.
-
-    # 클릭된 날짜 정보 처리
-    if st.session_state.clicked_date_from_js:
-        _update_selected_dates_from_js(st.session_state.clicked_date_from_js)
-
+            # `st.session_state.hidden_date_input_for_js`를 즉시 초기화하여
+            # 다음 클릭을 받을 준비를 하고, 불필요한 재트리거 방지
+            st.session_state.hidden_date_input_for_js = ""
+            st.experimental_rerun() # 상태 변경 후 즉시 재렌더링
 
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
@@ -243,94 +248,20 @@ def render_calendar_interactive(apply_date):
 
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-
-                    # 인라인 스타일 적용 (빨간색 40% 적용)
-                    selected_bg_color = "rgba(255, 0, 0, 0.4)" # 빨간색 40% 투명도
-                    selected_text_color = "#ffffff" # 흰색 글씨
-
-                    # 라이트/다크 모드에 따른 기본 색상 변수 사용
-                    default_bg_color = "var(--background-color-body)"
-                    default_text_color = "var(--text-color)"
-                    default_border_color = "var(--border-color)"
                     
-                    box_style = f"background-color: {selected_bg_color if is_selected else default_bg_color}; " \
-                                f"color: {selected_text_color if is_selected else default_text_color}; " \
-                                f"border: {'1px solid ' + selected_bg_color if is_selected else ('2px solid blue' if is_current else '1px solid ' + default_border_color)};"
-
                     class_names = ["calendar-day-box"]
                     if is_selected:
                         class_names.append("selected-day")
                     if is_current:
                         class_names.append("current-day")
                     
-                    # 각 날짜 div에 고유한 키를 부여하여 streamlit의 on_click을 사용
-                    # `st.button`을 직접 사용하는 것으로 다시 회귀합니다.
-                    # `st.button`은 자체적으로 클릭 이벤트를 처리하고 앱을 재실행합니다.
-                    # 이전 문제(잘못된 클릭 및 CSS 적용)는 CSS 선택자의 문제였을 가능성이 큽니다.
-                    # `st.button`을 사용하되, 선택 상태에 따른 색상 변경을 CSS에서 더 강력하게 제어합니다.
-                    # `data-*` 속성을 직접 넣을 수는 없지만, `st.session_state`를 기반으로 CSS가 동작하도록 할 수 있습니다.
-
-                    # 날짜 텍스트 (오늘 날짜는 굵게)
-                    display_day_text = str(day)
-                    if is_current:
-                        display_day_text = f"**{day}**"
-
-                    # `st.button` 컴포넌트의 스타일 오버라이딩을 위한 CSS 클래스 추가
-                    # (Streamlit이 렌더링하는 HTML에 직접 클래스를 추가하는 것은 어려우므로,
-                    # CSS에서 `st.button`의 기본 구조를 타겟팅합니다.)
-                    
-                    # 버튼 클릭 시 동작할 콜백 함수 정의
-                    def _on_date_click(date_obj_clicked):
-                        if date_obj_clicked in st.session_state.selected_dates:
-                            st.session_state.selected_dates.discard(date_obj_clicked)
-                        else:
-                            st.session_state.selected_dates.add(date_obj_clicked)
-
-                    # st.button을 사용하여 날짜 버튼을 생성
-                    # `st.button`은 클릭 시 `on_click` 콜백을 실행하고 앱을 재실행합니다.
-                    # 각 버튼에 고유한 `key`를 부여하여 Streamlit이 상태를 추적할 수 있도록 합니다.
-                    cols[i].button(
-                        display_day_text,
-                        key=f"date_button_{date_obj}",
-                        on_click=_on_date_click,
-                        args=(date_obj,),
-                        # CSS로 이 버튼의 배경색을 제어하기 위해, selected_dates에 있는지 여부에 따라 CSS 선택자를 다르게 적용해야 함.
-                        # 이는 Streamlit의 기본 컴포넌트에는 직접적인 방법이 없으므로,
-                        # 다음 단계에서는 CSS를 더 정교하게 만들거나 (매우 어려움),
-                        # 아예 `st.markdown`으로 클릭 가능한 `div`를 만들고 `st.session_state`를 활용하는 방법으로 회귀합니다.
-
-                        # 이전 `st.markdown` (div) 방식에서 클릭이 안 된 문제를 해결하기 위해
-                        # `Streamlit.setComponentValue` 대신 `window.parent.postMessage`를 사용하거나
-                        # `st.empty().button()`과 JavaScript를 조합하는 방식으로 다시 시도합니다.
-                        # `st.empty().button()`은 Streamlit 내부에서 Python 함수를 호출하는 가장 안정적인 방법 중 하나입니다.
-                    )
-
-                    # 이제 `st.button`을 사용하여 날짜를 클릭했을 때 스타일을 정확히 바꾸는 것이 문제입니다.
-                    # `st.button`은 인라인 스타일을 동적으로 변경하는 `style` 인자를 지원하지 않습니다.
-                    # 그래서 `st.markdown`으로 HTML을 직접 만들고, JavaScript를 통해 Streamlit의 상태를 변경하는 방식을 다시 시도합니다.
-
-                    # 클릭 안 됨 문제를 해결하기 위해 새로운 JavaScript 함수와
-                    # `st.text_input`을 통한 우회 방법을 사용해봅니다.
-                    # (이는 `st.button`의 한계를 우회하는 일반적인 패턴입니다.)
-                    
-                    # 각 날짜에 해당하는 HTML div를 생성하고, 클릭 시 숨겨진 text_input 값을 변경하도록 합니다.
-                    # text_input의 on_change 콜백에서 실제 상태를 업데이트합니다.
-                    
-                    # HTML 버튼 스타일
-                    button_html_style = f"""
-                        background-color: {selected_bg_color if is_selected else default_bg_color};
-                        color: {selected_text_color if is_selected else default_text_color};
-                        border: {'1px solid ' + selected_bg_color if is_selected else ('2px solid blue' if is_current else '1px solid ' + default_border_color)};
-                    """
-
                     # 클릭 시 Streamlit의 숨겨진 텍스트 인풋 값 변경 (JavaScript)
-                    # `st.text_input`의 `key`를 사용하여 `st.session_state`에 접근할 수 있습니다.
-                    # `onchange` 이벤트는 input 값이 변경되었을 때 트리거됩니다.
+                    # `hidden_date_input_for_js`의 ID를 직접 사용하여 값을 설정하고 change 이벤트를 발생시킵니다.
                     onclick_js = f"""
-                        var hiddenInput = parent.document.getElementById('hidden_date_input_for_js');
+                        var hiddenInput = document.getElementById('hidden_date_input_for_js');
                         if (hiddenInput) {{
                             hiddenInput.value = '{date_obj.strftime('%Y-%m-%d')}';
-                            hiddenInput.dispatchEvent(new Event('change')); // onchange 이벤트 강제 트리거
+                            hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }})); // onchange 이벤트 강제 트리거
                         }} else {{
                             console.error('Hidden input not found!');
                         }}
@@ -338,25 +269,13 @@ def render_calendar_interactive(apply_date):
 
                     cols[i].markdown(
                         f"""
-                        <div class="{' '.join(class_names)}" style="{button_html_style}" onclick="{onclick_js}">
-                            {day}
+                        <div class="{' '.join(class_names)}" onclick="{onclick_js}">
+                            <span>{day}</span>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
     
-    # JavaScript에서 클릭된 날짜를 받아올 숨겨진 st.text_input
-    # 이 인풋의 `on_change` 콜백에서 `st.session_state.selected_dates`를 업데이트합니다.
-    # `value`는 `st.text_input`의 현재 값을 나타냅니다.
-    # 초기화 시 빈 문자열로 설정하여 불필요한 재트리거 방지
-    st.text_input("Hidden input for date click", key="hidden_date_input_for_js", value="",
-                  on_change=lambda: _update_selected_dates_from_js(st.session_state.hidden_date_input_for_js))
-    
-    # JavaScript에서 `hidden_date_input_for_js`의 값이 변경되면
-    # `_update_selected_dates_from_js` 함수가 호출되어 `st.session_state.selected_dates`가 업데이트됩니다.
-    # 이후 Streamlit은 자동으로 앱을 재실행하여 UI를 업데이트합니다.
-
-
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
