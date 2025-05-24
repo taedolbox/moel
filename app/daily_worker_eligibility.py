@@ -149,8 +149,8 @@ def render_calendar_interactive(apply_date):
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 38px; /* 원의 크기 (박스보다 약간 작게) */
-        height: 38px; /* 원의 크기 */
+        width: 45px; /* 원의 크기를 날짜 박스와 동일하게 */
+        height: 45px; /* 원의 크기를 날짜 박스와 동일하게 */
         background-color: rgba(255, 0, 0, 0.4); /* 빨간색 40% 투명도 */
         border-radius: 50%; /* 원형으로 만듦 */
         z-index: 1; /* 날짜 숫자 아래에 오도록 */
@@ -215,8 +215,8 @@ def render_calendar_interactive(apply_date):
             font-size: 0.9em !important;
         }}
         .calendar-day-box.selected-day::after {{
-            width: 32px; /* 모바일에서 원 크기 조절 */
-            height: 32px; /* 모바일에서 원 크기 조절 */
+            width: 38px; /* 모바일에서 원 크기 조절 (날짜 박스와 동일) */
+            height: 38px; /* 모바일에서 원 크기 조절 (날짜 박스와 동일) */
         }}
     }}
     </style>
@@ -375,7 +375,7 @@ def daily_worker_eligibility_app():
             date_range_future_objects, _ = get_date_range(future_date)
             total_days_future = len(date_range_future_objects)
             threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_days if d <= future_date)
+            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
 
             if worked_days_future < threshold_future:
                 st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
