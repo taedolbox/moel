@@ -23,7 +23,7 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
-    # 사용자 정의 CSS 주입 (비활성화 스타일 제거)
+    # 사용자 정의 CSS 주입 (요일 헤더와 날짜 색상 통일)
     st.markdown(f"""
     <style>
     /* Nanum Gothic 폰트 적용 */
@@ -47,22 +47,22 @@ def render_calendar_with_checkboxes(apply_date):
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
-        color: #000000 !important;
+        color: #333 !important; /* style.css와 일치 */
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stCheckbox"] {{
-        border: 1px solid #000000 !important;
+        border: 1px solid #333 !important; /* style.css와 일치 */
         background-color: #ffffff !important;
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #000000 !important;
+        color: #333 !important; /* 요일 헤더와 동일 */
     }}
     div[data-testid="stHorizontalBlock"] span {{
-        color: #000000 !important;
+        color: #333 !important; /* 요일 헤더 색상 통일 */
     }}
     div[data-testid="stMarkdownContainer"] h3 {{
         background-color: #f0f0f0 !important;
-        color: #000000 !important;
+        color: #333 !important;
     }}
 
     /* 다크 모드 스타일 */
@@ -92,10 +92,10 @@ def render_calendar_with_checkboxes(apply_date):
             background-color: #1e1e1e !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
+            color: #ffffff !important; /* 요일 헤더와 동일 */
         }}
         div[data-testid="stHorizontalBlock"] span {{
-            color: #ffffff !important;
+            color: #ffffff !important; /* 요일 헤더 색상 통일 */
         }}
         div[data-testid="stMarkdownContainer"] h3 {{
             background-color: #2e2e2e !important;
@@ -106,7 +106,7 @@ def render_calendar_with_checkboxes(apply_date):
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
         background-color: #ff0000 !important;
-        border: 2px solid #000000 !important; /* 라이트 모드 */
+        border: 2px solid #333 !important; /* 라이트 모드 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: #ffffff !important;
@@ -210,11 +210,11 @@ def render_calendar_with_checkboxes(apply_date):
         cal = calendar.monthcalendar(year, month)
         days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # 요일 헤더 생성
+        # 요일 헤더 생성 (색상 통일)
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            color = "red" if i == 0 else ("blue" if i == 6 else "inherit")
-            cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
+            # 색상 설정 제거, CSS에서 통일된 색상 사용
+            cols[i].markdown(f"<span><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
         # 달력 날짜 체크박스 생성 (apply_date 이후 날짜 제외)
         for week in cal:
