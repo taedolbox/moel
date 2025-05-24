@@ -44,7 +44,6 @@ def render_calendar_with_checkboxes(apply_date):
         color: #000000 !important;
     }}
     /* 월,화,수,목,금 요일 헤더 기본 글자색 (라이트 모드) */
-    /* stHorizontalBlock 내의 span 요소에 직접 적용 */
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
     div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
     div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
@@ -69,7 +68,6 @@ def render_calendar_with_checkboxes(apply_date):
             color: #ffffff !important;
         }}
         /* 월,화,수,목,금 요일 헤더 기본 글자색 (다크 모드) */
-        /* stHorizontalBlock 내의 span 요소에 직접 적용 */
         div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
         div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
         div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
@@ -87,6 +85,14 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: #ffffff !important; /* 선택 시 흰색 글씨 */
+    }}
+
+    /* 요일 헤더 공통 스타일 (폰트 크기 및 정렬) */
+    div[data-testid="stHorizontalBlock"] > div span {{
+        font-size: 1.1em !important; /* 폰트 크기 약간 키움 */
+        display: block !important; /* span을 블록 요소로 만들어 text-align이 작동하도록 함 */
+        text-align: center !important; /* 가운데 정렬 */
+        width: 100% !important; /* 부모 div에 꽉 차도록 */
     }}
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
@@ -336,4 +342,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
