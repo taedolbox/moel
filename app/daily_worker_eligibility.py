@@ -165,7 +165,7 @@ def render_calendar_with_checkboxes(apply_date):
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
-    # 각 월별 달력 렌더링
+    # 각 월별 달력 렌der링
     for year, month in months_to_display:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)  # 한글화: "2025 May" → "2025년 5월"
         cal = calendar.monthcalendar(year, month)
@@ -233,7 +233,7 @@ def daily_worker_eligibility_app():
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
-    # 수급자격 신청일 선택
+    # 수급자격 신청일 선택 (원래대로 복원)
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
 
     # 날짜 범위 및 시작일 가져오기
@@ -322,4 +322,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
