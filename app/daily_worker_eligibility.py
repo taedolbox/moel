@@ -30,41 +30,91 @@ def render_calendar_with_checkboxes(apply_date):
 
     /* 근무일 선택 달력 관련 스타일 */
 
-    /* 개별 날짜 체크박스 및 월별 헤더 스타일 - 기존 고정 색상 유지 */
-    /* Light Mode */
-    div[data-testid="stCheckbox"] {{ /* 개별 날짜 체크박스 배경 및 테두리 */
-        border: 1px solid #000000 !important;
-        background-color: #ffffff !important;
+    /* 달력 전체 가운데 정렬 시도 (가장 바깥쪽 블록에 적용) */
+    /* Streamlit의 stHorizontalBlock을 Flex 컨테이너로 만들고 가운데 정렬 */
+    div[data-testid="stVerticalBlock"] > div:nth-child(2) > div:nth-child(2) {{ /* 이 선택자는 달력 콘텐츠를 감싸는 상위 div일 수 있음, 테스트 필요 */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 수평 가운데 정렬 */
+        width: 100%; /* 부모 너비 채우기 */
     }}
-    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{ /* 개별 날짜 글자색 */
-        color: #000000 !important;
-    }}
+    /* 또는 달력 전체를 감싸는 특정 div를 찾아 margin: auto 적용 */
+    /* stHorizontalBlock은 st.columns에서 오는 것이므로, 그 상위 요소를 찾아야 함 */
+    
+    /* 월별 헤더 스타일 */
     div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
-        background-color: #f0f0f0 !important;
-        color: #000000 !important;
+        background-color: #f0f0f0 !important; /* 라이트 모드 */
+        color: #000000 !important; /* 라이트 모드 */
+        text-align: center; /* 월별 헤더 가운데 정렬 */
+        padding: 5px 0; /* 패딩 추가 */
+        margin-bottom: 10px; /* 아래 여백 추가 */
     }}
+
+    /* Light Mode */
     /* 요일 헤더 기본 글자색 (라이트 모드) */
-    /* 월,화,수,목,금,토,일 모두 기본 텍스트 색상 따름 (일,토는 아래에서 오버라이드) */
     div[data-testid="stHorizontalBlock"] span {{
         color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
 
+    /* 개별 날짜 체크박스(버튼처럼 보이게) 스타일 */
+    div[data-testid="stCheckbox"] {{
+        width: 45px !important; /* 날짜 박스 너비 */
+        height: 45px !important; /* 날짜 박스 높이 */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: 2px !important; /* 날짜 박스 간 간격 */
+        border: 1px solid #ddd !important; /* 기본 테두리색 (라이트 모드) */
+        background-color: #ffffff !important; /* 기본 배경색 (라이트 모드) */
+        cursor: pointer;
+        transition: all 0.2s ease !important;
+        border-radius: 5px; /* 약간 둥근 모서리 */
+    }}
+    div[data-testid="stCheckbox"] label {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        margin: 0 !important;
+    }}
+    /* 실제 체크박스 마커 숨기기 */
+    div[data-testid="stCheckbox"] label div[data-testid="stDecoration"] {{
+        display: none !important;
+    }}
+    /* 날짜 글자색 (라이트 모드) */
+    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+        color: #000000 !important; /* 라이트 모드일 때 검정색 */
+        font-size: 1rem !important;
+        line-height: 1;
+        margin: 0 !important;
+        padding: 0 !important;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }}
 
     /* Dark Mode (prefers-color-scheme) */
     @media (prefers-color-scheme: dark) {{
-        div[data-testid="stCheckbox"] {{
-            border: 1px solid #ffffff !important;
-            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
-        }}
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
-        }}
         div[data-testid="stMarkdownContainer"] h3 {{
-            background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
-            color: #ffffff !important;
+            background-color: #2e2e2e !important; /* 다크 모드 */
+            color: #ffffff !important; /* 다크 모드 */
         }}
         /* 요일 헤더 기본 글자색 (다크 모드) */
         div[data-testid="stHorizontalBlock"] span {{
+            color: #ffffff !important; /* 다크 모드일 때 흰색 */
+        }}
+        /* 개별 날짜 체크박스(버튼처럼 보이게) 스타일 */
+        div[data-testid="stCheckbox"] {{
+            border: 1px solid #444 !important; /* 다크 모드 테두리색 */
+            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
+        }}
+        /* 날짜 글자색 (다크 모드) */
+        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
             color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
     }}
@@ -72,16 +122,18 @@ def render_calendar_with_checkboxes(apply_date):
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
         background-color: #ff0000 !important; /* 선택 시 빨간색 배경 */
-        border: 2px solid var(--primary-color) !important; /* Streamlit의 기본 강조색 사용 */
+        border: 1px solid #ff0000 !important; /* 테두리도 빨간색 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: #ffffff !important; /* 선택 시 흰색 글씨 */
     }}
 
-    /* 요일 헤더 공통 스타일 (폰트 크기만 유지) */
+    /* 요일 헤더 공통 스타일 (폰트 크기) */
     div[data-testid="stHorizontalBlock"] > div span {{
-        font-size: 1.1em !important; /* 폰트 크기 약간 키움 (원하는 크기로 조절 가능) */
-        /* display, text-align, width 속성은 제거하여 Streamlit 기본값으로 복원 */
+        font-size: 1.1em !important; /* 폰트 크기 약간 키움 */
+        text-align: center !important; /* 요일 글자 가운데 정렬 */
+        display: block !important; /* text-align을 위해 block으로 설정 */
+        width: 100% !important; /* 부모 div의 너비에 맞춤 */
     }}
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
@@ -94,69 +146,40 @@ def render_calendar_with_checkboxes(apply_date):
         color: blue !important;
     }}
 
-
-    /* 공통 스타일 - 기존 유지 */
-    div[data-testid="stRadio"] label {{
-        font-size: 16px !important;
-    }}
+    /* 달력 날짜 그리드를 감싸는 stHorizontalBlock에 flexbox 적용 */
     div[data-testid="stHorizontalBlock"] {{
-        gap: 0.1rem !important;
+        display: flex;
+        flex-wrap: wrap; /* 내용이 넘치면 다음 줄로 */
+        justify-content: center; /* 전체 요일/날짜 블록 가운데 정렬 */
+        max-width: 350px; /* 달력 전체의 최대 너비 설정 (조절 가능) */
+        margin: 0 auto; /* 블록 자체를 가운데 정렬 */
+        gap: 0.1rem !important; /* 간격 유지 */
     }}
+    /* stHorizontalBlock 내의 각 열 (날짜/요일) */
     div[data-testid="stHorizontalBlock"] > div {{
+        flex-grow: 1; /* 남은 공간을 채우면서 */
+        flex-basis: calc(100% / 7 - 0.2rem); /* 7개 열이 대략적으로 균등하게, gap 고려 */
+        min-width: 45px; /* 너무 작아지지 않도록 최소 너비 설정 */
         padding: 0 !important;
         margin: 0 !important;
+        box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
     }}
-    div[data-testid="stCheckbox"] {{
-        width: 60px !important;
-        height: 40px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        transition: all 0.2s ease !important;
-        cursor: pointer;
-    }}
-    div[data-testid="stCheckbox"] label {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        margin: 0 !important;
-    }}
-    div[data-testid="stCheckbox"] label div[data-testid="stDecoration"] {{
-        display: none !important;
-    }}
-    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        font-size: 1rem !important;
-        line-height: 1;
-        margin: 0 !important;
-        padding: 0 !important;
-        text-align: center;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }}
+
+    /* 모바일 반응형 조절 */
     @media (max-width: 600px) {{
         div[data-testid="stHorizontalBlock"] {{
-            display: flex !important;
-            flex-wrap: nowrap !important;
-            gap: 0.1rem !important;
+            max-width: 100%; /* 모바일에서는 너비 100% */
         }}
         div[data-testid="stHorizontalBlock"] > div {{
-            flex: 1 !important;
-            min-width: 35px !important;
-            padding: 0 !important;
+            flex-basis: calc(100% / 7 - 0.1rem); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
+            min-width: 40px !important;
         }}
         div[data-testid="stCheckbox"] {{
-            width: 50px !important;
-            height: 50px !important;
+            width: 40px !important;
+            height: 40px !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            font-size: 0.8rem !important;
+            font-size: 0.75rem !important;
         }}
     }}
     </style>
