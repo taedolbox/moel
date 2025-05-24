@@ -151,7 +151,7 @@ def render_calendar_with_checkboxes(apply_date):
         display: flex;
         flex-wrap: wrap; /* 내용이 넘치면 다음 줄로 */
         justify-content: center; /* 전체 요일/날짜 블록 가운데 정렬 */
-        max-width: 350px; /* 달력 전체의 최대 너비 설정 (조절 가능) */
+        max-width: 450px; /* 달력 전체의 최대 너비 설정 (조절 가능) */
         margin: 0 auto; /* 블록 자체를 가운데 정렬 */
         gap: 0.1rem !important; /* 간격 유지 */
     }}
@@ -159,7 +159,7 @@ def render_calendar_with_checkboxes(apply_date):
     div[data-testid="stHorizontalBlock"] > div {{
         flex-grow: 1; /* 남은 공간을 채우면서 */
         flex-basis: calc(100% / 7 - 0.2rem); /* 7개 열이 대략적으로 균등하게, gap 고려 */
-        min-width: 45px; /* 너무 작아지지 않도록 최소 너비 설정 */
+        min-width: 48px; /* 너무 작아지지 않도록 최소 너비 설정 */
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
@@ -179,7 +179,7 @@ def render_calendar_with_checkboxes(apply_date):
             height: 47px !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            font-size: 0.5rem !important;
+            font-size: 0.75rem !important;
         }}
     }}
     </style>
