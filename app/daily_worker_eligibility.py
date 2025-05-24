@@ -23,7 +23,7 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입 (선택된 날짜 빨간색 표시 보장)
+    # 사용자 정의 CSS 주입
     st.markdown(f"""
     <style>
     /* 기본 스타일 (라이트 모드) */
@@ -231,8 +231,11 @@ def render_calendar_with_checkboxes(apply_date):
                     date_obj = date(year, month, day)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    # 신청일 이후를 비활성화
+                    # 신청일 이후를 비활성화 (동적 적용 확인)
                     is_disabled = date_obj > apply_date
+
+                    # 디버깅 출력 (실시간 확인)
+                    print(f"Date: {date_obj}, Apply Date: {apply_date}, Disabled: {is_disabled}")
 
                     def on_checkbox_change(current_date_obj_for_callback):
                         if st.session_state[f"chk_{current_date_obj_for_callback}"]:
