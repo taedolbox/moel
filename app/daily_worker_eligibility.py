@@ -26,11 +26,6 @@ def render_calendar_with_checkboxes(apply_date):
     # 사용자 정의 CSS 주입 (다크 모드 해지, 밝은 테마 적용)
     st.markdown(f"""
     <style>
-    /* 전체 앱 배경색을 밝게 설정 */
-    .stApp {{
-        background-color: #ffffff;
-        color: #000000;
-    }}
     /* 라디오 버튼 텍스트 색상 */
     div[data-testid="stRadio"] label {{
         color: #000000 !important;
