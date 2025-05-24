@@ -21,9 +21,9 @@ def get_date_range(apply_date):
 def render_calendar_with_checkboxes(apply_date):
     """
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
-    선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
+    선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
-    # 사용자 정의 CSS 주입
+    # 사용자 정의 CSS 주입 (비활성화 스타일 제거)
     st.markdown(f"""
     <style>
     /* Nanum Gothic 폰트 적용 */
@@ -51,19 +51,11 @@ def render_calendar_with_checkboxes(apply_date):
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
     div[data-testid="stCheckbox"] {{
-        border: 1px solid #000000 !important; /* 활성화된 날짜 테두리 */
+        border: 1px solid #000000 !important;
         background-color: #ffffff !important;
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #000000 !important; /* 활성화된 날짜 숫자 */
-    }}
-    /* 비활성화된 날짜 스타일 (라이트 모드) */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        border: 1px solid #999999 !important; /* 연한 회색 테두리 */
-        background-color: #ffffff !important;
-    }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #999999 !important; /* 연한 회색 숫자 */
+        color: #000000 !important;
     }}
     div[data-testid="stHorizontalBlock"] span {{
         color: #000000 !important;
@@ -96,19 +88,11 @@ def render_calendar_with_checkboxes(apply_date):
             font-family: 'Nanum Gothic', sans-serif !important;
         }}
         div[data-testid="stCheckbox"] {{
-            border: 1px solid #ffffff !important; /* 활성화된 날짜 테두리 */
+            border: 1px solid #ffffff !important;
             background-color: #1e1e1e !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important; /* 활성화된 날짜 숫자 */
-        }}
-        /* 비활성화된 날짜 스타일 (다크 모드) */
-        div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-            border: 1px solid #666666 !important; /* 연한 회색 테두리 */
-            background-color: #1e1e1e !important;
-        }}
-        div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-            color: #666666 !important; /* 연한 회색 숫자 */
+            color: #ffffff !important;
         }}
         div[data-testid="stHorizontalBlock"] span {{
             color: #ffffff !important;
@@ -178,10 +162,6 @@ def render_calendar_with_checkboxes(apply_date):
         justify-content: center;
         height: 100%;
     }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        cursor: not-allowed !important;
-        opacity: 1 !important;
-    }}
     div[data-testid="stHorizontalBlock"] span {{
         font-size: 0.9rem !important;
         text-align: center !important;
@@ -213,7 +193,7 @@ def render_calendar_with_checkboxes(apply_date):
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 표시할 월 범위 계산
+    # 달력 표시할 월 범위 계산 (apply_date까지 표시)
     start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     end_date_for_calendar = apply_date
     months_to_display = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar).date))
@@ -236,7 +216,7 @@ def render_calendar_with_checkboxes(apply_date):
             color = "red" if i == 0 else ("blue" if i == 6 else "inherit")
             cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
-        # 달력 날짜 체크박스 생성
+        # 달력 날짜 체크박스 생성 (apply_date 이후 날짜 제외)
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
@@ -244,15 +224,18 @@ def render_calendar_with_checkboxes(apply_date):
                     cols[i].markdown(" ")
                 else:
                     date_obj = date(year, month, day)
+                    # apply_date 이후 날짜는 표시하지 않음
+                    if date_obj > apply_date:
+                        cols[i].markdown(" ")
+                        continue
+
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    # 신청일 이후를 비활성화
-                    is_disabled = date_obj > apply_date
 
                     # 디버깅 출력
                     if date_obj == date(2025, 4, 1):
                         print(f"2025-04-01 요일: {days_of_week_korean[i]} (인덱스: {i})")
-                    print(f"Date: {date_obj}, Apply Date: {apply_date}, Disabled: {is_disabled}")
+                    print(f"Date: {date_obj}, Apply Date: {apply_date}")
 
                     def on_checkbox_change(current_date_obj_for_callback):
                         if st.session_state[f"chk_{current_date_obj_for_callback}"]:
@@ -272,7 +255,6 @@ def render_calendar_with_checkboxes(apply_date):
                         value=is_selected,
                         on_change=on_checkbox_change,
                         args=(date_obj,),
-                        disabled=is_disabled
                     )
 
     # 현재 선택된 근무일자 목록 표시
