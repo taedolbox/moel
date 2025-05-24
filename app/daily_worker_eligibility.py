@@ -108,14 +108,14 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     /* 신청일 이후 또는 5월 26일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: #888888 !important;
-        background-color: #2a2a2a !important;
-        border: 1px solid #555555 !important;
+        color: #aaaaaa !important; /* 텍스트 색상을 더 밝은 회색으로 */
+        background-color: #252525 !important; /* 배경색을 약간 밝게 */
+        border: 1px solid #666666 !important; /* 테두리 색상도 부드럽게 */
         cursor: not-allowed !important;
-        opacity: 0.5;
+        opacity: 0.7 !important; /* 투명도를 높여 덜 강렬하게 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #888888 !important;
+        color: #aaaaaa !important;
     }}
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
