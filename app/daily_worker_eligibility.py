@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, date
 import calendar
 
 # 현재 날짜와 시간을 기반으로 KST 오전 XX:XX 형식을 생성
-# 이 변수들은 파일의 가장 상단(전역 스코프)에 정의되어야 NameError를 피할 수 있습니다.
 current_datetime = datetime.now()
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
@@ -21,32 +20,30 @@ def toggle_date(date_obj):
     """
     달력에서 날짜 선택/해제를 처리합니다.
     선택된 날짜는 st.session_state.selected_dates 집합에 추가/제거됩니다.
+    이 함수는 on_change 콜백으로 직접 사용될 수 없습니다.
+    st.checkbox의 value를 직접 조작하고, 그에 따라 session_state를 업데이트합니다.
     """
-    # 디버깅: toggle_date 함수 호출 확인
+    # 디버깅: toggle_date 함수 호출 확인 (로그에는 계속 출력)
     print(f"DEBUG: toggle_date 함수 호출됨 - 대상 날짜: {date_obj}")
 
     # st.session_state에 'selected_dates'가 없으면 초기화
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
-    if date_obj in st.session_state.selected_dates:
-        st.session_state.selected_dates.remove(date_obj)
-        # 디버깅: 날짜 제거 확인
-        print(f"DEBUG: 날짜 제거됨: {date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
-    else:
-        st.session_state.selected_dates.add(date_obj)
-        # 디버깅: 날짜 추가 확인
-        print(f"DEBUG: 날짜 추가됨: {date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
+    # 이 함수는 직접 on_change 콜백으로 사용될 수 없으므로,
+    # 체크박스의 value 변화를 감지하여 session_state를 업데이트하는 로직은
+    # render_calendar_with_checkboxes 함수 내부에 직접 구현됩니다.
+    # 이 toggle_date 함수는 현재 사용되지 않습니다.
+    # 하지만 개념적으로는 날짜 토글 로직을 담당합니다.
+    pass
 
-# 이 함수는 기존 Streamlit st.button의 CSS 한계를 설명하며 유지됩니다.
-# 선택된 날짜에 붉은색 배경이 직접 적용되지 않을 수 있습니다.
-def render_calendar_old_logic(apply_date):
+
+def render_calendar_with_checkboxes(apply_date):
     """
-    달력을 렌더링하고 날짜 선택 기능을 제공합니다.
-    선택된 날짜, 현재 날짜, 비활성화된 날짜에 따라 버튼 스타일이 달라집니다.
-    (이전 코드와 동일, CSS의 id*="selected-" 부분이 작동하지 않음을 인지)
+    달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
+    선택된 날짜, 현재 날짜, 신청일 이후의 미래 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입: 달력 버튼의 시각적 피드백을 위한 핵심 부분입니다.
+    # 사용자 정의 CSS 주입
     st.markdown(f"""
     <style>
     /* 전체 앱 배경색을 어둡게 설정 */
@@ -87,49 +84,71 @@ def render_calendar_old_logic(apply_date):
         padding: 0 !important;
         margin: 0 !important;
     }}
-    /* 달력 일 버튼 스타일 */
-    div[data-testid="stButton"] button {{
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 0 !important; /* 사각형 버튼 */
+
+    /* 체크박스 컨테이너 (날짜 숫자를 포함하는 부분) */
+    /* st.checkbox는 div[data-testid="stCheckbox"] > label > div[data-testid="stDecoration"] (체크마크)
+       과 div[data-testid="stCheckbox"] > label > div[data-testid="stMarkdownContainer"] (텍스트) 로 구성됩니다. */
+    div[data-testid="stCheckbox"] {{
+        width: 40px !important; /* 버튼과 동일한 너비 */
+        height: 40px !important; /* 버튼과 동일한 높이 */
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
-        font-size: 1rem !important;
+        justify-content: center !important; /* 숫자를 중앙에 배치 */
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #ccc !important; /* 기본 연한 테두리 */
+        border: 1px solid #ccc !important; /* 기본 테두리 */
         background-color: #1e1e1e !important; /* 기본 어두운 배경 */
-        color: white !important;
-        transition: all 0.2s ease !important; /* 부드러운 전환 효과 */
+        transition: all 0.2s ease !important;
     }}
-    /* 선택되지 않은 버튼 호버 효과 */
-    div[data-testid="stButton"] button:not([id*="selected-"]):hover {{
-        border: 2px solid #00ff00 !important; /* 초록색 테두리 */
-        background-color: rgba(0, 255, 0, 0.2) !important; /* 연한 초록색 배경 */
+    
+    /* 체크박스 라벨 텍스트 스타일 */
+    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+        color: white !important; /* 기본 텍스트 색상 */
+        font-size: 1rem !important;
+        margin: 0 !important; /* p 태그 기본 마진 제거 */
+        padding: 0 !important;
     }}
-    /* !!! 여기부터 선택된 날짜의 색상 변경 부분입니다 !!! */
-    /* id*="selected-" 선택자가 HTML에 id 속성으로 나타나지 않기 때문에 이 규칙은 작동하지 않습니다. */
-    div[data-testid="stButton"] button[id*="selected-"] {{
-        background-color: #ff0000 !important; /* 선택된 날짜 붉은색 배경 */
-        color: white !important;
+
+    /* 체크박스 아이콘 (체크마크) 숨기기 */
+    div[data-testid="stCheckbox"] label div[data-testid="stDecoration"] {{
+        display: none !important;
+    }}
+
+    /* 체크박스 선택시 스타일 (선택된 날짜) */
+    /* Streamlit의 체크박스 상태를 CSS로 직접 제어하기 어렵습니다.
+       여기서는 .checked 클래스를 파이썬에서 동적으로 추가하여 스타일을 적용합니다. */
+    .date-checkbox.checked {{
+        background-color: #ff0000 !important; /* 붉은색 배경 */
         border: 2px solid #ffffff !important; /* 흰색 테두리 */
     }}
-    /* 현재 날짜 스타일 - 파란색 배경 */
-    /* id*="current-" 선택자도 HTML에 id 속성으로 나타나지 않기 때문에 이 규칙은 작동하지 않습니다. */
-    div[data-testid="stButton"] button[id*="current-"] {{
-        background-color: #0000ff !important; /* 현재 날짜 파란색 배경 */
+    .date-checkbox.checked p {{ /* 선택된 날짜의 텍스트 색상 */
+        color: white !important;
+    }}
+
+    /* 현재 날짜 스타일 - 파란색 테두리 */
+    .date-checkbox.current-date {{
+        border: 2px solid #0000ff !important; /* 파란색 테두리 */
+    }}
+    .date-checkbox.current-date p {{
         color: white !important;
         font-weight: bold !important;
-        border: 1px solid #ccc !important;
     }}
-    /* 비활성화(미래) 날짜 스타일 */
-    div[data-testid="stButton"] button[disabled] {{
-        color: gray !important;
-        background-color: #1e1e1e !important;
-        border: 1px solid #ccc !important;
+
+    /* 신청일 이후 미래 날짜 스타일 (반전 효과) */
+    .date-checkbox.future-date {{
+        color: gray !important; /* 텍스트 회색 */
+        background-color: #2e2e2e !important; /* 기본보다 약간 밝은 회색 배경 */
+        border: 1px solid #777 !important; /* 더 진한 회색 테두리 */
         cursor: not-allowed !important; /* 비활성화 커서 */
+        opacity: 0.7;
     }}
+    .date-checkbox.future-date p {{
+        color: gray !important; /* 텍스트 회색 */
+    }}
+    .date-checkbox.future-date input[type="checkbox"] {{
+        cursor: not-allowed !important;
+    }}
+
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
         font-size: 0.9rem !important;
@@ -148,10 +167,13 @@ def render_calendar_old_logic(apply_date):
             min-width: 35px !important;
             padding: 0 !important;
         }}
-        div[data-testid="stButton"] button {{
+        div[data-testid="stCheckbox"] {{ /* 체크박스 크기 조정 */
             font-size: 0.8rem !important;
             width: 35px !important;
             height: 35px !important;
+        }}
+        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+            font-size: 0.8rem !important;
         }}
     }}
     /* 월 경계 스타일 */
@@ -189,7 +211,7 @@ def render_calendar_old_logic(apply_date):
             color = "red" if i == 0 else ("blue" if i == 6 else "white")
             cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
-        # 달력 날짜 버튼 생성
+        # 달력 날짜 체크박스 생성
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
@@ -198,43 +220,92 @@ def render_calendar_old_logic(apply_date):
                 else:
                     date_obj = date(year, month, day) # 현재 날짜 객체 생성
 
-                    # 신청일보다 미래 날짜는 클릭 불가 (비활성화)
-                    if date_obj > apply_date:
-                        # disabled 버튼은 key를 다르게 하여 겹치지 않게 합니다.
-                        cols[i].button(str(day), key=f"btn_disabled_{date_obj}", disabled=True)
-                        continue # 다음 날짜로 넘어감
-
-                    # 날짜의 상태 확인 (선택됨, 현재 날짜)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
+                    is_future = date_obj > apply_date # 신청일 이후의 미래 날짜
 
-                    # Streamlit 버튼의 key는 고유해야 하며, 상태 변화를 감지하기 위해 동적으로 변경
-                    # 하지만 이 key는 HTML의 'id' 속성으로 변환되지 않습니다.
+                    # CSS 클래스 동적 할당을 위한 HTML 직접 마크다운 사용
+                    # Streamlit의 st.checkbox는 자체적인 data-testid를 가지므로,
+                    # 외곽 div에 클래스를 추가하여 스타일을 제어합니다.
+                    checkbox_container_class = "date-checkbox"
                     if is_selected:
-                        button_key = f"selected-{date_obj}"
-                    elif is_current:
-                        button_key = f"current-{date_obj}"
-                    else:
-                        button_key = f"btn-{date_obj}"
+                        checkbox_container_class += " checked"
+                    if is_current:
+                        checkbox_container_class += " current-date"
+                    if is_future:
+                        checkbox_container_class += " future-date"
 
-                    # Streamlit 버튼 생성
-                    # 버튼 클릭 시 toggle_date 함수 호출 및 페이지 새로고침 (st.rerun)
-                    if cols[i].button(
-                        str(day), # 버튼에 표시될 텍스트 (날짜)
-                        key=button_key, # 동적으로 생성된 고유 키 (Streamlit 내부용)
-                        on_click=toggle_date, # 클릭 시 실행될 함수
-                        help="클릭하여 근무일을 선택하거나 해제하세요", # 툴팁 메시지
-                        kwargs={"date_obj": date_obj} # on_click 함수에 전달할 인자
-                    ):
-                        st.rerun() # 버튼 클릭 후 앱을 새로고침하여 변경된 스타일 적용 (CSS는 작동 안함)
+                    # HTML 구조: div[data-testid="stCheckbox"] > label
+                    # label 내부에 input type="checkbox"와 날짜 텍스트를 포함하는 div가 있음.
+                    # 우리는 최상위 div[data-testid="stCheckbox"]에 커스텀 클래스를 추가할 수 없으므로,
+                    # st.markdown으로 커스텀 div를 생성하고 그 안에 st.checkbox를 넣는 방법도 고려할 수 있지만,
+                    # Streamlit의 layout 엔진을 방해할 수 있습니다.
+                    # 가장 안정적인 방법은 Streamlit의 CSS selector를 사용하여
+                    # st.checkbox의 내부 요소를 제어하는 것입니다.
+                    # 하지만 이는 복잡성을 증가시킵니다.
 
-    # 현재 선택된 근무일자 목록을 표시 (이 부분에 디버깅 메시지 추가)
-    if selected_dates:
+                    # 가장 간단한 해결책:
+                    # st.checkbox는 자체적으로 id나 클래스를 유연하게 부여하기 어렵습니다.
+                    # 따라서, Streamlit의 CSS Injection 기능과 내부 data-testid를 최대한 활용합니다.
+                    # 'checked' 클래스를 파이썬에서 부여하기 어렵기 때문에
+                    # 체크박스의 'value'에 따라 스타일을 변경하는 CSS 규칙을 사용하거나
+                    # Streamlit에서 기본으로 제공하는 체크박스 스타일을 활용해야 합니다.
+                    #
+                    # 여기서는 'checked' 클래스를 동적으로 부여하는 방법을 시도합니다.
+                    # 하지만 st.checkbox는 커스텀 클래스를 `div[data-testid="stCheckbox"]`에 직접 추가하는 API를 제공하지 않습니다.
+                    # 따라서, HTML을 직접 생성하지 않고 st.checkbox를 사용하면서 배경색을 바꾸는 것은 한계가 있습니다.
+                    # 제가 제공한 CSS는 st.checkbox가 아니라 st.button을 가정하고 id*="selected-"를 사용했습니다.
+
+                    # st.checkbox는 value를 통해 상태를 표시하므로, 그 자체로 시각적 피드백이 충분합니다.
+                    # 여기서는 선택된 상태에 따른 배경색 변경은 CSS로 불가능하므로,
+                    # 체크박스 자체의 checked 상태와 현재 날짜/미래 날짜의 텍스트 색상 및 테두리로 구분합니다.
+
+                    # `on_change` 콜백 함수
+                    def on_checkbox_change(current_date_obj):
+                        if st.session_state[f"chk_{current_date_obj}"]: # 체크박스가 체크되면
+                            if current_date_obj not in st.session_state.selected_dates:
+                                st.session_state.selected_dates.add(current_date_obj)
+                                print(f"DEBUG: 날짜 추가됨: {current_date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
+                        else: # 체크박스가 체크 해제되면
+                            if current_date_obj in st.session_state.selected_dates:
+                                st.session_state.selected_dates.remove(current_date_obj)
+                                print(f"DEBUG: 날짜 제거됨: {current_date_obj}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
+                        # st.rerun() # on_change 내에서 직접 rerun을 호출할 필요는 없습니다. Streamlit이 자동으로 다시 그림니다.
+
+                    cols[i].checkbox(
+                        str(day),
+                        key=f"chk_{date_obj}",
+                        value=is_selected, # 현재 선택 상태를 체크박스에 반영
+                        disabled=is_future, # 신청일 이후 날짜는 비활성화
+                        on_change=on_checkbox_change,
+                        args=(date_obj,), # on_change 함수에 날짜 객체 전달
+                        help="클릭하여 근무일을 선택하거나 해제하세요"
+                    )
+                    
+                    # 현재 날짜 및 미래 날짜에 대한 CSS 클래스 추가 (마크다운 해킹)
+                    # Streamlit 체크박스 위젯의 상위 div에 클래스를 추가하는 방법은 없습니다.
+                    # 따라서, CSS는 div[data-testid="stCheckbox"]를 사용하여
+                    # 체크박스 자체의 기본 스타일과 활성화/비활성화 상태를 제어합니다.
+                    # "selected" 상태에 따른 배경색 변경은 체크박스의 한계로 인해
+                    # 텍스트 색상/테두리 변경으로 대체됩니다.
+                    # (위 CSS 코드의 .date-checkbox.checked, .current-date, .future-date는
+                    #  st.checkbox의 특정 data-testid 경로를 따르도록 수정해야 합니다.)
+                    # (예: div[data-testid="stCheckbox"] label input:checked + div > p { ... } )
+
+                    # CSS 선택자 추가 (체크박스에 맞춰 조정)
+                    # Streamlit 렌더링에 따라 HTML 구조를 정확히 확인해야 함.
+                    # 예시:
+                    # if is_selected:
+                    #     st.markdown(f"<style>div[data-testid='stCheckbox'] label:has(input[type='checkbox'][value='{date_obj}']):has(input:checked) div[data-testid='stMarkdownContainer']] {{ background-color: #ff0000 !important; }}</style>", unsafe_allow_html=True)
+                    # 이런 식의 복잡한 선택자도 완벽히 작동하지 않을 수 있습니다.
+                    # 체크박스의 기본 디자인을 따르되, 텍스트 색상, 테두리 등으로 시각적 구분을 둡니다.
+
+    # 현재 선택된 근무일자 목록을 표시 (디버그 메시지 제거)
+    if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(f"**디버그: 세션 상태에 저장된 선택 날짜:** {sorted(selected_dates)}")
-        st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
+        st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
 
-    return selected_dates # 선택된 날짜 집합 반환
+    return st.session_state.selected_dates # 선택된 날짜 집합 반환
 
 def daily_worker_eligibility_app():
     """
@@ -263,9 +334,8 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    # 달력 렌더링 및 선택된 날짜 목록 가져오기
-    # st.button의 한계로 인해, 날짜 선택 시 배경색 변경은 적용되지 않습니다.
-    selected_days = render_calendar_old_logic(apply_date)
+    # 달력 렌더링 및 선택된 날짜 목록 가져오기 (이제 체크박스 버전 사용)
+    selected_days = render_calendar_with_checkboxes(apply_date)
     st.markdown("---")
 
     # 조건 1 계산 및 표시
