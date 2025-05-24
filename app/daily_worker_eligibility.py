@@ -187,10 +187,10 @@ def render_table(apply_date):
 
                     # Create cell content
                     if is_disabled:
-                        table_html += f"<td class='day-cell{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
+                        table_html += f"<td class='calendar-table{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
                     else:
                         table_html += f"""
-                        <td class='day-cell{cell_classes}' onclick="toggleCheckbox('{date_str}')">
+                        <td class='calendar-table{cell_classes}' onclick="toggleCheckbox('{date_str}')">
                             <div class='day-number'>{day}</div>
                             <input type='checkbox' id='checkbox-{date_str}' class='day-checkbox' {'checked' if is_selected else ''} onchange="this.closest('td').classList.toggle('selected', this.checked)">
                         </td>
@@ -227,13 +227,13 @@ def toggle_date(date_obj):
 
 def daily_worker_eligibility_app():
     st.markdown("""
-<style>
-div[data-testid="stRadio"] label {
-    color: white !important;
-    font-size: 18px !important;
-}
-</style>
-""", unsafe_allow_html=True)
+    <style>
+    div[data-testid="stRadio"] label {
+        color: white !important;
+        font-size: 18px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
@@ -314,7 +314,7 @@ div[data-testid="stRadio"] label {
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     if worker_type == "일반일용근로자":
