@@ -9,104 +9,58 @@ def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
     return pd.date_range(start=start_date, end=apply_date), start_date
 
-def render_table(apply_date):
-    # Inject custom CSS and JavaScript for styling and interaction
+def render_calendar(apply_date):
+    # Inject custom CSS for styling buttons
     st.markdown("""
     <style>
-    /* Table styling */
-    .calendar-table {
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-        background-color: #1e1e1e;
+    /* Button container for centering */
+    div.stButton {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
-    .calendar-table th, .calendar-table td.day-cell {
-        border: 1px solid #ccc;
+    /* Button styling */
+    div.stButton > button {
         width: 40px;
         height: 60px;
-        text-align: center;
-        padding: 0;
-        margin: 0;
-        cursor: pointer;
+        font-size: 1rem;
+        color: white;
+        background-color: #1e1e1e;
+        border: 1px solid #ccc;
+        border-radius: 5px;
         transition: all 0.2s ease;
-        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
     }
-    /* Hover effect for unselected cells */
-    .calendar-table td.day-cell:not(.selected):not(.current):not(.disabled):hover {
+    /* Hover effect for unselected buttons */
+    div.stButton > button:not(.selected):not(.current):not(.disabled):hover {
         border: 2px solid #00ff00;
         background-color: rgba(0, 255, 0, 0.2);
     }
-    /* Selected cell style - green background with blue border */
-    .calendar-table td.day-cell.selected {
+    /* Selected button style - green background with blue border */
+    div.stButton > button.selected {
         background-color: #00ff00;
         border: 2px solid #0000ff;
     }
     /* Current date style - blue background */
-    .calendar-table td.day-cell.current {
+    div.stButton > button.current {
         background-color: #0000ff;
     }
-    /* Disabled cell style */
-    .calendar-table td.day-cell.disabled {
+    /* Disabled button style */
+    div.stButton > button:disabled {
         cursor: not-allowed;
         background-color: #1e1e1e;
         border: 1px solid #ccc;
-    }
-    .calendar-table td.day-cell.disabled .day-number {
         color: gray;
     }
-    /* Day number styling */
-    .day-number {
-        font-size: 1rem;
-        color: white;
-        margin: 0;
-        padding: 0;
-        line-height: 30px;
-        display: block;
-    }
-    /* Checkbox styling */
-    .day-checkbox {
-        margin: 0 auto;
-        padding: 0;
-        width: 16px;
-        height: 16px;
-        display: block;
-    }
     /* Day header styles */
-    .calendar-table th {
+    div[data-testid="stMarkdownContainer"] p {
+        text-align: center;
         font-size: 0.9rem;
-        color: white;
-        background-color: #2e2e2e;
-    }
-    /* PC layout (above 600px) */
-    @media (min-width: 601px) {
-        .calendar-table td.day-cell {
-            width: 40px;
-            height: 60px;
-        }
-        .day-number {
-            font-size: 1rem;
-        }
-        .day-checkbox {
-            width: 16px;
-            height: 16px;
-        }
-    }
-    /* Mobile layout (below 600px) */
-    @media (max-width: 600px) {
-        .calendar-table td.day-cell {
-            width: 35px;
-            height: 55px;
-        }
-        .day-number {
-            font-size: 0.8rem;
-            line-height: 25px;
-        }
-        .day-checkbox {
-            width: 14px;
-            height: 14px;
-        }
+        margin: 0;
     }
     /* Month boundary styling */
     div[data-testid="stMarkdownContainer"] h3 {
@@ -116,15 +70,23 @@ def render_table(apply_date):
         text-align: center;
         color: white;
     }
-    </style>
-    <script>
-    function toggleCheckbox(dateStr) {
-        var checkbox = document.getElementById('checkbox-' + dateStr);
-        if (checkbox) {
-            checkbox.click();
+    /* PC layout (above 600px) */
+    @media (min-width: 601px) {
+        div.stButton > button {
+            width: 40px;
+            height: 60px;
+            font-size: 1rem;
         }
     }
-    </script>
+    /* Mobile layout (below 600px) */
+    @media (max-width: 600px) {
+        div.stButton > button {
+            width: 35px;
+            height: 55px;
+            font-size: 0.8rem;
+        }
+    }
+    </style>
     """, unsafe_allow_html=True)
 
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1)
@@ -151,24 +113,22 @@ def render_table(apply_date):
     # Set calendar to start on Sunday
     calendar.setfirstweekday(calendar.SUNDAY)
 
+    # Display day headers
+    cols = st.columns(7)
+    for i, day in enumerate(korean_days):
+        color = "red" if day == "일" else "blue" if day == "토" else "white"
+        cols[i].markdown(f"<p style='color:{color}'>{day}</p>", unsafe_allow_html=True)
+
     for year, month in months:
         st.markdown(f"### {year} {korean_months[month]}", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
 
-        # Generate table HTML
-        table_html = "<table class='calendar-table'><tr>"
-        # Add day headers
-        for day in korean_days:
-            color = "red" if day == "일" else "blue" if day == "토" else "white"
-            table_html += f"<th style='color:{color}'>{day}</th>"
-        table_html += "</tr>"
-
-        # Fill the table with days
+        # Fill the calendar with days
         for week in cal:
-            table_html += "<tr>"
-            for day in week:
+            cols = st.columns(7)
+            for i, day in enumerate(week):
                 if day == 0:
-                    table_html += "<td></td>"
+                    cols[i].empty()
                 else:
                     date_obj = date(year, month, day)
                     date_str = date_obj.strftime("%Y-%m-%d")
@@ -176,38 +136,21 @@ def render_table(apply_date):
                     is_current = date_obj == current_date
                     is_disabled = date_obj > apply_date
 
-                    # Define cell classes
-                    cell_classes = "day-cell"
+                    # Define button style classes
+                    button_class = ""
                     if is_selected:
-                        cell_classes += " selected"
+                        button_class += " selected"
                     if is_current:
-                        cell_classes += " current"
-                    if is_disabled:
-                        cell_classes += " disabled"
+                        button_class += " current"
 
-                    # Create cell content
+                    # Create button for the day
+                    button_key = f"button_{date_str}"
                     if is_disabled:
-                        table_html += f"<td class='{cell_classes}'><div class='day-number'>{day}</div><div style='height: 16px;'></div></td>"
+                        cols[i].button(str(day), key=button_key, disabled=True)
                     else:
-                        table_html += f"""
-                        <td class='{cell_classes}' onclick="toggleCheckbox('{date_str}')">
-                            <div class='day-number'>{day}</div>
-                            <input type='checkbox' id='checkbox-{date_str}' class='day-checkbox' {'checked' if is_selected else ''} onchange="this.closest('td').classList.toggle('selected', this.checked)">
-                        </td>
-                        """
-            table_html += "</tr>"
-        table_html += "</table>"
-
-        st.markdown(table_html, unsafe_allow_html=True)
-
-        # Hidden Streamlit checkbox to manage state
-        for day in [date(year, month, d) for week in cal for d in week if d != 0]:
-            if day <= apply_date:
-                checkbox_key = f"checkbox_{day}"
-                is_checked = st.checkbox("", value=day in selected_dates, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": day}, label_visibility="hidden")
-                if is_checked != (day in selected_dates):
-                    toggle_date(day)
-                    st.rerun()
+                        if cols[i].button(str(day), key=button_key, help=date_str):
+                            toggle_date(date_obj)
+                            st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자", unsafe_allow_html=True)
@@ -258,7 +201,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---", unsafe_allow_html=True)
     st.markdown("#### ✅ 근무일 선택 달력", unsafe_allow_html=True)
-    selected_days = render_table(apply_date)
+    selected_days = render_calendar(apply_date)
     st.markdown("---", unsafe_allow_html=True)
 
     total_days = len(date_range)
