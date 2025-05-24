@@ -65,7 +65,7 @@ def render_calendar_with_checkboxes(apply_date):
         justify-content: center !important;
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #2a2a2a !important; /* 테두리 색상을 배경과 유사하게 */
+        border: 1px solid #ffffff !important; /* 신청일 이전: 흰색 테두리 */
         background-color: #1e1e1e !important;
         transition: all 0.2s ease !important;
         cursor: pointer;
@@ -108,14 +108,14 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     /* 신청일 이후 또는 5월 26일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: #aaaaaa !important; /* 텍스트 색상을 더 밝은 회색으로 */
-        background-color: #252525 !important; /* 배경색을 약간 밝게 */
-        border: 1px solid #2a2a2a !important; /* 테두리 색상도 배경과 유사하게 */
+        color: #cccccc !important; /* 날짜 숫자를 더 연한 회색으로 */
+        background-color: #252525 !important; /* 배경색 */
+        border: 1px solid #333333 !important; /* 테두리를 백컬러보다 연하게 */
         cursor: not-allowed !important;
-        opacity: 0.7 !important; /* 투명도를 높여 덜 강렬하게 */
+        opacity: 0.7 !important; /* 투명도 유지 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #aaaaaa !important;
+        color: #cccccc !important;
     }}
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
@@ -307,13 +307,19 @@ def daily_worker_eligibility_app():
     if condition1:
         st.success(f"✅ 일반일용근로자: 신청 가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
     else:
-        st.error(f"❌ 일반일용근로자: 신청 불가능\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되어 요건을 충족하지 못합니다.**")
+        st.error(f"❌ 일반일용근로자: 신청 불가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.**")
 
     # 건설일용근로자: 조건 1과 조건 2 모두 판단
     if condition1 and condition2:
         st.success(f"✅ 건설일용근로자: 신청 가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
     else:
-        st.error(f"❌ 건설일용근로자: 신청 불가능\n\n**총 일수의 3분의 1 이상 근로 사실이 확인되거나, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 내 근무기록이 존재하므로 요건을 충족하지 못합니다.**")
+        error_message = "❌ 건설일용근로자: 신청 불가능\n\n"
+        if not condition1:
+            error_message += f"**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.**\n\n"
+        if not condition2:
+            error_message += f"**신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.**"
+        st.error(error_message)
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
