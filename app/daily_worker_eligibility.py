@@ -34,17 +34,21 @@ def render_calendar_with_checkboxes(apply_date):
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
 
-    /* 근무일 선택 달력 관련 스타일 - 기존 유지 */
+    /* 근무일 선택 달력 관련 스타일 */
+
     /* Light Mode */
-    div[data-testid="stCheckbox"] {{
+    div[data-testid="stCheckbox"] {{ /* 개별 날짜 체크박스 배경 및 테두리 */
         border: 1px solid #000000 !important;
         background-color: #ffffff !important;
     }}
-    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{ /* 개별 날짜 글자색 */
         color: #000000 !important;
     }}
     div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
         background-color: #f0f0f0 !important;
+        color: #000000 !important;
+    }}
+    div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
         color: #000000 !important;
     }}
 
@@ -57,8 +61,11 @@ def render_calendar_with_checkboxes(apply_date):
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
             color: #ffffff !important;
         }}
-        div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
+        div[data-testid="stMarkdownContainer"] h3 {{
             background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
+            color: #ffffff !important;
+        }}
+        div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
             color: #ffffff !important;
         }}
     }}
@@ -72,11 +79,7 @@ def render_calendar_with_checkboxes(apply_date):
         color: #ffffff !important;
     }}
 
-    /* 요일 헤더 색상 (라이트/다크 모드 공통) */
-    .stHorizontalBlock span {{
-        /* 기본 텍스트 색상 - Streamlit의 기본 텍스트 색상 사용 */
-        color: var(--text-color) !important;
-    }}
+    /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
     /* 일요일 빨간색 */
     .stHorizontalBlock span:nth-child(1) {{
         color: red !important;
@@ -85,6 +88,7 @@ def render_calendar_with_checkboxes(apply_date):
     .stHorizontalBlock span:nth-child(7) {{
         color: blue !important;
     }}
+
 
     /* 공통 스타일 - 기존 유지 */
     div[data-testid="stRadio"] label {{
