@@ -43,6 +43,16 @@ def render_calendar_with_checkboxes(apply_date):
         background-color: #f0f0f0 !important;
         color: #000000 !important;
     }}
+    /* 월,화,수,목,금 요일 헤더 기본 글자색 (라이트 모드) */
+    .stHorizontalBlock span:nth-child(2), /* 월 */
+    .stHorizontalBlock span:nth-child(3), /* 화 */
+    .stHorizontalBlock span:nth-child(4), /* 수 */
+    .stHorizontalBlock span:nth-child(5), /* 목 */
+    .stHorizontalBlock span:nth-child(6)  /* 금 */
+    {{
+        color: #000000 !important; /* 라이트 모드일 때 검정색 */
+    }}
+
 
     /* Dark Mode (prefers-color-scheme) */
     @media (prefers-color-scheme: dark) {{
@@ -57,11 +67,15 @@ def render_calendar_with_checkboxes(apply_date):
             background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
             color: #ffffff !important;
         }}
-    }}
-
-    /* 요일 헤더 기본 글자색 - Streamlit의 기본 테마 색상 사용 */
-    div[data-testid="stHorizontalBlock"] span {{
-        color: var(--text-color) !important;
+        /* 월,화,수,목,금 요일 헤더 기본 글자색 (다크 모드) */
+        .stHorizontalBlock span:nth-child(2), /* 월 */
+        .stHorizontalBlock span:nth-child(3), /* 화 */
+        .stHorizontalBlock span:nth-child(4), /* 수 */
+        .stHorizontalBlock span:nth-child(5), /* 목 */
+        .stHorizontalBlock span:nth-child(6)  /* 금 */
+        {{
+            color: #ffffff !important; /* 다크 모드일 때 흰색 */
+        }}
     }}
 
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
@@ -320,4 +334,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
