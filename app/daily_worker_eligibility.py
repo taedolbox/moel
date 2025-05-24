@@ -44,11 +44,12 @@ def render_calendar_with_checkboxes(apply_date):
         color: #000000 !important;
     }}
     /* 월,화,수,목,금 요일 헤더 기본 글자색 (라이트 모드) */
-    .stHorizontalBlock span:nth-child(2), /* 월 */
-    .stHorizontalBlock span:nth-child(3), /* 화 */
-    .stHorizontalBlock span:nth-child(4), /* 수 */
-    .stHorizontalBlock span:nth-child(5), /* 목 */
-    .stHorizontalBlock span:nth-child(6)  /* 금 */
+    /* stHorizontalBlock 내의 span 요소에 직접 적용 */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(5) span, /* 목 */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(6) span  /* 금 */
     {{
         color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
@@ -68,11 +69,12 @@ def render_calendar_with_checkboxes(apply_date):
             color: #ffffff !important;
         }}
         /* 월,화,수,목,금 요일 헤더 기본 글자색 (다크 모드) */
-        .stHorizontalBlock span:nth-child(2), /* 월 */
-        .stHorizontalBlock span:nth-child(3), /* 화 */
-        .stHorizontalBlock span:nth-child(4), /* 수 */
-        .stHorizontalBlock span:nth-child(5), /* 목 */
-        .stHorizontalBlock span:nth-child(6)  /* 금 */
+        /* stHorizontalBlock 내의 span 요소에 직접 적용 */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(5) span, /* 목 */
+        div[data-testid="stHorizontalBlock"] > div:nth-child(6) span  /* 금 */
         {{
             color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
@@ -89,11 +91,11 @@ def render_calendar_with_checkboxes(apply_date):
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
     /* 일요일 빨간색 */
-    .stHorizontalBlock span:nth-child(1) {{
+    div[data-testid="stHorizontalBlock"] > div:nth-child(1) span {{
         color: red !important;
     }}
     /* 토요일 파란색 */
-    .stHorizontalBlock span:nth-child(7) {{
+    div[data-testid="stHorizontalBlock"] > div:nth-child(7) span {{
         color: blue !important;
     }}
 
@@ -334,3 +336,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
