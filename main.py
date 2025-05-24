@@ -1,5 +1,9 @@
 import streamlit as st
-from app import daily_worker_eligibility
+from app.daily_worker_eligibility import run_daily_worker_eligibility_app
 
-# 페이지 구성
-st.set_page_config(page_title="고용노동부 실업급여 서비스", layout="wide")
+def main():
+    st.set_page_config(page_title="일용근로자 수급자격 모의계산기", layout="centered")
+    run_daily_worker_eligibility_app()
+
+if __name__ == "__main__":
+    main()
