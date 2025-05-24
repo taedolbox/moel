@@ -168,7 +168,7 @@ def render_calendar_with_checkboxes(apply_date):
     /* 모바일 반응형 조절 */
     @media (max-width: 900px) {{
         div[data-testid="stHorizontalBlock"] {{
-            max-width: 100%; /* 모바일에서는 너비 100% */
+            max-width: 600%; /* 모바일에서는 너비 100% */
         }}
         div[data-testid="stHorizontalBlock"] > div {{
             flex-basis: calc(100% / 7 - 0.1rem); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
