@@ -8,7 +8,6 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date)
 
 def render_calendar(apply_date):
-    # Inject custom CSS for compact layout and styled buttons
     st.markdown("""
     <style>
     div[data-testid="stHorizontalBlock"] {
@@ -31,13 +30,8 @@ def render_calendar(apply_date):
         border: 2px solid transparent !important;
         background-color: transparent !important;
         color: white !important;
-        transition: all 0.2s ease !important;
     }
     div[data-testid="stButton"] button[kind="secondary"]:hover {
-        border: 2px solid #00ff00 !important;
-        background-color: rgba(0, 255, 0, 0.2) !important;
-    }
-    div[data-testid="stButton"] button.selected-day {
         border: 2px solid #00ff00 !important;
         background-color: rgba(0, 255, 0, 0.2) !important;
     }
@@ -49,6 +43,28 @@ def render_calendar(apply_date):
     div[data-testid="stHorizontalBlock"] span {
         font-size: 0.9rem !important;
         text-align: center !important;
+    }
+    div[data-testid="stButton"] button.selected-day {
+        background-color: #00bfff !important;
+        color: white !important;
+        border: 2px solid #00bfff !important;
+    }
+    @media (max-width: 600px) {
+        div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 0.3rem !important;
+        }
+        div[data-testid="stHorizontalBlock"] > div {
+            flex: 1 !important;
+            min-width: 40px !important;
+            padding: 0.1rem !important;
+        }
+        div[data-testid="stButton"] button {
+            font-size: 0.8rem !important;
+            width: 35px !important;
+            height: 35px !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -82,19 +98,10 @@ def render_calendar(apply_date):
                     if date_obj > apply_date:
                         cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
                         continue
-
+                    button_key = f"btn_{date_obj}"
                     is_selected = date_obj in selected_dates
                     label = str(day)
-                    button_class = "selected-day" if is_selected else ""
-
-                    button_clicked = cols[i].button(
-                        label,
-                        key=f"btn_{date_obj}",
-                        help="클릭하여 근무일을 선택하거나 해제하세요",
-                        on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d),
-                        args=(date_obj,)
-                    )
-                    if button_clicked:
+                    if cols[i].button(label, key=button_key, on_click=lambda d=date_obj: st.session_state.selected_dates.add(d) if d not in st.session_state.selected_dates else st.session_state.selected_dates.remove(d), args=(date_obj,)):
                         st.rerun()
 
     if selected_dates:
@@ -116,7 +123,6 @@ def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
     worker_type = st.radio("근로자 유형을 선택하세요", ["일반일용근로자", "건설일용근로자"])
-
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.today().date())
     date_range = get_date_range(apply_date)
 
@@ -189,3 +195,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+
