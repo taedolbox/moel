@@ -126,12 +126,21 @@ def render_calendar(apply_date):
                 else:
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
-                        cols[i].button(str(day), key=f"btn_{date_obj}", disabled=True)
+                        cols[i].button(str(day), key=f"btn_disabled_{date_obj}", disabled=True)
                         continue
+                    
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    key_prefix = "selected-" if is_selected else "current-" if is_current else "btn-"
-                    button_key = f"{key_prefix}{date_obj}"
+
+                    # Construct a unique key based on the state (selected, current, or default)
+                    # This is crucial for Streamlit to re-render with the correct style
+                    if is_selected:
+                        button_key = f"selected-{date_obj}"
+                    elif is_current:
+                        button_key = f"current-{date_obj}"
+                    else:
+                        button_key = f"btn-{date_obj}"
+
                     if cols[i].button(
                         str(day),
                         key=button_key,
@@ -203,7 +212,7 @@ div[data-testid="stRadio"] label {
     if worker_type == "건설일용근로자":
         fourteen_days_prior_end = apply_date - timedelta(days=1)
         fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
-        fourteen_days_prior = pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)
+        fourteen_days_prior = pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end).date
         no_work_14_days = all(day not in selected_days for day in fourteen_days_prior)
         condition2 = no_work_14_days
 
