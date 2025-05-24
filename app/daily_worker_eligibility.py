@@ -31,7 +31,7 @@ def render_calendar_with_checkboxes(apply_date):
 
     /* 기본 스타일 (라이트 모드 제거, 다크 모드 통일) */
     .stApp {{
-        background-color: #4CAF50 !important; /* 상단 바와 동일한 진한 검정색 */
+        background-color: #ffffff !important; /* 상단 바와 동일한 진한 검정색 */
         color: #ffffff !important; /* 텍스트 흰색으로 가독성 유지 */
         font-family: 'Nanum Gothic', sans-serif !important;
     }}
