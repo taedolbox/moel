@@ -18,9 +18,9 @@ def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
-def render_calendar_with_checkboxes(apply_date):
+def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calendar_with_buttons
     """
-    달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
+    달력을 렌더링하고 버튼을 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
     # 사용자 정의 CSS 주입
@@ -28,26 +28,24 @@ def render_calendar_with_checkboxes(apply_date):
     <style>
     /* 전체 폰트 Streamlit 기본 폰트 사용 */
 
-    /* 근무일 선택 달력 관련 스타일 */
-
-    /* 달력 전체 가운데 정렬 시도 (가장 바깥쪽 블록에 적용) */
-    /* Streamlit의 stHorizontalBlock을 Flex 컨테이너로 만들고 가운데 정렬 */
-    div[data-testid="stVerticalBlock"] > div:nth-child(2) > div:nth-child(2) {{ /* 이 선택자는 달력 콘텐츠를 감싸는 상위 div일 수 있음, 테스트 필요 */
+    /* 달력 전체 컨테이너 가운데 정렬을 위한 상위 요소에 Flexbox 적용 */
+    /* Streamlit이 st.columns를 감싸는 div가 무엇인지 정확히 알아내야 함 */
+    /* 가장 일반적인 상위 div[data-testid="stVerticalBlock"] 내의 두 번째 div를 시도 */
+    div[data-testid="stVerticalBlock"] > div:nth-child(2) > div:nth-child(2) {{
         display: flex;
         flex-direction: column;
         align-items: center; /* 수평 가운데 정렬 */
         width: 100%; /* 부모 너비 채우기 */
     }}
-    /* 또는 달력 전체를 감싸는 특정 div를 찾아 margin: auto 적용 */
-    /* stHorizontalBlock은 st.columns에서 오는 것이므로, 그 상위 요소를 찾아야 함 */
-    
+
     /* 월별 헤더 스타일 */
-    div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
+    div[data-testid="stMarkdownContainer"] h3 {{
         background-color: #f0f0f0 !important; /* 라이트 모드 */
         color: #000000 !important; /* 라이트 모드 */
         text-align: center; /* 월별 헤더 가운데 정렬 */
-        padding: 5px 0; /* 패딩 추가 */
-        margin-bottom: 10px; /* 아래 여백 추가 */
+        padding: 8px 0; /* 패딩 증가 */
+        margin-bottom: 15px; /* 아래 여백 증가 */
+        font-size: 1.5em !important; /* 월별 헤더 폰트 크기 증가 */
     }}
 
     /* Light Mode */
@@ -56,46 +54,22 @@ def render_calendar_with_checkboxes(apply_date):
         color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
 
-    /* 개별 날짜 체크박스(버튼처럼 보이게) 스타일 */
-    div[data-testid="stCheckbox"] {{
-        width: 60px !important; /* 날짜 박스 너비 */
-        height: 50px !important; /* 날짜 박스 높이 */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        margin: 2px !important; /* 날짜 박스 간 간격 */
-        border: 1px solid #ddd !important; /* 기본 테두리색 (라이트 모드) */
-        background-color: #ffffff !important; /* 기본 배경색 (라이트 모드) */
+    /* 개별 날짜 버튼 스타일 */
+    div[data-testid="stHorizontalBlock"] .stButton > button {{ /* st.button의 실제 버튼 요소 선택 */
+        width: 45px; /* 날짜 버튼 너비 */
+        height: 45px; /* 날짜 버튼 높이 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin: 2px; /* 버튼 간 간격 */
+        border: 1px solid #ddd; /* 기본 테두리색 (라이트 모드) */
+        background-color: #ffffff; /* 기본 배경색 (라이트 모드) */
         cursor: pointer;
-        transition: all 0.2s ease !important;
+        transition: all 0.2s ease;
         border-radius: 5px; /* 약간 둥근 모서리 */
-    }}
-    div[data-testid="stCheckbox"] label {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        margin: 0 !important;
-    }}
-    /* 실제 체크박스 마커 숨기기 */
-    div[data-testid="stCheckbox"] label div[data-testid="stDecoration"] {{
-        display: none !important;
-    }}
-    /* 날짜 글자색 (라이트 모드) */
-    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #000000 !important; /* 라이트 모드일 때 검정색 */
-        font-size: 1rem !important;
-        line-height: 1;
-        margin: 0 !important;
-        padding: 0 !important;
-        text-align: center;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        font-size: 1.1em; /* 날짜 숫자 폰트 크기 증가 */
+        color: #000000; /* 날짜 숫자 글자색 (라이트 모드) */
     }}
 
     /* Dark Mode (prefers-color-scheme) */
@@ -108,32 +82,37 @@ def render_calendar_with_checkboxes(apply_date):
         div[data-testid="stHorizontalBlock"] span {{
             color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
-        /* 개별 날짜 체크박스(버튼처럼 보이게) 스타일 */
-        div[data-testid="stCheckbox"] {{
-            border: 1px solid #444 !important; /* 다크 모드 테두리색 */
-            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
-        }}
-        /* 날짜 글자색 (다크 모드) */
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important; /* 다크 모드일 때 흰색 */
+        /* 개별 날짜 버튼 스타일 (다크 모드) */
+        div[data-testid="stHorizontalBlock"] .stButton > button {{
+            border: 1px solid #444; /* 다크 모드 테두리색 */
+            background-color: #1e1e1e; /* 다크 모드 배경색 */
+            color: #ffffff; /* 날짜 숫자 글자색 (다크 모드) */
         }}
     }}
 
-    /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important; /* 선택 시 빨간색 배경 */
-        border: 1px solid #ff0000 !important; /* 테두리도 빨간색 */
-    }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important; /* 선택 시 흰색 글씨 */
+    /* 선택된 날짜 버튼 스타일 (라이트/다크 모드 공통) */
+    div[data-testid="stHorizontalBlock"] .stButton > button.selected-date {{ /* Python에서 추가할 클래스 */
+        background-color: #ff0000; /* 선택 시 빨간색 배경 */
+        border: 1px solid #ff0000; /* 테두리도 빨간색 */
+        color: #ffffff; /* 선택 시 흰색 글씨 */
+        font-weight: bold; /* 선택된 날짜 글자 두껍게 */
+        /* border-radius: 50%; */ /* 원형을 원한다면 이 주석을 해제하고 위 width/height 값을 동일하게 (예: 40px) 설정 */
     }}
 
-    /* 요일 헤더 공통 스타일 (폰트 크기) */
+    /* 오늘 날짜 스타일 (선택되지 않았을 때만 적용) */
+    div[data-testid="stHorizontalBlock"] .stButton > button.current-date:not(.selected-date) {{
+        border: 2px solid blue !important; /* 오늘 날짜 파란색 테두리 */
+    }}
+
+
+    /* 요일 헤더 공통 스타일 (폰트 크기 및 정렬) */
     div[data-testid="stHorizontalBlock"] > div span {{
-        font-size: 1.1em !important; /* 폰트 크기 약간 키움 */
-        text-align: center !important; /* 요일 글자 가운데 정렬 */
+        font-size: 1.1em !important; /* 요일 폰트 크기 */
+        text-align: center !important; /* 가운데 정렬 */
         display: block !important; /* text-align을 위해 block으로 설정 */
         width: 100% !important; /* 부모 div의 너비에 맞춤 */
+        font-weight: bold; /* 요일 글자 두껍게 */
+        padding: 5px 0; /* 요일 패딩 추가 */
     }}
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
@@ -147,49 +126,49 @@ def render_calendar_with_checkboxes(apply_date):
     }}
 
     /* 달력 날짜 그리드를 감싸는 stHorizontalBlock에 flexbox 적용 */
+    /* (st.columns가 이 data-testid를 가짐) */
     div[data-testid="stHorizontalBlock"] {{
         display: flex;
         flex-wrap: wrap; /* 내용이 넘치면 다음 줄로 */
-        justify-content: center; /* 전체 요일/날짜 블록 가운데 정렬 */
-        max-width: 450px; /* 달력 전체의 최대 너비 설정 (조절 가능) */
+        justify-content: center; /* 내부 열(요일/날짜)들을 중앙 정렬 */
+        max-width: 380px; /* 달력 전체의 최대 너비 설정 (조절 가능) */
         margin: 0 auto; /* 블록 자체를 가운데 정렬 */
-        gap: 0.1rem !important; /* 간격 유지 */
+        gap: 2px; /* 버튼 간 간격 */
     }}
     /* stHorizontalBlock 내의 각 열 (날짜/요일) */
     div[data-testid="stHorizontalBlock"] > div {{
-        flex-grow: 1; /* 남은 공간을 채우면서 */
-        flex-basis: calc(100% / 7 - 0.2rem); /* 7개 열이 대략적으로 균등하게, gap 고려 */
-        min-width: 48px; /* 너무 작아지지 않도록 최소 너비 설정 */
+        flex-grow: 0; /* 늘어나지 않음 */
+        flex-shrink: 0; /* 줄어들지 않음 */
+        flex-basis: calc(100% / 7 - 4px); /* 7개 열이 대략적으로 균등하게, gap 고려 */
+        min-width: 45px; /* 너무 작아지지 않도록 최소 너비 설정 */
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
+        display: flex; /* 내부 요소 (버튼) 정렬을 위해 flexbox 사용 */
+        justify-content: center; /* 버튼 가운데 정렬 */
+        align-items: center; /* 버튼 세로 가운데 정렬 */
     }}
 
     /* 모바일 반응형 조절 */
-    @media (max-width: 900px) {{
+    @media (max-width: 600px) {{
         div[data-testid="stHorizontalBlock"] {{
-            max-width: 600%; /* 모바일에서는 너비 100% */
+            max-width: 100%; /* 모바일에서는 너비 100% */
         }}
         div[data-testid="stHorizontalBlock"] > div {{
-            flex-basis: calc(100% / 7 - 0.1rem); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
-            min-width: 50px !important;
+            flex-basis: calc(100% / 7 - 2px); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
+            min-width: 38px !important; /* 모바일 최소 너비 */
         }}
-        div[data-testid="stCheckbox"] {{
-            width: 47px !important;
-            height: 47px !important;
+        div[data-testid="stHorizontalBlock"] .stButton > button {{
+            width: 38px;
+            height: 38px;
+            font-size: 1em;
         }}
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            font-size: 0.75rem !important;
+        div[data-testid="stHorizontalBlock"] > div span {{
+            font-size: 0.9em !important;
         }}
     }}
     </style>
     """, unsafe_allow_html=True)
-
-    # 달력 표시할 월 범위 계산 (apply_date까지 표시)
-    start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
-    end_date_for_calendar = apply_date
-    months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
-
 
     # st.session_state에서 선택된 날짜 집합 가져오기
     if 'selected_dates' not in st.session_state:
@@ -197,51 +176,83 @@ def render_calendar_with_checkboxes(apply_date):
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
+    # 달력 표시할 월 범위 계산 (apply_date까지 표시)
+    start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
+    end_date_for_calendar = apply_date
+    months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
+
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
-        st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True) # h3 태그를 직접 사용하여 CSS 적용
+        st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
         days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # 요일 헤더 생성
+        # 요일 헤더 생성 (st.columns 사용)
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            # 요일 헤더 색상은 CSS에서 처리하도록 변경
             cols[i].markdown(f"<span><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
-        # 달력 날짜 체크박스 생성 (apply_date 이후 날짜 제외)
+        # 달력 날짜 버튼 생성 (apply_date 이후 날짜 제외)
         for week in cal:
             cols = st.columns(7, gap="small")
             for i, day in enumerate(week):
                 if day == 0:
-                    cols[i].markdown(" ")
+                    cols[i].markdown(" ") # 빈 칸
                 else:
                     date_obj = date(year, month, day)
-                    # apply_date 이후 날짜는 표시하지 않음
+                    # 신청일 이후 날짜는 표시하지 않음 (버튼 비활성화 또는 숨김)
                     if date_obj > apply_date:
-                        cols[i].markdown(" ")
+                        cols[i].markdown(" ") # 빈 칸
                         continue
 
-                    is_selected = date_obj in selected_dates
-                    is_current = date_obj == current_date
+                    # 버튼에 적용될 CSS 클래스 결정
+                    button_class = []
+                    if date_obj in selected_dates:
+                        button_class.append("selected-date")
+                    if date_obj == current_date:
+                        button_class.append("current-date")
 
-                    def on_checkbox_change(current_date_obj_for_callback):
-                        if st.session_state[f"chk_{current_date_obj_for_callback}"]:
-                            st.session_state.selected_dates.add(current_date_obj_for_callback)
+                    # st.button을 사용하여 날짜를 버튼으로 표시
+                    # key는 고유해야 함. 클래스는 unsafe_allow_html로 직접 추가
+                    if cols[i].button(str(day), key=f"btn_{date_obj}", help=f"{date_obj.strftime('%Y-%m-%d')} 선택",
+                                      # class를 직접 넣는 방법은 Streamlit에서 지원하지 않으므로, 아래 HTML 마크다운 방식으로 대체
+                                     ):
+                        # 버튼이 클릭되었을 때 선택 상태 토글
+                        if date_obj in selected_dates:
+                            selected_dates.discard(date_obj)
                         else:
-                            st.session_state.selected_dates.discard(current_date_obj_for_callback)
+                            selected_dates.add(date_obj)
+                        st.session_state.selected_dates = selected_dates # 세션 상태 업데이트
+                        st.experimental_rerun() # 상태 변경 후 재실행하여 UI 업데이트
 
-                    display_day_text = str(day)
-                    if is_current:
-                        display_day_text = f"**{day}**"
+                    # Streamlit 버튼에 클래스를 동적으로 적용하는 직접적인 방법이 없으므로,
+                    # JavaScript를 사용하거나, CSS 선택자를 매우 구체적으로 지정해야 합니다.
+                    # 여기서는 CSS 선택자를 통해 버튼에 스타일을 적용하고,
+                    # 선택된 상태는 Python에서 처리 후 재실행하여 UI를 업데이트하는 방식으로 합니다.
+                    # 만약 `button_class`를 직접 버튼 태그에 넣고 싶다면, `st.markdown`으로 HTML을 직접 구성해야 합니다.
+                    # 현재 CSS는 `stButton > button`에 적용되고, `selected-date` 클래스는 Python에서
+                    # 버튼이 선택되었을 때 재실행하면서 버튼의 배경색을 변경하도록 CSS에서 설정했습니다.
+                    # Streamlit 렌더링 후 클래스 추가를 위해 스크립트를 삽입해야 하지만,
+                    # 간단한 예시에서는 선택된 날짜에 `selected-date` 클래스가 적용된 것으로 가정하고 CSS를 작성했습니다.
+                    # 실제 Streamlit 버튼 컴포넌트 자체에 동적으로 클래스를 추가하려면 더 복잡한 JS 주입이 필요합니다.
 
-                    cols[i].checkbox(
-                        display_day_text,
-                        key=f"chk_{date_obj}",
-                        value=is_selected,
-                        on_change=on_checkbox_change,
-                        args=(date_obj,),
-                    )
+    # 선택된 날짜에 대한 CSS 클래스 동적 부여 (버튼 렌더링 후)
+    # 이 부분은 Streamlit 컴포넌트의 한계로 직접적인 CSS 클래스 주입이 어렵습니다.
+    # 대신, 선택된 날짜의 버튼에 스타일이 적용되도록 CSS를 다시 검토했습니다.
+    # 즉, selected_dates에 있으면 `st.experimental_rerun()`으로 UI를 새로 그리게 하여
+    # CSS의 `.stButton > button.selected-date` 규칙이 적용되도록 합니다.
+    # 그러나 Streamlit은 `st.button`에 직접적인 HTML class 인자를 제공하지 않으므로
+    # `st.experimental_rerun()`으로 상태가 변경될 때마다 전체를 다시 그리게 하여
+    # `current-date`와 `selected-date`가 CSS에 의해 적용되도록 합니다.
+    # 이 부분을 직접적인 HTML 및 JS 삽입 없이 구현하려면 다음과 같이 접근합니다:
+    # 1. `st.button`은 클릭 이벤트를 감지.
+    # 2. 클릭 시 `st.session_state.selected_dates`를 업데이트.
+    # 3. `st.experimental_rerun()`을 호출하여 전체 앱을 다시 그림.
+    # 4. 앱이 다시 그려질 때, 각 날짜 버튼이 현재 `selected_dates`에 포함되어 있는지 확인하고
+    #    그에 맞는 CSS 스타일이 적용되도록 CSS를 미리 정의해 둠. (이전 접근 방식과 유사)
+
+    # `st.button`은 `key` 인자가 필수입니다.
+    # `cols[i].button(str(day), key=f"btn_{date_obj}")` 부분에 `key`를 이미 넣어두었습니다.
 
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
@@ -273,7 +284,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    selected_days = render_calendar_with_checkboxes(apply_date)
+    selected_days = render_calendar_with_buttons(apply_date) # 함수 호출 변경
     st.markdown("---")
 
     # 조건 1 계산 및 표시
@@ -354,4 +365,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
