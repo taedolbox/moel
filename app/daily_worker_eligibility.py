@@ -3,9 +3,9 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 
-# 현재 날짜와 시간을 기반으로 KST 오전 XX:XX 형식을 생성
+# 현재 날짜와 시간을 기반으로 KST 오후 XX:XX 형식을 생성
 current_datetime = datetime.now()
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
     """
@@ -18,7 +18,7 @@ def get_date_range(apply_date):
 def render_calendar_with_checkboxes(apply_date):
     """
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
-    선택된 날짜, 현재 날짜, 신청일 이후, 5월 26일 이후 날짜에 따라 스타일이 달라집니다.
+    선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
     # 사용자 정의 CSS 주입
     st.markdown(f"""
@@ -106,7 +106,7 @@ def render_calendar_with_checkboxes(apply_date):
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: white !important;
     }}
-    /* 5월 26일 이후 날짜 스타일 */
+    /* 신청일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
         color: #1e1e1e !important; /* 숫자 색상을 배경색과 동일하게 */
         background-color: #1e1e1e !important; /* 배경색 */
@@ -187,8 +187,8 @@ def render_calendar_with_checkboxes(apply_date):
                     date_obj = date(year, month, day)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    # 5월 26일 이후를 비활성화
-                    is_disabled = date_obj >= date(2025, 5, 26)
+                    # 신청일 이후를 비활성화
+                    is_disabled = date_obj > apply_date
 
                     def on_checkbox_change(current_date_obj_for_callback):
                         if st.session_state[f"chk_{current_date_obj_for_callback}"]:
