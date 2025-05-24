@@ -15,106 +15,106 @@ def render_table(apply_date):
     <style>
     /* Table styling */
     .calendar-table {
-        border-collapse: collapse !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background-color: #1e1e1e !important;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #1e1e1e;
     }
     .calendar-table th, .calendar-table td.day-cell {
-        border: 1px solid #ccc !important;
-        width: 40px !important;
-        height: 60px !important;
-        text-align: center !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        cursor: pointer !important;
-        transition: all 0.2s ease !important;
-        position: relative !important;
+        border: 1px solid #ccc;
+        width: 40px;
+        height: 60px;
+        text-align: center;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
     }
     /* Hover effect for unselected cells */
     .calendar-table td.day-cell:not(.selected):not(.current):not(.disabled):hover {
-        border: 2px solid #00ff00 !important;
-        background-color: rgba(0, 255, 0, 0.2) !important;
+        border: 2px solid #00ff00;
+        background-color: rgba(0, 255, 0, 0.2);
     }
     /* Selected cell style - green background with blue border */
     .calendar-table td.day-cell.selected {
-        background-color: #00ff00 !important;
-        border: 2px solid #0000ff !important;
+        background-color: #00ff00;
+        border: 2px solid #0000ff;
     }
     /* Current date style - blue background */
     .calendar-table td.day-cell.current {
-        background-color: #0000ff !important;
+        background-color: #0000ff;
     }
     /* Disabled cell style */
     .calendar-table td.day-cell.disabled {
-        cursor: not-allowed !important;
-        background-color: #1e1e1e !important;
-        border: 1px solid #ccc !important;
+        cursor: not-allowed;
+        background-color: #1e1e1e;
+        border: 1px solid #ccc;
     }
     .calendar-table td.day-cell.disabled .day-number {
-        color: gray !important;
+        color: gray;
     }
     /* Day number styling */
     .day-number {
-        font-size: 1rem !important;
-        color: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 30px !important;
-        display: block !important;
+        font-size: 1rem;
+        color: white;
+        margin: 0;
+        padding: 0;
+        line-height: 30px;
+        display: block;
     }
     /* Checkbox styling */
     .day-checkbox {
-        margin: 0 auto !important;
-        padding: 0 !important;
-        width: 16px !important;
-        height: 16px !important;
-        display: block !important;
+        margin: 0 auto;
+        padding: 0;
+        width: 16px;
+        height: 16px;
+        display: block;
     }
     /* Day header styles */
     .calendar-table th {
-        font-size: 0.9rem !important;
-        color: white !important;
-        background-color: #2e2e2e !important;
+        font-size: 0.9rem;
+        color: white;
+        background-color: #2e2e2e;
     }
     /* PC layout (above 600px) */
     @media (min-width: 601px) {
         .calendar-table td.day-cell {
-            width: 40px !important;
-            height: 60px !important;
+            width: 40px;
+            height: 60px;
         }
         .day-number {
-            font-size: 1rem !important;
+            font-size: 1rem;
         }
         .day-checkbox {
-            width: 16px !important;
-            height: 16px !important;
+            width: 16px;
+            height: 16px;
         }
     }
     /* Mobile layout (below 600px) */
     @media (max-width: 600px) {
         .calendar-table td.day-cell {
-            width: 35px !important;
-            height: 55px !important;
+            width: 35px;
+            height: 55px;
         }
         .day-number {
-            font-size: 0.8rem !important;
-            line-height: 25px !important;
+            font-size: 0.8rem;
+            line-height: 25px;
         }
         .day-checkbox {
-            width: 14px !important;
-            height: 14px !important;
+            width: 14px;
+            height: 14px;
         }
     }
     /* Month boundary styling */
     div[data-testid="stMarkdownContainer"] h3 {
-        margin: 0.5rem 0 !important;
-        padding: 0.2rem !important;
-        background-color: #2e2e2e !important;
-        text-align: center !important;
-        color: white !important;
+        margin: 0.5rem 0;
+        padding: 0.2rem;
+        background-color: #2e2e2e;
+        text-align: center;
+        color: white;
     }
     </style>
     <script>
@@ -204,7 +204,7 @@ def render_table(apply_date):
         for day in [date(year, month, d) for week in cal for d in week if d != 0]:
             if day <= apply_date:
                 checkbox_key = f"checkbox_{day}"
-                is_checked = st.checkbox("", value=day in selected_dates, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": day})
+                is_checked = st.checkbox("", value=day in selected_dates, key=checkbox_key, on_change=toggle_date, kwargs={"date_obj": day}, label_visibility="hidden")
                 if is_checked != (day in selected_dates):
                     toggle_date(day)
                     st.rerun()
@@ -229,8 +229,8 @@ def daily_worker_eligibility_app():
     st.markdown("""
     <style>
     div[data-testid="stRadio"] label {
-        color: white !important;
-        font-size: 18px !important;
+        color: white;
+        font-size: 18px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -332,3 +332,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
