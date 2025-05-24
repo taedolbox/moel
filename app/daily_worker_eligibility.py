@@ -26,22 +26,42 @@ def render_calendar_with_checkboxes(apply_date):
     # 사용자 정의 CSS 주입
     st.markdown(f"""
     <style>
+    /* 전체 폰트 Streamlit 기본 폰트 사용 */
+
     /* 근무일 선택 달력 관련 스타일 */
 
-    /* Light/Dark Mode 공통 */
+    /* 개별 날짜 체크박스 및 월별 헤더 스타일 - 기존 고정 색상 유지 */
+    /* Light Mode */
     div[data-testid="stCheckbox"] {{ /* 개별 날짜 체크박스 배경 및 테두리 */
-        border: 1px solid var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 테두리색 변경 */
-        background-color: var(--background-color) !important; /* Streamlit의 배경색에 따라 배경색 변경 */
+        border: 1px solid #000000 !important;
+        background-color: #ffffff !important;
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{ /* 개별 날짜 글자색 */
-        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
+        color: #000000 !important;
     }}
     div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
-        background-color: var(--secondary-background-color) !important; /* Streamlit의 보조 배경색에 따라 배경색 변경 */
-        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
     }}
-    div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
-        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
+
+    /* Dark Mode (prefers-color-scheme) */
+    @media (prefers-color-scheme: dark) {{
+        div[data-testid="stCheckbox"] {{
+            border: 1px solid #ffffff !important;
+            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
+        }}
+        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stMarkdownContainer"] h3 {{
+            background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
+            color: #ffffff !important;
+        }}
+    }}
+
+    /* 요일 헤더 기본 글자색 - Streamlit의 기본 테마 색상 사용 */
+    div[data-testid="stHorizontalBlock"] span {{
+        color: var(--text-color) !important;
     }}
 
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
