@@ -27,7 +27,7 @@ def render_calendar_interactive(apply_date):
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
     
-    # 클릭된 날짜를 저장할 임시 세션 상태
+    # 클릭된 날짜를 저장할 임시 세션 상태 (JavaScript에서 전달받음)
     if 'clicked_date_from_js' not in st.session_state:
         st.session_state.clicked_date_from_js = None
 
@@ -39,41 +39,23 @@ def render_calendar_interactive(apply_date):
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
-    # JavaScript를 통해 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
+    # JavaScript에서 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
     def _update_selected_dates_from_js_callback():
-        # st.session_state.clicked_date_from_js 값은 JavaScript에서 설정됩니다.
         if st.session_state.clicked_date_from_js:
             clicked_date_str = st.session_state.clicked_date_from_js
-            clicked_date_obj = datetime.strptime(clicked_date_str, '%Y-%m-%d').date()
-            if clicked_date_obj in st.session_state.selected_dates:
-                st.session_state.selected_dates.discard(clicked_date_obj)
-            else:
-                st.session_state.selected_dates.add(clicked_date_obj)
-            st.session_state.clicked_date_from_js = None # 처리 후 초기화
-
-    # 숨겨진 Streamlit 버튼을 위한 플레이스홀더
-    # 이 버튼은 JavaScript에 의해 클릭되어 파이썬 콜백을 트리거합니다.
-    # 클릭된 날짜는 `st.session_state.clicked_date_from_js`에 임시로 저장됩니다.
-    hidden_button_placeholder = st.empty()
-    with hidden_button_placeholder.container():
-        # 실제 버튼은 아니지만, JavaScript가 클릭할 수 있는 `st.button` 요소를 만듭니다.
-        # `key`는 필수이며, `on_click` 콜백 함수를 가집니다.
-        # `label`은 UI에 표시되므로 숨겨야 합니다.
-        st.button(
-            label="TriggerDateClick",
-            key="trigger_date_click_button",
-            on_click=_update_selected_dates_from_js_callback,
-            # CSS로 이 버튼을 완전히 숨김
-            help="Internal button to trigger date selection logic",
-        )
-        st.markdown("""
-            <style>
-            /* 숨겨진 버튼을 위한 CSS */
-            div[data-testid="stButton"] button[data-testid="stFormSubmitButton"] {
-                display: none; /* 버튼 자체를 숨김 */
-            }
-            </style>
-        """, unsafe_allow_html=True)
+            try:
+                clicked_date_obj = datetime.strptime(clicked_date_str, '%Y-%m-%d').date()
+                if clicked_date_obj in st.session_state.selected_dates:
+                    st.session_state.selected_dates.discard(clicked_date_obj)
+                else:
+                    st.session_state.selected_dates.add(clicked_date_obj)
+            except ValueError:
+                # 날짜 형식이 잘못된 경우 (개발자 도구에서 수동 변경 등)
+                st.warning(f"Invalid date format received: {clicked_date_str}")
+            
+            # 처리 후 clicked_date_from_js 초기화 및 재렌더링
+            st.session_state.clicked_date_from_js = None
+            st.experimental_rerun()
 
 
     # 사용자 정의 CSS 주입
@@ -143,10 +125,10 @@ def render_calendar_interactive(apply_date):
         transition: all 0.1s ease; /* 부드러운 전환 효과 */
         border-radius: 5px; /* 약간 둥근 모서리 */
         font-size: 1.1em; /* 날짜 숫자 폰트 크기 증가 */
-        color: var(--text-color); /* 날짜 숫자 글자색 */
         box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
         user-select: none; /* 텍스트 선택 방지 */
         position: relative; /* ::after 가상 요소를 위한 position 설정 */
+        overflow: hidden; /* 원형이 박스 밖으로 나가지 않도록 */
     }}
 
     /* 호버 시 효과 */
@@ -167,19 +149,30 @@ def render_calendar_interactive(apply_date):
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 30px; /* 원의 크기 */
-        height: 30px; /* 원의 크기 */
+        width: 38px; /* 원의 크기 (박스보다 약간 작게) */
+        height: 38px; /* 원의 크기 */
         background-color: rgba(255, 0, 0, 0.4); /* 빨간색 40% 투명도 */
         border-radius: 50%; /* 원형으로 만듦 */
         z-index: 1; /* 날짜 숫자 아래에 오도록 */
     }}
 
-    /* 선택된 날짜의 숫자 글자색 */
-    .calendar-day-box.selected-day span {{
+    /* 날짜 숫자 텍스트 자체의 스타일 */
+    .calendar-day-box span {{
         position: relative; /* z-index가 작동하도록 */
         z-index: 2; /* 원형 위에 글자가 오도록 */
-        color: #ffffff !important; /* 선택된 날짜 글자색 흰색 */
+        color: var(--text-color); /* 기본 글자색 (라이트/다크 모드 따라감) */
+        font-weight: normal; /* 기본은 보통 굵기 */
     }}
+    /* 선택된 날짜의 숫자 글자색 */
+    .calendar-day-box.selected-day span {{
+        color: #ffffff !important; /* 선택된 날짜 글자색 흰색 */
+        font-weight: bold; /* 선택 시 글자 굵게 */
+    }}
+    /* 오늘 날짜의 숫자 글자색 (선택 여부와 관계없이 파란색이 아님) */
+    .calendar-day-box.current-day span {{
+        font-weight: bold; /* 오늘 날짜는 항상 굵게 */
+    }}
+
 
     /* 달력 날짜 그리드를 감싸는 stHorizontalBlock에 flexbox 적용 */
     div[data-testid="stHorizontalBlock"] {{
@@ -222,8 +215,8 @@ def render_calendar_interactive(apply_date):
             font-size: 0.9em !important;
         }}
         .calendar-day-box.selected-day::after {{
-            width: 25px; /* 모바일에서 원 크기 조절 */
-            height: 25px; /* 모바일에서 원 크기 조절 */
+            width: 32px; /* 모바일에서 원 크기 조절 */
+            height: 32px; /* 모바일에서 원 크기 조절 */
         }}
     }}
     </style>
@@ -231,47 +224,35 @@ def render_calendar_interactive(apply_date):
     <script>
     // 날짜 박스 클릭 핸들러
     function handleDateClick(dateString) {{
-        // Streamlit의 숨겨진 버튼을 찾아서 클릭 이벤트를 트리거합니다.
-        // Streamlit 컴포넌트의 실제 DOM ID는 동적으로 생성되므로, `data-testid`를 사용합니다.
-        // `st.button`의 `data-testid`는 "stFormSubmitButton"입니다.
-        const hiddenButton = document.querySelector('button[data-testid="stFormSubmitButton"]');
+        // Streamlit의 숨겨진 text_input을 찾아서 값을 변경하고 change 이벤트를 트리거합니다.
+        // Streamlit이 동적으로 생성하는 ID를 직접 사용합니다.
+        // 이 ID는 `st.text_input`의 key에 `_input`이 붙는 형태입니다.
+        const hiddenInput = document.getElementById('hidden_date_trigger_input');
         
-        if (hiddenButton) {{
-            // 클릭된 날짜를 세션 상태에 전달하기 위해 임시 변수에 저장
-            // 이 방법은 Streamlit이 현재 세션 상태를 업데이트하는 가장 일반적인 방법입니다.
-            // Streamlit의 `setComponentValue`는 더 이상 직접 호출되지 않습니다.
-            // 대신, `st.session_state`에 직접 값을 설정하고 `st.experimental_rerun()`을 호출하여
-            // 파이썬 함수를 트리거합니다.
-
-            // 숨겨진 버튼의 `aria-label`을 활용하여 데이터 전달 (Streamlit 1.25+ 버전)
-            // St.button의 on_click 콜백은 `args`를 통해 파라미터를 받을 수 있습니다.
-            // 그러나 JS에서 파이썬 함수에 직접 파라미터를 넘기는 것은 불가능합니다.
-            // 따라서 `st.session_state`를 우회적으로 사용해야 합니다.
-            
-            // `st.session_state`에 직접 값을 설정하는 것은 JS에서 불가능하므로,
-            // Streamlit의 `Custom Components API`를 사용하거나,
-            // 아니면 `st.text_input` 또는 `st.button`의 `on_click`을 통해
-            // 파이썬으로 값을 전달하는 방법을 사용합니다.
-            
-            // 가장 안정적인 방법은 `st.text_input`의 `on_change`입니다.
-            const hiddenInput = document.getElementById('hidden_date_input_for_js');
-            if (hiddenInput) {{
-                hiddenInput.value = dateString;
-                hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }})); // onchange 이벤트 강제 트리거
-            }}
+        if (hiddenInput) {{
+            hiddenInput.value = dateString;
+            // 'change' 이벤트는 `st.text_input`의 `on_change` 콜백을 트리거합니다.
+            // `bubbles: true`는 이벤트가 DOM 트리를 따라 올라가도록 합니다.
+            hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }})); 
         }} else {{
-            console.warn('Hidden Streamlit button not found. Date click might not register.');
+            console.error('Hidden input for date click not found!');
         }}
     }}
     </script>
     """, unsafe_allow_html=True)
 
-    # 클릭된 날짜 정보 처리
-    # 이 부분은 `st.text_input`의 `on_change` 콜백에서 이미 처리되므로, 직접 호출할 필요가 없습니다.
-    # 하지만, `st.session_state.clicked_date_from_js`가 있다면 이를 활용하여 selected_dates를 업데이트합니다.
-    if st.session_state.clicked_date_from_js:
-        _update_selected_dates_from_js_callback()
-
+    # JavaScript에서 클릭된 날짜를 받아올 숨겨진 st.text_input
+    # 이 인풋의 `on_change` 콜백에서 `st.session_state.selected_dates`를 업데이트합니다.
+    # `value`는 `st.text_input`의 현재 값을 나타냅니다.
+    # `label_visibility="hidden"`을 사용하여 UI에서 완전히 숨깁니다.
+    # key는 JavaScript에서 `document.getElementById('hidden_date_trigger_input')`으로 접근할 때 사용됩니다.
+    st.text_input(
+        "Hidden Date Trigger Input",
+        key="hidden_date_trigger", # 이 key에 "_input"이 붙어 실제 DOM ID가 됩니다.
+        value=st.session_state.get('clicked_date_from_js', ''), # 초기값을 빈 문자열 또는 기존 값으로 설정
+        label_visibility="hidden",
+        on_change=_update_selected_dates_from_js_callback # 이 콜백이 JavaScript에 의해 트리거됩니다.
+    )
 
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
@@ -308,10 +289,9 @@ def render_calendar_interactive(apply_date):
                     
                     # 날짜 텍스트 (오늘 날짜는 굵게)
                     display_day_text = str(day)
-                    if is_current:
-                        display_day_text = f"**{day}**"
 
                     # 클릭 시 JavaScript 함수 호출
+                    # `handleDateClick` 함수는 `st.text_input`의 값을 변경하여 파이썬 콜백을 트리거합니다.
                     onclick_js = f"handleDateClick('{date_obj.strftime('%Y-%m-%d')}');"
 
                     cols[i].markdown(
