@@ -23,46 +23,105 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입 (다크 모드 해지, 밝은 테마 및 사이드바 스타일 추가)
+    # 사용자 정의 CSS 주입 (prefers-color-scheme에 따라 동적 테마 적용)
     st.markdown(f"""
     <style>
-    /* 전체 앱 배경색을 밝게 설정 */
+    /* 기본 스타일 (라이트 모드) */
     .stApp {{
         background-color: #ffffff;
         color: #000000;
     }}
-    /* 사이드바 배경색과 텍스트 색상 */
     div[data-testid="stSidebar"] {{
         background-color: #ffffff !important;
         color: #000000 !important;
     }}
-    div[data-testid="stSidebar"] a {{
+    div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
         color: #000000 !important;
     }}
-    div[data-testid="stSidebar"] span {{
+    div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
+        color: #000000;
+    }}
+    .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
         color: #000000 !important;
     }}
-    /* 라디오 버튼 텍스트 색상 */
+    div[data-testid="stCheckbox"] {{
+        border: 1px solid #000000 !important;
+        background-color: #ffffff !important;
+    }}
+    div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+        color: #000000 !important;
+    }}
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
+        background-color: #ff0000 !important;
+        border: 2px solid #000000 !important;
+    }}
+    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
+        color: #ffffff !important;
+    }}
+    div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label, div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
+        color: #ffffff !important;
+        background-color: #ffffff !important;
+        border: 1px solid #ffffff !important;
+    }}
+    div[data-testid="stHorizontalBlock"] span {{
+        color: #000000 !important;
+    }}
+    div[data-testid="stMarkdownContainer"] h3 {{
+        background-color: #f0f0f0 !important;
+        color: #000000 !important;
+    }}
+
+    /* 다크 모드 스타일 */
+    @media (prefers-color-scheme: dark) {{
+        .stApp {{
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }}
+        div[data-testid="stSidebar"] {{
+            background-color: #1e1e1e !important;
+            color: #ffffff !important;
+        }}
+        div[data-testid="stSidebar"] a, div[data-testid="stSidebar"] span {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stRadio"] label, h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, div[data-testid="stMarkdownContainer"] p {{
+            color: #ffffff;
+        }}
+        .stDateInput label, .stSelectbox label, .st-dg, .st-ck, .st-cf {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stCheckbox"] {{
+            border: 1px solid #ffffff !important;
+            background-color: #1e1e1e !important;
+        }}
+        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
+            background-color: #ff0000 !important;
+            border: 2px solid #ffffff !important;
+        }}
+        div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label, div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
+            color: #1e1e1e !important;
+            background-color: #1e1e1e !important;
+            border: 1px solid #1e1e1e !important;
+        }}
+        div[data-testid="stHorizontalBlock"] span {{
+            color: #ffffff !important;
+        }}
+        div[data-testid="stMarkdownContainer"] h3 {{
+            background-color: #2e2e2e !important;
+            color: #ffffff !important;
+        }}
+    }}
+
+    /* 공통 스타일 */
     div[data-testid="stRadio"] label {{
-        color: #000000 !important;
         font-size: 18px !important;
     }}
-    /* 헤더 및 텍스트 색상 */
-    h1, h2, h3, h4, h5, h6, .stMarkdown, .stText {{
-        color: #000000;
-    }}
-    div[data-testid="stMarkdownContainer"] p {{
-        color: #000000;
-    }}
-    /* Streamlit Input 위젯 라벨 색상 */
-    .stDateInput label, .stSelectbox label {{
-        color: #000000 !important;
-    }}
-    /* 알림 박스 텍스트 색상 */
-    .st-dg, .st-ck, .st-cf {{
-        color: #000000 !important;
-    }}
-    /* 달력 열의 패딩 및 마진 감소 */
     div[data-testid="stHorizontalBlock"] {{
         gap: 0.1rem !important;
     }}
@@ -70,21 +129,17 @@ def render_calendar_with_checkboxes(apply_date):
         padding: 0 !important;
         margin: 0 !important;
     }}
-    /* 체크박스 컨테이너 (날짜 숫자를 포함하는 부분) */
     div[data-testid="stCheckbox"] {{
         width: 60px !important;
-        height: 40px !important; /* 직사각형으로 세로 길게 */
+        height: 40px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #000000 !important; /* 신청일 이전: 검은색 테두리 */
-        background-color: #ffffff !important;
         transition: all 0.2s ease !important;
         cursor: pointer;
     }}
-    /* 체크박스 라벨 전체 */
     div[data-testid="stCheckbox"] label {{
         display: flex;
         align-items: center;
@@ -93,13 +148,10 @@ def render_calendar_with_checkboxes(apply_date):
         height: 100%;
         margin: 0 !important;
     }}
-    /* 체크마크 아이콘 숨기기 */
     div[data-testid="stCheckbox"] label div[data-testid="stDecoration"] {{
         display: none !important;
     }}
-    /* 체크박스 라벨 텍스트 스타일 */
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: #000000 !important;
         font-size: 1rem !important;
         line-height: 1;
         margin: 0 !important;
@@ -111,33 +163,14 @@ def render_calendar_with_checkboxes(apply_date):
         justify-content: center;
         height: 100%;
     }}
-    /* 선택된 날짜 */
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important;
-        border: 2px solid #000000 !important;
-        box-sizing: border-box;
-    }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important;
-    }}
-    /* 신청일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: #ffffff !important; /* 숫자 색상을 배경색과 동일하게 */
-        background-color: #ffffff !important; /* 배경색 */
-        border: 1px solid #ffffff !important; /* 테두리를 배경색과 동일하게 */
         cursor: not-allowed !important;
-        opacity: 1 !important; /* 투명도 유지 */
+        opacity: 1 !important;
     }}
-    div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #ffffff !important;
-    }}
-    /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
         font-size: 0.9rem !important;
         text-align: center !important;
-        color: #000000 !important;
     }}
-    /* 모바일 반응형 */
     @media (max-width: 600px) {{
         div[data-testid="stHorizontalBlock"] {{
             display: flex !important;
@@ -151,19 +184,16 @@ def render_calendar_with_checkboxes(apply_date):
         }}
         div[data-testid="stCheckbox"] {{
             width: 50px !important;
-            height: 50px !important; /* 모바일에서도 직사각형 */
+            height: 50px !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
             font-size: 0.8rem !important;
         }}
     }}
-    /* 월 경계 스타일 */
     div[data-testid="stMarkdownContainer"] h3 {{
         margin: 0.5rem 0 !important;
         padding: 0.2rem !important;
-        background-color: #f0f0f0 !important;
         text-align: center !important;
-        color: #000000 !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -188,7 +218,7 @@ def render_calendar_with_checkboxes(apply_date):
         # 요일 헤더 생성
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            color = "red" if i == 0 else ("blue" if i == 6 else "black")
+            color = "red" if i == 0 else ("blue" if i == 6 else "inherit")
             cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
         # 달력 날짜 체크박스 생성
@@ -314,7 +344,7 @@ def daily_worker_eligibility_app():
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     # 일반일용근로자: 조건 1만 판단
