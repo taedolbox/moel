@@ -136,7 +136,7 @@ def render_calendar_with_checkboxes(apply_date):
             padding: 0 !important;
         }}
         div[data-testid="stCheckbox"] {{
-            width: 40px !important;
+            width: 50px !important;
             height: 50px !important; /* 모바일에서도 직사각형 */
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
