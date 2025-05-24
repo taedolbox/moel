@@ -108,14 +108,14 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     /* 신청일 이후 또는 5월 26일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: #cccccc !important; /* 날짜 숫자를 더 연한 회색으로 */
-        background-color: #252525 !important; /* 배경색 */
-        border: 1px solid #333333 !important; /* 테두리를 백컬러보다 연하게 */
+        color: #1e1e1e !important; /* 숫자 색상을 배경색과 동일하게 */
+        background-color: #1e1e1e !important; /* 배경색 */
+        border: 1px solid #1e1e1e !important; /* 테두리를 배경색과 동일하게 */
         cursor: not-allowed !important;
-        opacity: 0.7 !important; /* 투명도 유지 */
+        opacity: 1 !important; /* 투명도 유지 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #cccccc !important;
+        color: #1e1e1e !important;
     }}
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
@@ -165,7 +165,7 @@ def render_calendar_with_checkboxes(apply_date):
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
-    # 각 월별 달력 렌der링
+    # 각 월별 달력 렌더링
     for year, month in months_to_display:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)  # 한글화: "2025 May" → "2025년 5월"
         cal = calendar.monthcalendar(year, month)
@@ -233,7 +233,7 @@ def daily_worker_eligibility_app():
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
-    # 수급자격 신청일 선택 (원래대로 복원)
+    # 수급자격 신청일 선택
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
 
     # 날짜 범위 및 시작일 가져오기
