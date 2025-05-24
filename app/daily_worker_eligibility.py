@@ -14,9 +14,7 @@ def get_date_range(apply_date):
     """
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     # pd.date_range는 datetime 객체를 반환하므로 .date 속성을 사용하여 datetime.date로 변환
-    # 이미 리스트 컴프리헨션에서 .date()를 호출하여 datetime.date 객체를 생성했으므로,
-    # 리스트 뒤에 .date를 또 붙일 필요가 없습니다.
-    return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
+    return [d.date() for d in pd.date_range(start=start_date, end=apply_date)].date, start_date
 
 def render_calendar_with_checkboxes(apply_date):
     """
@@ -421,3 +419,4 @@ def daily_worker_eligibility_app():
 # 앱 실행 진입점
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
