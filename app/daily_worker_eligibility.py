@@ -23,33 +23,33 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입
+    # 사용자 정의 CSS 주입 (다크 모드 해지, 밝은 테마 적용)
     st.markdown(f"""
     <style>
-    /* 전체 앱 배경색을 어둡게 설정 */
+    /* 전체 앱 배경색을 밝게 설정 */
     .stApp {{
-        background-color: #1e1e1e;
-        color: white;
+        background-color: #ffffff;
+        color: #000000;
     }}
     /* 라디오 버튼 텍스트 색상 */
     div[data-testid="stRadio"] label {{
-        color: white !important;
+        color: #000000 !important;
         font-size: 18px !important;
     }}
     /* 헤더 및 텍스트 색상 */
     h1, h2, h3, h4, h5, h6, .stMarkdown, .stText {{
-        color: white;
+        color: #000000;
     }}
     div[data-testid="stMarkdownContainer"] p {{
-        color: white;
+        color: #000000;
     }}
     /* Streamlit Input 위젯 라벨 색상 */
     .stDateInput label, .stSelectbox label {{
-        color: white !important;
+        color: #000000 !important;
     }}
     /* 알림 박스 텍스트 색상 */
     .st-dg, .st-ck, .st-cf {{
-        color: black !important;
+        color: #000000 !important;
     }}
     /* 달력 열의 패딩 및 마진 감소 */
     div[data-testid="stHorizontalBlock"] {{
@@ -68,8 +68,8 @@ def render_calendar_with_checkboxes(apply_date):
         justify-content: center !important;
         padding: 0 !important;
         margin: 0 !important;
-        border: 1px solid #ffffff !important; /* 신청일 이전: 흰색 테두리 */
-        background-color: #1e1e1e !important;
+        border: 1px solid #000000 !important; /* 신청일 이전: 검은색 테두리 */
+        background-color: #ffffff !important;
         transition: all 0.2s ease !important;
         cursor: pointer;
     }}
@@ -88,7 +88,7 @@ def render_calendar_with_checkboxes(apply_date):
     }}
     /* 체크박스 라벨 텍스트 스타일 */
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-        color: white !important;
+        color: #000000 !important;
         font-size: 1rem !important;
         line-height: 1;
         margin: 0 !important;
@@ -103,28 +103,28 @@ def render_calendar_with_checkboxes(apply_date):
     /* 선택된 날짜 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
         background-color: #ff0000 !important;
-        border: 2px solid #ffffff !important;
+        border: 2px solid #000000 !important;
         box-sizing: border-box;
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: white !important;
+        color: #ffffff !important;
     }}
     /* 신청일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: #1e1e1e !important; /* 숫자 색상을 배경색과 동일하게 */
-        background-color: #1e1e1e !important; /* 배경색 */
-        border: 1px solid #1e1e1e !important; /* 테두리를 배경색과 동일하게 */
+        color: #ffffff !important; /* 숫자 색상을 배경색과 동일하게 */
+        background-color: #ffffff !important; /* 배경색 */
+        border: 1px solid #ffffff !important; /* 테두리를 배경색과 동일하게 */
         cursor: not-allowed !important;
         opacity: 1 !important; /* 투명도 유지 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: #1e1e1e !important;
+        color: #ffffff !important;
     }}
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
         font-size: 0.9rem !important;
         text-align: center !important;
-        color: white !important;
+        color: #000000 !important;
     }}
     /* 모바일 반응형 */
     @media (max-width: 600px) {{
@@ -150,9 +150,9 @@ def render_calendar_with_checkboxes(apply_date):
     div[data-testid="stMarkdownContainer"] h3 {{
         margin: 0.5rem 0 !important;
         padding: 0.2rem !important;
-        background-color: #2e2e2e !important;
+        background-color: #f0f0f0 !important;
         text-align: center !important;
-        color: white !important;
+        color: #000000 !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -168,7 +168,7 @@ def render_calendar_with_checkboxes(apply_date):
     selected_dates = st.session_state.selected_dates
     current_date = datetime.now().date()
 
-    # 각 월별 달력 렌der링
+    # 각 월별 달력 렌더링
     for year, month in months_to_display:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)  # 한글화: "2025 May" → "2025년 5월"
         cal = calendar.monthcalendar(year, month)
@@ -177,7 +177,7 @@ def render_calendar_with_checkboxes(apply_date):
         # 요일 헤더 생성
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            color = "red" if i == 0 else ("blue" if i == 6 else "white")
+            color = "red" if i == 0 else ("blue" if i == 6 else "black")
             cols[i].markdown(f"<span style='color:{color}'><strong>{day_name}</strong></span>", unsafe_allow_html=True)
 
         # 달력 날짜 체크박스 생성
@@ -236,7 +236,7 @@ def daily_worker_eligibility_app():
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
-    # 수급자격 신청일 선택 (원래대로 복원, 자유롭게 선택 가능)
+    # 수급자격 신청일 선택 (자유롭게 선택 가능)
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=datetime.now().date())
 
     # 날짜 범위 및 시작일 가져오기
@@ -325,4 +325,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
