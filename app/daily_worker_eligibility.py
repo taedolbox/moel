@@ -3,6 +3,11 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 
+# --- 이 부분이 파일의 가장 상단에 있어야 합니다 ---
+current_datetime = datetime.now()
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
+# ----------------------------------------------------
+
 # (이전 코드 동일)
 
 def toggle_date(date_obj):
