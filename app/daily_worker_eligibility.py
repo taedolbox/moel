@@ -14,7 +14,6 @@ def get_date_range(apply_date):
     """
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     # pd.date_range는 datetime 객체를 반환하므로 .date 속성을 사용하여 datetime.date로 변환
-    # >>>>>> 여기에 문제 해결을 위한 수정이 반영되었습니다 <<<<<<
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_with_checkboxes(apply_date):
@@ -94,7 +93,7 @@ def render_calendar_with_checkboxes(apply_date):
         display: none !important; /* 체크마크 아이콘 숨기기 */
     }}
 
-    /* 물음표 아이콘 (help 텍스트) */
+    /* 물음표 아이콘 (help 텍스트) - help 인자 제거로 더 이상 필요 없지만 혹시 몰라 유지 */
     div[data-testid="stCheckbox"] label span[data-baseweb="tooltip"] {{
         display: none !important; /* 물음표 아이콘 숨기기 */
     }}
@@ -102,11 +101,16 @@ def render_calendar_with_checkboxes(apply_date):
     /* 체크박스 라벨 텍스트 스타일 (날짜 숫자) */
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
         color: white !important; /* 기본 텍스트 색상 */
-        font-size: 1rem !important;
+        font-size: 1rem !important; /* 폰트 크기 조정 */
+        line-height: 1; /* 줄 높이 조정하여 텍스트가 중앙에 오도록 */
         margin: 0 !important; /* p 태그 기본 마진 제거 */
         padding: 0 !important;
         text-align: center; /* 텍스트 중앙 정렬 */
         width: 100%; /* 텍스트 컨테이너가 공간을 다 차지하도록 */
+        display: flex; /* 내부 텍스트를 flex로 만들어서 중앙 정렬 */
+        align-items: center;
+        justify-content: center;
+        height: 100%; /* p 태그가 부모 div에 꽉 차도록 */
     }}
     
     /* 선택된 날짜 (체크박스 체크 상태) */
@@ -119,28 +123,20 @@ def render_calendar_with_checkboxes(apply_date):
         color: white !important; /* 선택된 날짜의 텍스트 색상 */
     }}
 
-    /* 현재 날짜 스타일 - 파란색 테두리 */
-    /* Streamlit은 input[key]에 대한 CSS 셀렉터를 직접 지원하지 않을 수 있습니다.
-       더 범용적인 방법을 시도합니다. */
-    .date-current-border {{
-        border: 2px solid #0000ff !important; /* 파란색 테두리 */
-    }}
-    .date-current-border p {{
-        font-weight: bold !important;
-    }}
-
+    /* 현재 날짜 스타일 - 텍스트 bold 처리 (파이썬에서 처리) */
+    /* 별도의 테두리 스타일은 제거하고, 기본 체크박스 스타일에 맡깁니다. */
+    
     /* 신청일 이후 미래 날짜 스타일 (흐리게/반전 효과) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
-        color: gray !important; /* 텍스트 회색 */
-        background-color: #2e2e2e !important; /* 기본보다 약간 밝은 회색 배경 */
-        border: 1px solid #777 !important; /* 더 진한 회색 테두리 */
+        color: #888888 !important; /* 텍스트 회색 (더 흐리게) */
+        background-color: #2a2a2a !important; /* 배경 약간 더 밝게 */
+        border: 1px solid #555555 !important; /* 테두리 더 흐리게 */
         cursor: not-allowed !important; /* 비활성화 커서 */
-        opacity: 0.7; /* 투명도 조절 */
+        opacity: 0.5; /* 투명도 더 낮게 (더 흐리게) */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label p {{
-        color: gray !important; /* 텍스트 회색 */
+        color: #888888 !important; /* 텍스트 회색 */
     }}
-
 
     /* 요일 헤더 스타일 */
     div[data-testid="stHorizontalBlock"] span {{
@@ -230,24 +226,7 @@ def render_calendar_with_checkboxes(apply_date):
                                 st.session_state.selected_dates.remove(current_date_obj_for_callback)
                                 print(f"DEBUG: 날짜 제거됨: {current_date_obj_for_callback}. 현재 선택된 날짜: {sorted(st.session_state.selected_dates)}")
 
-                    # `st.checkbox`를 렌더링하고, 현재 날짜에 대한 추가 CSS 클래스를 동적으로 적용합니다.
-                    # CSS는 `data-testid`와 `:checked`, `:disabled` 등의 가상 클래스를 활용하여 적용합니다.
-                    # 현재 날짜의 파란색 테두리는 `is_current` 조건에 따라 `div`에 추가 클래스를 부여하여 제어합니다.
-                    
-                    # 현재 날짜에 대한 스타일을 적용하기 위해 `div`를 감싸는 방식 (Streamlit의 레이아웃과 충돌 가능성 있음)
-                    # 더 안정적인 방법은 `st.checkbox`의 `key`를 CSS 선택자에 활용하는 것.
-                    # 하지만 `key`는 `data-testid` 전체를 바꾸지 않고 일부에만 반영됩니다.
-                    
-                    # 가장 안정적인 방법: Python에서 CSS 클래스를 동적으로 주입하는 대신,
-                    # CSS 자체에서 `data-testid`를 기반으로 `st.checkbox`의 특정 상태를 감지하여 스타일을 적용하는 것입니다.
-                    # 제가 이전 CSS에 포함했던 `.date-current-border`와 같은 클래스는 HTML에 직접 추가되지 않습니다.
-                    # 따라서, 현재 날짜에 대한 스타일은 `st.checkbox`의 키를 활용하는 방식으로 변경합니다.
-                    
-                    # Streamlit의 input[type="checkbox"][key="..."]는 작동하지 않습니다.
-                    # 대신, `label`의 특정 속성을 활용하는 방법이 있으나, 이는 복잡합니다.
-                    # 가장 간단한 해결책은 현재 날짜의 텍스트를 bold 처리하고, 테두리는 일반 체크박스처럼 두는 것입니다.
-                    
-                    # 체크박스 텍스트에 bold 적용
+                    # 체크박스 텍스트에 bold 적용 (현재 날짜)
                     display_day_text = str(day)
                     if is_current:
                         display_day_text = f"**{day}**" # Streamlit markdown으로 텍스트를 bold 처리
@@ -258,20 +237,10 @@ def render_calendar_with_checkboxes(apply_date):
                         value=is_selected, # 현재 선택 상태를 체크박스에 반영
                         on_change=on_checkbox_change, # 상태 변경 시 호출될 함수
                         args=(date_obj,), # on_change 함수에 날짜 객체 전달
-                        disabled=is_future, # 신청일 이후 날짜는 비활성화
-                        help="클릭하여 근무일을 선택하거나 해제하세요" # 툴팁 메시지 (물음표는 CSS로 숨김)
+                        disabled=is_future # 신청일 이후 날짜는 비활성화
+                        # help 인자 제거됨
                     )
                     
-                    # 현재 날짜의 파란색 테두리: CSS를 통해 `data-testid`와 `:not(:disabled)`로 특정하여 적용
-                    # CSS의 `:hover`처럼, 특정 조건을 만족하는 `st.checkbox`에 스타일을 적용합니다.
-                    # 이는 `st.checkbox`의 내부 요소(label)에 `is_current` 클래스를 직접 추가하는 것이 아닙니다.
-                    # 대신, Streamlit이 렌더링하는 DOM 구조를 정확히 파악하여 CSS 선택자를 작성해야 합니다.
-                    # 현재 CSS에 이미 `div[data-testid="stCheckbox"]`에 대한 정의가 있으므로,
-                    # `:not(:disabled)` 상태이면서 현재 날짜일 경우에 대한 추가 CSS를 작성해야 합니다.
-                    # 이전에 `current-date` 클래스를 주입하려던 시도는 `st.checkbox`에서 직접 클래스 주입이 안 되므로
-                    # 제거했습니다. 대신 텍스트에 **bold** 처리하는 방식으로 대체합니다.
-
-
     # 현재 선택된 근무일자 목록을 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
