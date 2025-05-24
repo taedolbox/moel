@@ -43,13 +43,9 @@ def render_calendar_with_checkboxes(apply_date):
         background-color: #f0f0f0 !important;
         color: #000000 !important;
     }}
-    /* 월,화,수,목,금 요일 헤더 기본 글자색 (라이트 모드) */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(5) span, /* 목 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(6) span  /* 금 */
-    {{
+    /* 요일 헤더 기본 글자색 (라이트 모드) */
+    /* 월,화,수,목,금,토,일 모두 기본 텍스트 색상 따름 (일,토는 아래에서 오버라이드) */
+    div[data-testid="stHorizontalBlock"] span {{
         color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
 
@@ -67,13 +63,8 @@ def render_calendar_with_checkboxes(apply_date):
             background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
             color: #ffffff !important;
         }}
-        /* 월,화,수,목,금 요일 헤더 기본 글자색 (다크 모드) */
-        div[data-testid="stHorizontalBlock"] > div:nth-child(2) span, /* 월 */
-        div[data-testid="stHorizontalBlock"] > div:nth-child(3) span, /* 화 */
-        div[data-testid="stHorizontalBlock"] > div:nth-child(4) span, /* 수 */
-        div[data-testid="stHorizontalBlock"] > div:nth-child(5) span, /* 목 */
-        div[data-testid="stHorizontalBlock"] > div:nth-child(6) span  /* 금 */
-        {{
+        /* 요일 헤더 기본 글자색 (다크 모드) */
+        div[data-testid="stHorizontalBlock"] span {{
             color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
     }}
@@ -87,12 +78,10 @@ def render_calendar_with_checkboxes(apply_date):
         color: #ffffff !important; /* 선택 시 흰색 글씨 */
     }}
 
-    /* 요일 헤더 공통 스타일 (폰트 크기 및 정렬) */
+    /* 요일 헤더 공통 스타일 (폰트 크기만 유지) */
     div[data-testid="stHorizontalBlock"] > div span {{
-        font-size: 1.1em !important; /* 폰트 크기 약간 키움 */
-        display: block !important; /* span을 블록 요소로 만들어 text-align이 작동하도록 함 */
-        text-align: center !important; /* 가운데 정렬 */
-        width: 100% !important; /* 부모 div에 꽉 차도록 */
+        font-size: 1.1em !important; /* 폰트 크기 약간 키움 (원하는 크기로 조절 가능) */
+        /* display, text-align, width 속성은 제거하여 Streamlit 기본값으로 복원 */
     }}
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
@@ -342,3 +331,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
