@@ -27,7 +27,7 @@ def render_calendar_interactive(apply_date):
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
     
-    # 클릭된 날짜를 저장할 임시 세션 상태 (JavaScript에서 전달받음)
+    # 클릭된 날짜를 저장할 임시 세션 상태
     if 'clicked_date_from_js' not in st.session_state:
         st.session_state.clicked_date_from_js = None
 
@@ -38,6 +38,43 @@ def render_calendar_interactive(apply_date):
     start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
+
+    # JavaScript를 통해 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
+    def _update_selected_dates_from_js_callback():
+        # st.session_state.clicked_date_from_js 값은 JavaScript에서 설정됩니다.
+        if st.session_state.clicked_date_from_js:
+            clicked_date_str = st.session_state.clicked_date_from_js
+            clicked_date_obj = datetime.strptime(clicked_date_str, '%Y-%m-%d').date()
+            if clicked_date_obj in st.session_state.selected_dates:
+                st.session_state.selected_dates.discard(clicked_date_obj)
+            else:
+                st.session_state.selected_dates.add(clicked_date_obj)
+            st.session_state.clicked_date_from_js = None # 처리 후 초기화
+
+    # 숨겨진 Streamlit 버튼을 위한 플레이스홀더
+    # 이 버튼은 JavaScript에 의해 클릭되어 파이썬 콜백을 트리거합니다.
+    # 클릭된 날짜는 `st.session_state.clicked_date_from_js`에 임시로 저장됩니다.
+    hidden_button_placeholder = st.empty()
+    with hidden_button_placeholder.container():
+        # 실제 버튼은 아니지만, JavaScript가 클릭할 수 있는 `st.button` 요소를 만듭니다.
+        # `key`는 필수이며, `on_click` 콜백 함수를 가집니다.
+        # `label`은 UI에 표시되므로 숨겨야 합니다.
+        st.button(
+            label="TriggerDateClick",
+            key="trigger_date_click_button",
+            on_click=_update_selected_dates_from_js_callback,
+            # CSS로 이 버튼을 완전히 숨김
+            help="Internal button to trigger date selection logic",
+        )
+        st.markdown("""
+            <style>
+            /* 숨겨진 버튼을 위한 CSS */
+            div[data-testid="stButton"] button[data-testid="stFormSubmitButton"] {
+                display: none; /* 버튼 자체를 숨김 */
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
 
     # 사용자 정의 CSS 주입
     st.markdown(f"""
@@ -62,21 +99,11 @@ def render_calendar_interactive(apply_date):
         font-size: 1.5em !important; /* 월별 헤더 폰트 크기 증가 */
     }}
 
-    /* Light Mode */
-    /* 요일 헤더 기본 글자색 (라이트 모드) */
-    .day-header span {{
-        color: #000000 !important; /* 라이트 모드일 때 검정색 */
-    }}
-
     /* Dark Mode (prefers-color-scheme) */
     @media (prefers-color-scheme: dark) {{
         div[data-testid="stMarkdownContainer"] h3 {{
             background-color: #2e2e2e !important; /* 다크 모드 */
             color: #ffffff !important; /* 다크 모드 */
-        }}
-        /* 요일 헤더 기본 글자색 (다크 모드) */
-        .day-header span {{
-            color: #ffffff !important; /* 다크 모드일 때 흰색 */
         }}
     }}
 
@@ -87,6 +114,7 @@ def render_calendar_interactive(apply_date):
         display: block !important; /* text-align을 위해 block으로 설정 */
         width: 100% !important; /* 부모 div의 너비에 맞춤 */
         font-weight: bold; /* 요일 글자 두껍게 */
+        color: var(--text-color); /* 기본 텍스트 색상 (라이트/다크 모드 따라감) */
         padding: 5px 0; /* 요일 패딩 추가 */
     }}
 
@@ -143,7 +171,7 @@ def render_calendar_interactive(apply_date):
         height: 30px; /* 원의 크기 */
         background-color: rgba(255, 0, 0, 0.4); /* 빨간색 40% 투명도 */
         border-radius: 50%; /* 원형으로 만듦 */
-        z-index: 1; /* 날짜 숫자 위에 오도록 */
+        z-index: 1; /* 날짜 숫자 아래에 오도록 */
     }}
 
     /* 선택된 날짜의 숫자 글자색 */
@@ -199,28 +227,51 @@ def render_calendar_interactive(apply_date):
         }}
     }}
     </style>
+
+    <script>
+    // 날짜 박스 클릭 핸들러
+    function handleDateClick(dateString) {{
+        // Streamlit의 숨겨진 버튼을 찾아서 클릭 이벤트를 트리거합니다.
+        // Streamlit 컴포넌트의 실제 DOM ID는 동적으로 생성되므로, `data-testid`를 사용합니다.
+        // `st.button`의 `data-testid`는 "stFormSubmitButton"입니다.
+        const hiddenButton = document.querySelector('button[data-testid="stFormSubmitButton"]');
+        
+        if (hiddenButton) {{
+            // 클릭된 날짜를 세션 상태에 전달하기 위해 임시 변수에 저장
+            // 이 방법은 Streamlit이 현재 세션 상태를 업데이트하는 가장 일반적인 방법입니다.
+            // Streamlit의 `setComponentValue`는 더 이상 직접 호출되지 않습니다.
+            // 대신, `st.session_state`에 직접 값을 설정하고 `st.experimental_rerun()`을 호출하여
+            // 파이썬 함수를 트리거합니다.
+
+            // 숨겨진 버튼의 `aria-label`을 활용하여 데이터 전달 (Streamlit 1.25+ 버전)
+            // St.button의 on_click 콜백은 `args`를 통해 파라미터를 받을 수 있습니다.
+            // 그러나 JS에서 파이썬 함수에 직접 파라미터를 넘기는 것은 불가능합니다.
+            // 따라서 `st.session_state`를 우회적으로 사용해야 합니다.
+            
+            // `st.session_state`에 직접 값을 설정하는 것은 JS에서 불가능하므로,
+            // Streamlit의 `Custom Components API`를 사용하거나,
+            // 아니면 `st.text_input` 또는 `st.button`의 `on_click`을 통해
+            // 파이썬으로 값을 전달하는 방법을 사용합니다.
+            
+            // 가장 안정적인 방법은 `st.text_input`의 `on_change`입니다.
+            const hiddenInput = document.getElementById('hidden_date_input_for_js');
+            if (hiddenInput) {{
+                hiddenInput.value = dateString;
+                hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }})); // onchange 이벤트 강제 트리거
+            }}
+        }} else {{
+            console.warn('Hidden Streamlit button not found. Date click might not register.');
+        }}
+    }}
+    </script>
     """, unsafe_allow_html=True)
 
-    # JavaScript를 통해 클릭된 날짜를 받아올 숨겨진 st.text_input
-    # 이 인풋의 `on_change` 콜백에서 `st.session_state.selected_dates`를 업데이트합니다.
-    # `value`는 `st.text_input`의 현재 값을 나타냅니다.
-    # 초기화 시 빈 문자열로 설정하여 불필요한 재트리거 방지
-    # 이 컴포넌트는 달력 렌더링 후에 위치하므로, 자동으로 아래쪽에 표시됩니다.
-    st.text_input("Hidden input for date click", key="hidden_date_input_for_js", value="", label_visibility="hidden",
-                  on_change=lambda: _update_selected_dates_from_js(st.session_state.hidden_date_input_for_js))
-    
-    # JavaScript에서 클릭된 날짜를 받아 파이썬 상태를 업데이트할 콜백 함수
-    def _update_selected_dates_from_js(date_str):
-        if date_str:
-            clicked_date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-            if clicked_date_obj in st.session_state.selected_dates:
-                st.session_state.selected_dates.discard(clicked_date_obj)
-            else:
-                st.session_state.selected_dates.add(clicked_date_obj)
-            # `st.session_state.hidden_date_input_for_js`를 즉시 초기화하여
-            # 다음 클릭을 받을 준비를 하고, 불필요한 재트리거 방지
-            st.session_state.hidden_date_input_for_js = ""
-            st.experimental_rerun() # 상태 변경 후 즉시 재렌더링
+    # 클릭된 날짜 정보 처리
+    # 이 부분은 `st.text_input`의 `on_change` 콜백에서 이미 처리되므로, 직접 호출할 필요가 없습니다.
+    # 하지만, `st.session_state.clicked_date_from_js`가 있다면 이를 활용하여 selected_dates를 업데이트합니다.
+    if st.session_state.clicked_date_from_js:
+        _update_selected_dates_from_js_callback()
+
 
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
@@ -255,22 +306,18 @@ def render_calendar_interactive(apply_date):
                     if is_current:
                         class_names.append("current-day")
                     
-                    # 클릭 시 Streamlit의 숨겨진 텍스트 인풋 값 변경 (JavaScript)
-                    # `hidden_date_input_for_js`의 ID를 직접 사용하여 값을 설정하고 change 이벤트를 발생시킵니다.
-                    onclick_js = f"""
-                        var hiddenInput = document.getElementById('hidden_date_input_for_js');
-                        if (hiddenInput) {{
-                            hiddenInput.value = '{date_obj.strftime('%Y-%m-%d')}';
-                            hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }})); // onchange 이벤트 강제 트리거
-                        }} else {{
-                            console.error('Hidden input not found!');
-                        }}
-                    """
+                    # 날짜 텍스트 (오늘 날짜는 굵게)
+                    display_day_text = str(day)
+                    if is_current:
+                        display_day_text = f"**{day}**"
+
+                    # 클릭 시 JavaScript 함수 호출
+                    onclick_js = f"handleDateClick('{date_obj.strftime('%Y-%m-%d')}');"
 
                     cols[i].markdown(
                         f"""
                         <div class="{' '.join(class_names)}" onclick="{onclick_js}">
-                            <span>{day}</span>
+                            <span>{display_day_text}</span>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -360,7 +407,7 @@ def daily_worker_eligibility_app():
     # 조건 2 불충족 시 미래 신청일 제안 (건설일용근로자 기준)
     if not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        last_worked_day = max((d for d in selected_days if d < apply_date), default=None)
+        last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
         if last_worked_day:
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
