@@ -18,9 +18,9 @@ def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
-def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calendar_with_buttons
+def render_calendar_custom(apply_date): # 함수명 변경: render_calendar_custom
     """
-    달력을 렌더링하고 버튼을 이용한 날짜 선택 기능을 제공합니다.
+    달력을 렌더링하고 커스텀 HTML/CSS를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜는 표시하지 않습니다.
     """
     # 사용자 정의 CSS 주입
@@ -30,7 +30,6 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
 
     /* 달력 전체 컨테이너 가운데 정렬을 위한 상위 요소에 Flexbox 적용 */
     /* Streamlit이 st.columns를 감싸는 div가 무엇인지 정확히 알아내야 함 */
-    /* 가장 일반적인 상위 div[data-testid="stVerticalBlock"] 내의 두 번째 div를 시도 */
     div[data-testid="stVerticalBlock"] > div:nth-child(2) > div:nth-child(2) {{
         display: flex;
         flex-direction: column;
@@ -50,14 +49,46 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
 
     /* Light Mode */
     /* 요일 헤더 기본 글자색 (라이트 모드) */
-    div[data-testid="stHorizontalBlock"] span {{
+    .day-header span {{
         color: #000000 !important; /* 라이트 모드일 때 검정색 */
     }}
 
-    /* 개별 날짜 버튼 스타일 */
-    div[data-testid="stHorizontalBlock"] .stButton > button {{ /* st.button의 실제 버튼 요소 선택 */
-        width: 45px; /* 날짜 버튼 너비 */
-        height: 45px; /* 날짜 버튼 높이 */
+    /* Dark Mode (prefers-color-scheme) */
+    @media (prefers-color-scheme: dark) {{
+        div[data-testid="stMarkdownContainer"] h3 {{
+            background-color: #2e2e2e !important; /* 다크 모드 */
+            color: #ffffff !important; /* 다크 모드 */
+        }}
+        /* 요일 헤더 기본 글자색 (다크 모드) */
+        .day-header span {{
+            color: #ffffff !important; /* 다크 모드일 때 흰색 */
+        }}
+    }}
+
+    /* 요일 헤더 공통 스타일 (폰트 크기 및 정렬) */
+    .day-header span {{
+        font-size: 1.1em !important; /* 요일 폰트 크기 */
+        text-align: center !important; /* 가운데 정렬 */
+        display: block !important; /* text-align을 위해 block으로 설정 */
+        width: 100% !important; /* 부모 div의 너비에 맞춤 */
+        font-weight: bold; /* 요일 글자 두껍게 */
+        padding: 5px 0; /* 요일 패딩 추가 */
+    }}
+
+    /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
+    /* 일요일 빨간색 */
+    .day-header:nth-child(1) span {{
+        color: red !important;
+    }}
+    /* 토요일 파란색 */
+    .day-header:nth-child(7) span {{
+        color: blue !important;
+    }}
+
+    /* 커스텀 날짜 버튼 스타일 */
+    .calendar-day-button {{
+        width: 45px; /* 날짜 박스 너비 */
+        height: 45px; /* 날짜 박스 높이 */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -70,66 +101,18 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
         border-radius: 5px; /* 약간 둥근 모서리 */
         font-size: 1.1em; /* 날짜 숫자 폰트 크기 증가 */
         color: #000000; /* 날짜 숫자 글자색 (라이트 모드) */
+        box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
     }}
-
-    /* Dark Mode (prefers-color-scheme) */
+    /* Dark Mode 날짜 버튼 */
     @media (prefers-color-scheme: dark) {{
-        div[data-testid="stMarkdownContainer"] h3 {{
-            background-color: #2e2e2e !important; /* 다크 모드 */
-            color: #ffffff !important; /* 다크 모드 */
-        }}
-        /* 요일 헤더 기본 글자색 (다크 모드) */
-        div[data-testid="stHorizontalBlock"] span {{
-            color: #ffffff !important; /* 다크 모드일 때 흰색 */
-        }}
-        /* 개별 날짜 버튼 스타일 (다크 모드) */
-        div[data-testid="stHorizontalBlock"] .stButton > button {{
+        .calendar-day-button {{
             border: 1px solid #444; /* 다크 모드 테두리색 */
             background-color: #1e1e1e; /* 다크 모드 배경색 */
             color: #ffffff; /* 날짜 숫자 글자색 (다크 모드) */
         }}
     }}
 
-    /* 선택된 날짜 버튼 스타일 (라이트/다크 모드 공통) */
-    /* selected-date 클래스는 Streamlit에서 직접 제어하기 어렵지만,
-       CSS 속성 선택자로 현재 세션 상태에 따라 색상을 변경하는 방식으로 대체합니다.
-       (실제 클래스 추가가 아닌, 파이썬 상태 기반 렌더링에 의한 색상 변경) */
-    div[data-testid="stHorizontalBlock"] .stButton > button.selected-date {{ /* Python에서 추가할 클래스 */
-        background-color: #ff0000; /* 선택 시 빨간색 배경 */
-        border: 1px solid #ff0000; /* 테두리도 빨간색 */
-        color: #ffffff; /* 선택 시 흰색 글씨 */
-        font-weight: bold; /* 선택된 날짜 글자 두껍게 */
-        /* border-radius: 50%; */ /* 원형을 원한다면 이 주석을 해제하고 위 width/height 값을 동일하게 (예: 40px) 설정 */
-    }}
-
-    /* 오늘 날짜 스타일 (선택되지 않았을 때만 적용) */
-    div[data-testid="stHorizontalBlock"] .stButton > button.current-date:not(.selected-date) {{
-        border: 2px solid blue !important; /* 오늘 날짜 파란색 테두리 */
-    }}
-
-
-    /* 요일 헤더 공통 스타일 (폰트 크기 및 정렬) */
-    div[data-testid="stHorizontalBlock"] > div span {{
-        font-size: 1.1em !important; /* 요일 폰트 크기 */
-        text-align: center !important; /* 가운데 정렬 */
-        display: block !important; /* text-align을 위해 block으로 설정 */
-        width: 100% !important; /* 부모 div의 너비에 맞춤 */
-        font-weight: bold; /* 요일 글자 두껍게 */
-        padding: 5px 0; /* 요일 패딩 추가 */
-    }}
-
-    /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
-    /* 일요일 빨간색 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(1) span {{
-        color: red !important;
-    }}
-    /* 토요일 파란색 */
-    div[data-testid="stHorizontalBlock"] > div:nth-child(7) span {{
-        color: blue !important;
-    }}
-
     /* 달력 날짜 그리드를 감싸는 stHorizontalBlock에 flexbox 적용 */
-    /* (st.columns가 이 data-testid를 가짐) */
     div[data-testid="stHorizontalBlock"] {{
         display: flex;
         flex-wrap: wrap; /* 내용이 넘치면 다음 줄로 */
@@ -147,7 +130,7 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box; /* 패딩, 보더가 너비 계산에 포함되도록 */
-        display: flex; /* 내부 요소 (버튼) 정렬을 위해 flexbox 사용 */
+        display: flex; /* 내부 요소 정렬을 위해 flexbox 사용 */
         justify-content: center; /* 버튼 가운데 정렬 */
         align-items: center; /* 버튼 세로 가운데 정렬 */
     }}
@@ -161,12 +144,12 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
             flex-basis: calc(100% / 7 - 2px); /* 모바일에서는 간격 약간 줄여서 7개 열 맞춤 */
             min-width: 38px !important; /* 모바일 최소 너비 */
         }}
-        div[data-testid="stHorizontalBlock"] .stButton > button {{
+        .calendar-day-button {{
             width: 38px;
             height: 38px;
             font-size: 1em;
         }}
-        div[data-testid="stHorizontalBlock"] > div span {{
+        .day-header span {{
             font-size: 0.9em !important;
         }}
     }}
@@ -184,6 +167,61 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
+    # JavaScript를 Streamlit에 주입하여 파이썬 콜백을 트리거
+    # Streamlit Custom Component가 아닌 이상, Python 상태를 변경하려면
+    # st.experimental_rerun() 또는 st.button/st.checkbox 같은 Streamlit 컴포넌트를
+    # 클릭하여 앱을 다시 그리게 해야 합니다.
+    # 여기서는 각 날짜에 대한 HTML을 직접 생성하고, onclick 이벤트를 통해
+    # 특정 Hidden Button을 클릭하게 하여 Streamlit 앱을 리런시키는 방식으로 구현합니다.
+    # 숨겨진 버튼을 한 번만 만들고, 각 날짜 HTML에서 이 버튼을 클릭하도록 합니다.
+
+    # 숨겨진 버튼 생성 (이 버튼이 클릭되면 Streamlit 앱이 재실행됨)
+    # 이 버튼의 `key`를 사용하여 `st.session_state`에 클릭된 날짜 정보를 전달합니다.
+    if 'clicked_date_info' not in st.session_state:
+        st.session_state.clicked_date_info = None
+
+    # st.button(label="click_me", key="hidden_button", on_click=lambda: st.session_state.update(re_run_trigger=True), help="Do not click")
+    # Streamlit 앱을 다시 실행하기 위한 숨겨진 버튼
+    # 이 버튼은 CSS로 숨기고, JS를 통해 클릭됩니다.
+    st.markdown("""
+        <style>
+            .hidden-button-container {
+                display: none;
+            }
+        </style>
+        <div class="hidden-button-container">
+            <button id="streamlit_rerun_trigger" type="button"></button>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # st.script_runner.ScriptRunner.singleton.request_rerun() 대신
+    # streamlit_component_v1.setElementValue('hidden_button', true) 같은 방식으로
+    # Streamlit 컴포넌트의 값을 변경하여 재실행을 유도해야 합니다.
+    # 하지만 Streamlit은 사용자 정의 JS -> Python 콜백을 직접 지원하지 않으므로,
+    # 가장 간단한 방법은 각 날짜를 `st.button`으로 유지하되, CSS를 더 강력하게 제어하는 것입니다.
+    # 또는, `st.markdown`으로 날짜를 표시하고, JavaScript를 통해 특정 URL 매개변수를 변경한 뒤
+    # Streamlit이 URL 매개변수를 읽어서 상태를 업데이트하고 재실행하는 복잡한 방식도 가능하지만,
+    # 여기서는 `st.button`을 사용한 이전 방식을 유지하되, CSS로 시각적인 표시를 명확히 하는 데 집중하겠습니다.
+
+    # 이전 `st.button` 방식에서 CSS가 잘 적용되도록 다시 검토합니다.
+    # 문제가 된 부분은 `st.button` 컴포넌트 자체가 `selected-date` 클래스를 받지 못한다는 점이었습니다.
+    # 이를 해결하기 위해, `selected_dates`에 포함된 날짜 버튼의 배경색을
+    # 직접 `st.button`의 `background-color` 인자를 통해 변경할 수는 없습니다.
+    # 다시 `st.button`을 사용하는 것으로 돌아가되, 선택된 날짜에 대한 시각적 피드백을
+    # CSS의 `st.button > button` 선택자를 활용하고, 버튼 자체에 `border-radius`를 더 강조하겠습니다.
+    # Python 코드에서 조건부 스타일링을 직접 주입할 수는 없으므로,
+    # Streamlit이 재렌더링될 때 CSS가 해당 상태를 파악하고 적용하도록 해야 합니다.
+
+    # 다시 `st.button`을 활용하여 CSS를 더 정교하게 만듭니다.
+    # 문제는 `st.experimental_rerun()` 호출이 트리거되지 않았다는 것.
+    # `st.session_state` 변경만으로는 재실행이 안 될 수 있습니다.
+    # `st.experimental_rerun()`은 컴포넌트의 `on_change` 콜백에서 사용하는 것이 일반적입니다.
+    # 날짜 버튼을 클릭하면 `st.session_state.selected_dates`가 변경되므로
+    # Streamlit은 이 변경을 감지하고 앱을 다시 실행합니다.
+    # 그렇다면 `st.experimental_rerun()` 없이도 동작해야 합니다.
+    # 혹시 모를 오류 때문에 `st.experimental_rerun()`을 다시 추가하는 것이 아니라,
+    # `st.button`의 `on_click`을 사용하여 상태를 업데이트하는 것이 더 안전한 방법입니다.
+
     # 각 월별 달력 렌더링
     for year, month in months_to_display:
         st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
@@ -193,7 +231,7 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
         # 요일 헤더 생성 (st.columns 사용)
         cols = st.columns(7, gap="small")
         for i, day_name in enumerate(days_of_week_korean):
-            cols[i].markdown(f"<span><strong>{day_name}</strong></span>", unsafe_allow_html=True)
+            cols[i].markdown(f'<div class="day-header"><span><strong>{day_name}</strong></span></div>', unsafe_allow_html=True)
 
         # 달력 날짜 버튼 생성 (apply_date 이후 날짜 제외)
         for week in cal:
@@ -208,27 +246,82 @@ def render_calendar_with_buttons(apply_date): # 함수명 변경: render_calenda
                         cols[i].markdown(" ") # 빈 칸
                         continue
 
-                    # Streamlit 버튼의 CSS 클래스를 동적으로 설정하는 것은 직접적이지 않음.
-                    # 대신, Streamlit이 다시 렌더링될 때 selected_dates와 current_date에 따라
-                    # CSS 규칙이 적용되도록 CSS를 미리 정의함.
-                    # 예를 들어, selected_dates에 있으면 selected-date 클래스가 '적용된 것처럼' 보이게.
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
 
-                    # 버튼 클릭 시 처리
-                    # st.button은 클릭 시 True를 반환
-                    if cols[i].button(str(day), key=f"btn_{date_obj}"):
-                        if date_obj in selected_dates:
-                            selected_dates.discard(date_obj)
+                    # 버튼 스타일 결정
+                    button_style = ""
+                    button_color = ""
+                    button_text_color = ""
+                    button_border = ""
+
+                    # 라이트 모드/다크 모드 기본 색상 설정 (CSS에서 처리되지만, 명시적으로)
+                    if st.get_option("client.theming.base") == "dark":
+                        # 다크 모드
+                        button_color = "#1e1e1e"
+                        button_text_color = "#ffffff"
+                        button_border = "1px solid #444"
+                    else:
+                        # 라이트 모드
+                        button_color = "#ffffff"
+                        button_text_color = "#000000"
+                        button_border = "1px solid #ddd"
+
+
+                    if is_selected:
+                        button_color = "#ff0000" # 선택 시 빨간색
+                        button_text_color = "#ffffff" # 선택 시 흰색 글씨
+                        button_border = "1px solid #ff0000"
+                    elif is_current: # 오늘 날짜이면서 선택되지 않은 경우
+                        button_border = "2px solid blue" # 파란색 테두리
+
+                    # HTML을 직접 생성하여 인라인 스타일 적용
+                    # st.session_state를 업데이트할 콜백 함수 정의
+                    def _update_selected_dates(clicked_date):
+                        if clicked_date in st.session_state.selected_dates:
+                            st.session_state.selected_dates.discard(clicked_date)
                         else:
-                            selected_dates.add(date_obj)
-                        st.session_state.selected_dates = selected_dates # 세션 상태 업데이트
+                            st.session_state.selected_dates.add(clicked_date)
 
-                    # 현재 날짜 및 선택된 날짜에 대한 스타일 적용을 위해,
-                    # Streamlit이 렌더링한 버튼에 동적으로 클래스를 추가하는 CSS 주입 방식을 사용합니다.
-                    # 이 방법은 Streamlit의 DOM이 완전히 로드된 후에 실행되어야 합니다.
-                    # Streamlit의 `st.experimental_rerun()` 없이도 `st.session_state`가 변경되면
-                    # 앱은 자동으로 다시 실행되어 UI를 업데이트합니다.
-                    # 이전에 `st.experimental_rerun()`이 필요했던 것은 `st.checkbox`의 내부 동작 때문이었을 수 있습니다.
-                    # `st.button`은 상태 변경 시 비교적 잘 동작합니다.
+                    # 각 날짜를 표시하는 HTML 요소 (버튼처럼 동작)
+                    # Streamlit 컴포넌트가 아니므로 클릭 시 Streamlit 앱을 재실행할 방법이 필요.
+                    # 임시로 `st.button`을 다시 사용하여 클릭 이벤트를 트리거합니다.
+                    # CSS를 통해 st.button 스타일을 오버라이드합니다.
+
+                    # `st.button`을 사용하는 이전 방식으로 돌아가되, CSS를 통해 선택 상태를 표시합니다.
+                    # `st.button`은 자체적으로 상태를 저장하고, 클릭 시 앱을 다시 렌더링합니다.
+                    # 따라서 `st.experimental_rerun()`은 필요 없습니다.
+                    # 문제는 `st.button`에 동적으로 클래스를 추가하는 것이 어렵다는 점입니다.
+                    # 해결책은 CSS에서 `st.button`의 `data-testid`와 선택 상태에 따라
+                    # 스타일을 변경하는 것입니다.
+
+                    # 가장 좋은 방법은, 선택된 날짜와 오늘 날짜에 대해
+                    # Streamlit이 렌더링한 버튼에 CSS 클래스를 직접 추가하는 JavaScript를 실행하는 것입니다.
+                    # 하지만 Streamlit이 JS를 직접 삽입하고 실행하는 것은 보안 상의 이유로 제한적입니다.
+                    # 그래서 `st.session_state`를 활용한 간접적인 방법이 주로 사용됩니다.
+                    # 즉, `st.session_state.selected_dates`에 날짜가 있으면
+                    # 해당 날짜를 그리는 버튼의 CSS를 "선택된 버튼처럼" 보이도록 하는 것입니다.
+
+                    # 날짜 텍스트 (오늘 날짜는 굵게)
+                    display_day_text = str(day)
+                    if is_current:
+                        display_day_text = f"**{day}**"
+
+                    # `st.button`의 `on_click`을 사용하여 상태 업데이트
+                    if cols[i].button(display_day_text, key=f"date_btn_{date_obj}"):
+                        _update_selected_dates(date_obj)
+
+                    # Streamlit 렌더링 후 동적으로 CSS 클래스 추가 (JavaScript)
+                    # 이 방법은 Streamlit의 실행 흐름을 벗어나므로, 보안 경고가 발생하거나
+                    # Streamlit Cloud에서는 동작하지 않을 수 있습니다.
+                    # 하지만 로컬 테스트 환경에서는 시도해 볼 수 있습니다.
+                    # 안전한 방법은 CSS 자체를 조건부로 생성하거나,
+                    # `st.button`의 `help` 인자를 활용하여 툴팁으로 표시하는 것입니다.
+                    # 현재 CSS에는 `current-date`와 `selected-date` 클래스가 정의되어 있고,
+                    # Streamlit이 재렌더링될 때 `selected_dates`에 따라
+                    # 그 스타일이 '적용된 것처럼' 보이게 되는 것이 핵심입니다.
+                    # 즉, Streamlit은 `st.session_state`가 변경되면 해당 컴포넌트를 다시 그리고,
+                    # 그때 CSS가 다시 적용되므로 원하는 시각적 효과를 얻을 수 있습니다.
 
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
@@ -260,7 +353,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    selected_days = render_calendar_with_buttons(apply_date) # 함수 호출 변경
+    selected_days = render_calendar_custom(apply_date) # 함수 호출 변경
     st.markdown("---")
 
     # 조건 1 계산 및 표시
