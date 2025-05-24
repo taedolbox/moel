@@ -23,13 +23,24 @@ def render_calendar_with_checkboxes(apply_date):
     달력을 렌더링하고 체크박스를 이용한 날짜 선택 기능을 제공합니다.
     선택된 날짜, 현재 날짜, 신청일 이후 날짜에 따라 스타일이 달라집니다.
     """
-    # 사용자 정의 CSS 주입 (다크 모드 해지, 밝은 테마 적용)
+    # 사용자 정의 CSS 주입 (다크 모드 해지, 밝은 테마 및 사이드바 스타일 추가)
     st.markdown(f"""
     <style>
     /* 전체 앱 배경색을 밝게 설정 */
     .stApp {{
         background-color: #ffffff;
         color: #000000;
+    }}
+    /* 사이드바 배경색과 텍스트 색상 */
+    div[data-testid="stSidebar"] {{
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }}
+    div[data-testid="stSidebar"] a {{
+        color: #000000 !important;
+    }}
+    div[data-testid="stSidebar"] span {{
+        color: #000000 !important;
     }}
     /* 라디오 버튼 텍스트 색상 */
     div[data-testid="stRadio"] label {{
@@ -303,7 +314,7 @@ def daily_worker_eligibility_app():
             suggested_date = last_worked_day + timedelta(days=15)
             st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+            st.info("이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
 
     st.subheader("📌 최종 판단")
     # 일반일용근로자: 조건 1만 판단
