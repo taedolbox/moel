@@ -106,7 +106,7 @@ def render_calendar_with_checkboxes(apply_date):
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
         color: white !important;
     }}
-    /* 신청일 이후 또는 5월 26일 이후 날짜 스타일 */
+    /* 5월 26일 이후 날짜 스타일 */
     div[data-testid="stCheckbox"] input[type="checkbox"]:disabled + label {{
         color: #1e1e1e !important; /* 숫자 색상을 배경색과 동일하게 */
         background-color: #1e1e1e !important; /* 배경색 */
@@ -187,8 +187,8 @@ def render_calendar_with_checkboxes(apply_date):
                     date_obj = date(year, month, day)
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    is_future = date_obj > apply_date
-                    is_late_may = (year == 2025 and month == 5 and day >= 26)
+                    # 5월 26일 이후를 비활성화
+                    is_disabled = date_obj >= date(2025, 5, 26)
 
                     def on_checkbox_change(current_date_obj_for_callback):
                         if st.session_state[f"chk_{current_date_obj_for_callback}"]:
@@ -208,7 +208,7 @@ def render_calendar_with_checkboxes(apply_date):
                         value=is_selected,
                         on_change=on_checkbox_change,
                         args=(date_obj,),
-                        disabled=(is_future or is_late_may)
+                        disabled=is_disabled
                     )
 
     # 현재 선택된 근무일자 목록 표시
