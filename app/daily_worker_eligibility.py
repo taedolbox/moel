@@ -26,52 +26,31 @@ def render_calendar_with_checkboxes(apply_date):
     # 사용자 정의 CSS 주입
     st.markdown(f"""
     <style>
-    /* Nanum Gothic 폰트 적용 제거 - Streamlit 기본 폰트 사용 */
-    /* @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap'); */
-
     /* 근무일 선택 달력 관련 스타일 */
 
-    /* Light Mode */
+    /* Light/Dark Mode 공통 */
     div[data-testid="stCheckbox"] {{ /* 개별 날짜 체크박스 배경 및 테두리 */
-        border: 1px solid #000000 !important;
-        background-color: #ffffff !important;
+        border: 1px solid var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 테두리색 변경 */
+        background-color: var(--background-color) !important; /* Streamlit의 배경색에 따라 배경색 변경 */
     }}
     div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{ /* 개별 날짜 글자색 */
-        color: #000000 !important;
+        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
     }}
     div[data-testid="stMarkdownContainer"] h3 {{ /* 월별 헤더 */
-        background-color: #f0f0f0 !important;
-        color: #000000 !important;
+        background-color: var(--secondary-background-color) !important; /* Streamlit의 보조 배경색에 따라 배경색 변경 */
+        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
     }}
     div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
-        color: #000000 !important; /* 라이트 모드일 때 검정색 */
-    }}
-
-    /* Dark Mode (prefers-color-scheme) */
-    @media (prefers-color-scheme: dark) {{
-        div[data-testid="stCheckbox"] {{
-            border: 1px solid #ffffff !important;
-            background-color: #1e1e1e !important; /* 다크 모드 배경색 */
-        }}
-        div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            color: #ffffff !important;
-        }}
-        div[data-testid="stMarkdownContainer"] h3 {{
-            background-color: #2e2e2e !important; /* 다크 모드 헤더 배경색 */
-            color: #ffffff !important;
-        }}
-        div[data-testid="stHorizontalBlock"] span {{ /* 요일 헤더 기본 글자색 */
-            color: #ffffff !important; /* 다크 모드일 때 흰색 */
-        }}
+        color: var(--text-color) !important; /* Streamlit의 텍스트 색상에 따라 글자색 변경 */
     }}
 
     /* 선택된 날짜 스타일 (라이트/다크 모드 공통) */
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label {{
-        background-color: #ff0000 !important;
+        background-color: #ff0000 !important; /* 선택 시 빨간색 배경 */
         border: 2px solid var(--primary-color) !important; /* Streamlit의 기본 강조색 사용 */
     }}
     div[data-testid="stCheckbox"] input[type="checkbox"]:checked + label p {{
-        color: #ffffff !important;
+        color: #ffffff !important; /* 선택 시 흰색 글씨 */
     }}
 
     /* 요일 헤더 특정 요일 색상 (라이트/다크 모드 공통) */
@@ -321,3 +300,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+    
