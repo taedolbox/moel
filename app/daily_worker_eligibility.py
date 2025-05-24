@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, date
 import calendar
 
 # 현재 날짜와 시간을 기반으로 KST 오전 XX:XX 형식을 생성
-# 이 변수는 앱이 시작될 때 한 번만 계산됩니다.
 current_datetime = datetime.now()
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
@@ -96,14 +95,14 @@ def render_calendar(apply_date):
     }}
     /* 선택되지 않은 버튼 호버 효과 */
     div[data-testid="stButton"] button:not([id*="selected-"]):hover {{
-        border: 2px solid #00ff00 !important;
-        background-color: rgba(0, 255, 0, 0.2) !important;
+        border: 2px solid #00ff00 !important; /* 초록색 테두리 */
+        background-color: rgba(0, 255, 0, 0.2) !important; /* 연한 초록색 배경 */
     }}
-    /* 선택된 버튼 스타일 - 초록색 배경에 파란색 테두리 */
+    /* !!! 여기부터 선택된 날짜의 색상 변경 부분입니다 !!! */
     div[data-testid="stButton"] button[id*="selected-"] {{
-        background-color: #00ff00 !important; /* 선택된 날짜 초록색 배경 */
+        background-color: #ff0000 !important; /* 선택된 날짜 붉은색 배경 */
         color: white !important;
-        border: 2px solid #0000ff !important; /* 선택된 날짜 파란색 테두리 */
+        border: 2px solid #ffffff !important; /* 흰색 테두리 */
     }}
     /* 현재 날짜 스타일 - 파란색 배경 */
     div[data-testid="stButton"] button[id*="current-"] {{
@@ -161,7 +160,6 @@ def render_calendar(apply_date):
     months_to_display = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar).date))
 
     # st.session_state에서 선택된 날짜 집합 가져오기
-    # 이 부분은 toggle_date 함수에서 초기화되므로, 여기서 중복 초기화는 필요 없을 수 있지만 안전을 위해 유지
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
     selected_dates = st.session_state.selected_dates
