@@ -10,7 +10,7 @@ def get_date_range(apply_date):
     return pd.date_range(start=start_date, end=apply_date), start_date
 
 def render_calendar(apply_date):
-    # Inject custom CSS for styling buttons
+    # Inject custom CSS for styling buttons and text alignment
     st.markdown("""
     <style>
     /* Button container for centering */
@@ -34,6 +34,7 @@ def render_calendar(apply_date):
         justify-content: center;
         align-items: center;
         padding: 0;
+        position: relative;
     }
     /* Hover effect for unselected buttons */
     div.stButton > button:not(.selected):not(.current):not(.disabled):hover {
@@ -56,6 +57,13 @@ def render_calendar(apply_date):
         border: 1px solid #ccc;
         color: gray;
     }
+    /* Checkmark for selected buttons */
+    div.stButton > button.selected::after {
+        content: "✅";
+        position: absolute;
+        bottom: 5px;
+        font-size: 0.8rem;
+    }
     /* Day header styles */
     div[data-testid="stMarkdownContainer"] p {
         text-align: center;
@@ -69,6 +77,10 @@ def render_calendar(apply_date):
         background-color: #2e2e2e;
         text-align: center;
         color: white;
+    }
+    /* Left-align text for results */
+    div[data-testid="stMarkdownContainer"] {
+        text-align: left !important;
     }
     /* PC layout (above 600px) */
     @media (min-width: 601px) {
@@ -84,6 +96,10 @@ def render_calendar(apply_date):
             width: 35px;
             height: 55px;
             font-size: 0.8rem;
+        }
+        div.stButton > button.selected::after {
+            font-size: 0.7rem;
+            bottom: 3px;
         }
     }
     </style>
@@ -174,6 +190,10 @@ def daily_worker_eligibility_app():
     div[data-testid="stRadio"] label {
         color: white;
         font-size: 18px;
+    }
+    /* Left-align radio buttons */
+    div[data-testid="stRadio"] {
+        text-align: left !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -275,4 +295,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-    
