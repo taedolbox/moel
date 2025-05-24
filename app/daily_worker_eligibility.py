@@ -179,7 +179,7 @@ def render_calendar_with_checkboxes(apply_date):
             height: 47px !important;
         }}
         div[data-testid="stCheckbox"] label div[data-testid="stMarkdownContainer"] p {{
-            font-size: 0.75rem !important;
+            font-size: 0.55rem !important;
         }}
     }}
     </style>
