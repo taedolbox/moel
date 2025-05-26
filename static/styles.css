@@ -1,3 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+
+/* 전체 페이지 배경 및 텍스트 설정 */
+body, div[data-testid="stAppViewContainer"] {
+    background-color: #ffffff !important; /* 라이트 모드 기본 배경 */
+    color: #000000 !important; /* 라이트 모드 기본 텍스트 색상 */
+}
+
+/* Streamlit 컴포넌트 텍스트 색상 */
+.stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
+    color: #000000 !important; /* 라이트 모드 텍스트 색상 */
+}
+
+/* 사이드바 텍스트 색상 */
+.sidebar .sidebar-content, .sidebar .sidebar-content * {
+    color: #000000 !important; /* 라이트 모드 사이드바 텍스트 */
+}
+
+/* 다크 모드 전체 설정 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    body, div[data-testid="stAppViewContainer"] {
+        background-color: #2a2a2a !important;
+        color: #ffffff !important; /* 다크 모드 텍스트 색상 */
+    }
+    .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
+        color: #ffffff !important;
+    }
+    .sidebar .sidebar-content, .sidebar .sidebar-content * {
+        color: #ffffff !important;
+    }
+}
+
+/* 기존 스타일 */
+.stButton>button {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.stRadio>label {
+    font-size: 16px;
+    color: #333 !important; /* 라이트 모드 라디오 버튼 */
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .stRadio>label {
+        color: #ffffff !important; /* 다크 모드 라디오 버튼 */
+    }
+}
+
+.stMarkdown, .stSuccess, .stWarning {
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+.sidebar .sidebar-content {
+    background-color: #f8f9fa;
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .sidebar .sidebar-content {
+        background-color: #333333 !important;
+    }
+}
+
+/* Streamlit 상단 메뉴 숨기기 */
+div[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* 사이드바 토글 버튼 스타일 (모바일 다크 모드) */
+button[kind="primary"] {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    margin: 10px;
+}
+
+@media (prefers-color-scheme: light), [data-theme="light"] {
+    button[kind="primary"] {
+        background-color: #4CAF50 !important;
+        color: white !important;
+    }
+}
+
+/* 달력 전용 스타일 */
+.calendar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-width: 280px;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.calendar-wrapper h3 {
+    background-color: #f0f0f0;
+    color: #000000 !important; /* 라이트 모드 제목 */
+    text-align: center;
+    padding: 8px 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    width: 100%;
+}
+
+/* 라이트 모드 - PC */
+.calendar-container {
+    display: grid !important;
+    grid-template-columns: repeat(7, 40px) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    background-color: #ffffff !important;
+}
+
+.calendar-day-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: #ffffff !important;
+}
+
+.calendar-day-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #333;
+    background-color: #ffffff;
+    border-radius: 50%;
+    font-size: 1.1em;
+    color: #000000 !important;
+    box-sizing: border-box;
+    user-select: none;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+/* 다크 모드 - PC */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-wrapper h3 {
+        background-color: #2e2e2e !important;
+        color: #ffffff !important;
+    }
+    .calendar-container {
+        background-color: #2a2a2a !important;
+    }
+    .calendar-day-container {
+        background-color: #2a2a2a !important;
+    }
+    .calendar-day-box {
+        border: 1px solid #888;
+        background-color: #000000;
+        color: #ffffff !important;
+    }
+}
+
 /* 라이트 모드 - 모바일 */
 @media (max-width: 500px) and (prefers-color-scheme: light), (max-width: 500px) and [data-theme="light"] {
     body, div[data-testid="stAppViewContainer"] {
@@ -27,8 +196,8 @@
         background-color: #e0e0e0 !important;
     }
     .calendar-day-container {
-        width: 100% !important; /* 그리드 셀에 맞게 */
-        height: 40px !important; /* 모바일에서 크기 조정 */
+        width: 100% !important;
+        height: 40px !important;
         margin: 0 !important;
         background-color: #e0e0e0 !important;
         display: flex;
@@ -36,9 +205,9 @@
         justify-content: center;
     }
     .calendar-day-box {
-        width: 36px !important; /* 모바일에서 크기 축소 */
+        width: 36px !important;
         height: 36px !important;
-        font-size: 0.9em !important; /* 폰트 크기 조정 */
+        font-size: 0.9em !important;
         border: 1px solid #333;
         background-color: #ffffff;
         color: #000000 !important;
@@ -98,4 +267,92 @@
         align-items: center;
         justify-content: center;
     }
+}
+
+/* 공통 스타일 */
+.calendar-day-box:hover {
+    background-color: #e0e0e0;
+    border-color: #555;
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box:hover {
+        background-color: #333333;
+        border-color: #aaa;
+    }
+}
+
+.calendar-day-box.current-day:not(.selected-day) {
+    border: 2px solid blue !important;
+}
+
+.calendar-day-box.selected-day {
+    background-color: #4CAF50 !important;
+    color: #ffffff !important;
+    border: 2px solid #4CAF50 !important;
+    font-weight: bold;
+}
+
+.calendar-day-box.disabled-day {
+    border: 1px solid #555;
+    background-color: #e0e0e0;
+    color: #666 !important;
+    cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box.disabled-day {
+        background-color: #2e2e2e;
+        border: 1px solid #444;
+        color: #666 !important;
+    }
+}
+
+.selection-mark {
+    position: absolute;
+    top: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    border: 1px solid #ffffff;
+    display: none;
+}
+
+.selected-day .selection-mark {
+    display: block;
+}
+
+button[data-testid="stButton"] {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer;
+    opacity: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width: 500px) {
+    button[data-testid="stButton"] {
+        width: 36px !important;
+        height: 36px !important;
+    }
+}
+
+button[data-testid="stButton"]:hover {
+    opacity: 0.1;
+}
+
+/* 폼 버튼 숨김 */
+button[data-testid="stFormSubmitButton"] {
+    display: none;
 }
