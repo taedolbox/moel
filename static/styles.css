@@ -302,7 +302,7 @@ button[data-testid="stButton"] {
 }
 
 /* 모바일에서 버튼 크기 조정 */
-@media (max-width: 500px) {
+@media (max-width: 50px) {
     button[data-testid="stButton"] {
         width: 30px !important; /* 너비: 50px */
         height: 30px !important; /* 높이: 50px */
