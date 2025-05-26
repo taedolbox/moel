@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, date
 import calendar
 import os
 
-# 달력의 시작 요일을 월요일로 설정 (기존 SUNDAY에서 변경)
+# 달력의 시작 요일을 월요일로 설정
 calendar.setfirstweekday(calendar.MONDAY)
 
 # 현재 날짜 및 시간 설정 (2025년 5월 26일 오후 3:36 KST)
@@ -48,7 +48,7 @@ def render_calendar_interactive(apply_date):
             # 월 헤더 (현재 월 이름은 표시하지 않음)
             
             # 요일 헤더 (월, 화, 수, 목, 금, 토, 일) - st.columns 사용
-            cols = st.columns(7, gap="small")
+            cols = st.columns(7, gap="small") # gap을 줄여 공간 확보
             # 요일 이름 순서 변경: 월요일부터 시작
             day_names = ["월", "화", "수", "목", "금", "토", "일"]
             for i, day_name in enumerate(day_names):
@@ -63,7 +63,7 @@ def render_calendar_interactive(apply_date):
             # 달력 날짜 렌더링 - st.columns 사용
             cal = calendar.monthcalendar(year, month)
             for week in cal:
-                cols = st.columns(7, gap="small") # 각 주마다 7개의 컬럼 생성
+                cols = st.columns(7, gap="small") # 각 주마다 7개의 컬럼 생성, gap 줄임
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
@@ -102,10 +102,11 @@ def render_calendar_interactive(apply_date):
                                 button_classes_to_add.append("current-day")
                             
                             # 생성된 Streamlit 버튼에 CSS 클래스를 적용하기 위해 <style> 태그를 주입합니다.
+                            # 이 방법은 버튼이 렌더링된 후에 적용되므로, 리렌더링 시점에 따라 약간의 시각적 지연이 있을 수 있습니다.
                             st.markdown(
                                 f"""
                                 <style>
-                                    div[data-testid="column"] > button[key="{button_key}"] {{
+                                    div[data-testid*="stColumn"] > button[key="{button_key}"] {{
                                         {" ".join(button_classes_to_add)}
                                     }}
                                 </style>
