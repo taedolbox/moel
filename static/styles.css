@@ -160,7 +160,7 @@ div[data-testid="stToolbar"] {
 }
 
 /* 라이트 모드 - 모바일: 화면 너비 400px 이하 */
-@media (max-width: 600px) and (prefers-color-scheme: light), (max-width: 600px) and [data-theme="light"] {
+@media (max-width: 900px) and (prefers-color-scheme: light), (max-width: 900px) and [data-theme="light"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #ffffff !important; /* 배경: 흰색 */
         color: #000000 !important; /* 텍스트: 검정색 */
@@ -197,7 +197,7 @@ div[data-testid="stToolbar"] {
 }
 
 /* 다크 모드 - 모바일: 화면 너비 500px 이하 */
-@media (max-width: 600px) and (prefers-color-scheme: dark), (max-width: 600px) and [data-theme="dark"] {
+@media (max-width: 900px) and (prefers-color-scheme: dark), (max-width: 900px) and [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
         color: #ffffff !important; /* 텍스트: 흰색 */
