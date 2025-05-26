@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 7:27 KST)
-current_datetime = datetime(2025, 5, 26, 19, 27)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 7:20 KST)
+current_datetime = datetime(2025, 5, 26, 19, 20)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -32,6 +32,35 @@ def render_calendar_interactive(apply_date):
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
+    # JavaScript로 클릭 이벤트 처리
+    click_handler_script = """
+    <script>
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('calendar-day-button')) {
+                const date = event.target.getAttribute('data-date');
+                fetch('/_stcore/session-state/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'clicked_date', value: date })
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
+    """
+    html(click_handler_script)
+
+    # 클릭된 날짜 처리
+    if 'clicked_date' in st.session_state:
+        date_str = st.session_state.clicked_date
+        try:
+            date_obj = date.fromisoformat(date_str)
+            toggle_date(date_obj)
+            del st.session_state.clicked_date  # 클릭 처리 후 제거
+        except ValueError:
+            pass
+
     # 달력 전용 컨테이너
     with st.container():
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
@@ -41,52 +70,46 @@ def render_calendar_interactive(apply_date):
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더
-            cols = st.columns(7, gap="small")
+            header_html = '<div class="calendar-header">'
             for i, day_name in enumerate(days_of_week_korean):
-                with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "#000000"
-                    st.markdown(
-                        f'<div class="day-header" style="color: {color};">{day_name}</div>',
-                        unsafe_allow_html=True
-                    )
+                color = "red" if i == 0 or i == 6 else "#000000"
+                header_html += f'<div class="day-header" style="color: {color};">{day_name}</div>'
+            header_html += '</div>'
+            st.markdown(header_html, unsafe_allow_html=True)
 
             # 달력 본체
-            st.markdown('<div class="calendar-container">', unsafe_allow_html=True)
+            calendar_html = '<div class="calendar-container">'
             for week in cal:
-                cols = st.columns(7, gap="small")
-                for i, day in enumerate(week):
-                    with cols[i]:
-                        if day == 0:
-                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
-                            continue
-                        date_obj = date(year, month, day)
-                        if date_obj > apply_date:
-                            st.markdown(
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-
-                        st.markdown(
+                for day in week:
+                    if day == 0:
+                        calendar_html += '<div class="calendar-day-container"></div>'
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
+                        calendar_html += (
                             f'<div class="calendar-day-container">'
-                            f'<div class="selection-mark"></div>'
-                            f'<div class="{class_name}">{day}</div>'
-                            f'</div>',
-                            unsafe_allow_html=True
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
+                            f'</div>'
                         )
-                        # Streamlit 버튼 추가
-                        st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+                        continue
+
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
+
+                    calendar_html += (
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<div class="{class_name}">{day}</div>'
+                        f'<button class="calendar-day-button" data-date="{date_obj.isoformat()}"></button>'
+                        f'</div>'
+                    )
+            calendar_html += '</div>'
+            st.markdown(calendar_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.rerun_trigger:
