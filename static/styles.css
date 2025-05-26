@@ -129,18 +129,20 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 44px !important;
-    height: 44px !important;
+    width: 34px !important;
+    height: 34px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important; /* 중앙 정렬 */
-    background: transparent !important; /* 투명 배경 */
-    border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
+    background-color: #ffffff !important; /* 흰색 배경 */
+    border: 1px solid #333 !important; /* 짙은 회색 테두리 */
+    border-radius: 50% !important; /* 원형 */
+    color: #000000 !important; /* 검은색 텍스트 */
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    opacity: 0.6 !important;
+    opacity: 1 !important;
     z-index: 2 !important;
     box-sizing: border-box !important;
     display: flex !important;
@@ -150,7 +152,8 @@ button[data-testid="stButton"] {
 
 /* 버튼 호버 효과 */
 button[data-testid="stButton"]:hover {
-    background-color: rgba(200, 200, 200, 0.3) !important; /* 반투명 회색 배경 */
+    background-color: #e0e0e0 !important; /* 연한 회색 배경 */
+    border-color: #555 !important; /* 짙은 회색 테두리 */
 }
 
 /* PC 화면 스타일 (최소 너비 501px) */
@@ -241,6 +244,7 @@ button[data-testid="stButton"]:hover {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
+        margin-right: 5px !important; /* 버튼과의 간격 */
     }
     button[data-testid="stButton"] {
         width: 34px !important;
