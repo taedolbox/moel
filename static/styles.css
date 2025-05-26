@@ -134,7 +134,7 @@ button[data-testid="stButton"] {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+    transform: translate(50%, 50%) !important;
     background: transparent !important; /* 투명 배경 */
     border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
     padding: 0 !important;
@@ -173,7 +173,7 @@ button[data-testid="stButton"]:hover {
         height: 38px !important;
     }
     div[data-testid="column"] {
-        width: calc(800px / 7) !important;
+        width: calc(600px / 7) !important;
         max-width: calc(600px / 7) !important;
         min-width: calc(600px / 7) !important;
         margin: 0 !important;
