@@ -28,16 +28,6 @@
     background-color: #ffffff !important;
     overflow: hidden;
 }
-.day-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    font-size: 0.9em;
-    color: #000000;
-    background-color: #f0f0f0;
-    border: 1px solid #333;
-}
 .calendar-day-container {
     position: relative;
     width: 40px;
@@ -78,6 +68,14 @@
         width: 35px;
         height: 35px;
         font-size: 0.8em;
+    }
+    /* Streamlit columns 강제 7열 고정 */
+    div[data-testid="column"] {
+        display: flex !important;
+        flex-direction: row !important;
+        width: 280px !important;
+        margin: 0 auto !important;
+        flex-wrap: nowrap !important;
     }
 }
 .calendar-day-box.selected-day {
