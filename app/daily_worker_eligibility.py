@@ -33,20 +33,18 @@ def render_calendar_interactive(apply_date):
     with st.container():
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
         for year, month in months_to_display:
-            st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
-            cal = calendar.monthcalendar(year, month)
-
             # 요일 헤더 제거
             # cols = st.columns(7, gap="small")
             # for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
-            #     with cols[i]:
-            #         color = "red" if i == 0 or i == 6 else "#000000"
-            #         st.markdown(
-            #             f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-            #             unsafe_allow_html=True
-            #         )
+            #    with cols[i]:
+            #          color = "red" if i == 0 or i == 6 else "#000000"
+            #          st.markdown(
+            #              f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
+            #              unsafe_allow_html=True
+            #          )
 
             # 달력 렌더링
+            cal = calendar.monthcalendar(year, month) # Get the calendar for the month
             for week in cal:
                 cols = st.columns(7, gap="small")
                 for i, day in enumerate(week):
