@@ -125,13 +125,17 @@ button[kind="primary"] {
 
 /* 달력 본체 스타일 */
 .calendar-container {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
     width: 100% !important;
     background-color: #ffffff !important; /* 라이트 모드 */
+}
+
+/* Streamlit columns 스타일 오버라이드 */
+div[data-testid="column"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .calendar-day-container {
@@ -217,10 +221,6 @@ div[data-testid="stButton"] button:hover {
         min-width: 600px !important;
         max-width: 600px !important;
     }
-    .calendar-container {
-        min-width: 600px !important;
-        max-width: 600px !important;
-    }
     .calendar-header {
         min-width: 600px !important;
         max-width: 600px !important;
@@ -247,12 +247,6 @@ div[data-testid="stButton"] button:hover {
         max-width: 280px !important;
         margin: 0 auto !important;
     }
-    .calendar-container {
-        width: 100% !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
-        background-color: #e0e0e0 !important; /* 라이트 모드 */
-    }
     .calendar-header {
         width: 100% !important;
         min-width: 280px !important;
@@ -271,6 +265,11 @@ div[data-testid="stButton"] button:hover {
     div[data-testid="stButton"] button {
         width: 36px !important;
         height: 36px !important;
+    }
+    /* Streamlit columns 강제 7열 */
+    div[data-testid="column"] {
+        flex: 1 1 14.28% !important; /* 100% / 7 */
+        max-width: 14.28% !important;
     }
 }
 
@@ -330,12 +329,13 @@ div[data-testid="stButton"] button:hover {
 .selection-mark {
     position: absolute;
     top: 2px;
+    left: 2px;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background-color: #4CAF50;
     border: 1px solid #ffffff;
-    display: none;
+    display: none !important;
 }
 
 .selected-day .selection-mark {
