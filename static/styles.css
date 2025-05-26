@@ -1,4 +1,4 @@
-@import url('https://fonts.com/css2?family=Nanum+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
 /* 전체 페이지 배경 및 텍스트 설정 */
 body, div[data-testid="stAppViewContainer"] {
@@ -88,12 +88,11 @@ button[kind="primary"] {
 
 /* 달력 전용 스타일 */
 .calendar-wrapper {
-    display: block; /* 중앙 정렬을 위해 block으로 설정 */
-    flex-direction: column; /* flex-direction은 display: flex일 때만 유효 */
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    width: 100%; /* 너비 100%로 설정하고 max-width로 제어 */
-    max-width: 600px; /* PC 기본 max-width */
-    margin: 0 auto; /* 중앙 정렬 */
+    width: 100%;
+    margin: 0 auto;
 }
 
 .calendar-wrapper h3 {
@@ -110,11 +109,7 @@ button[kind="primary"] {
 .header-wrapper {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: space-between !important;
-    width: 100%; /* 부모에 맞게 100% */
-    max-width: 600px; /* PC 기본 max-width */
-    margin: 0 auto !important; /* 중앙 정렬 */
+    width: 100% !important;
 }
 
 /* 달력 헤더 스타일 */
@@ -126,24 +121,17 @@ button[kind="primary"] {
     font-size: 1em;
     font-weight: bold;
     text-align: center;
-    flex-grow: 1; /* 요일별로 균등한 너비 */
-    flex-basis: 0; /* flex-grow와 함께 사용 시 균등 분배 */
-    width: calc(100% / 7); /* 7등분 */
 }
 
-/* 달력 그리드 */
-.calendar-grid {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 0 !important;
-    width: 100%; /* 부모에 맞게 100% */
-    max-width: 600px; /* PC 기본 max-width */
-    margin: 0 auto !important; /* 중앙 정렬 */
-}
-
-/* Streamlit columns 스타일 제거 (사용 안 함) */
+/* Streamlit columns 스타일 오버라이드 */
 div[data-testid="column"] {
-    /* display: none !important; */
+    display: inline-block !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    vertical-align: top !important;
 }
 
 .calendar-day-container {
@@ -153,7 +141,6 @@ div[data-testid="column"] {
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    width: 100%; /* 그리드 아이템이 차지하는 너비 */
 }
 
 /* 숫자 원 스타일 */
@@ -171,15 +158,37 @@ div[data-testid="column"] {
     box-sizing: border-box !important;
     user-select: none !important;
     white-space: nowrap !important;
-    margin: 0 auto !important; /* 내부에서 중앙 정렬 */
+    margin: 0 !important;
     padding: 0 !important;
-    cursor: pointer !important; /* 클릭 가능하도록 커서 변경 */
     z-index: 1 !important;
 }
 
-/* Streamlit 버튼 스타일 제거 */
+/* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    display: none !important; /* Streamlit 버튼을 완전히 숨김 */
+    width: 36px !important;
+    height: 44px !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: transparent !important;
+    border: 1px dotted #999 !important; /* 디버깅용 */
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    opacity: 0.6 !important;
+    z-index: 2 !important;
+    box-sizing: border-box !important;
+}
+
+button[data-testid="stButton"]:hover {
+    background-color: rgba(200, 200, 200, 0.3) !important;
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    button[data-testid="stButton"]:hover {
+        background-color: rgba(80, 80, 80, 0.5) !important;
+    }
 }
 
 /* 다크 모드 스타일 */
@@ -207,9 +216,6 @@ button[data-testid="stButton"] {
     .header-wrapper {
         width: 600px !important;
     }
-    .calendar-grid {
-        width: 600px !important;
-    }
     .calendar-day-container {
         width: calc(600px / 7) !important;
         height: 48px !important;
@@ -218,6 +224,17 @@ button[data-testid="stButton"] {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
+    }
+    button[data-testid="stButton"] {
+        width: 40px !important;
+        height: 48px !important;
+    }
+    div[data-testid="column"] {
+        width: calc(600px / 7) !important;
+        max-width: calc(600px / 7) !important;
+        min-width: calc(600px / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
@@ -230,17 +247,12 @@ button[data-testid="stButton"] {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
-        margin: 0 auto !important; /* 중앙 정렬 */
+        margin: 0 auto !important;
     }
     .header-wrapper {
         width: 280px !important;
-        margin: 0 auto !important; /* 중앙 정렬 */
         display: flex !important;
         flex-wrap: nowrap !important;
-    }
-    .calendar-grid {
-        width: 280px !important;
-        margin: 0 auto !important; /* 중앙 정렬 */
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
@@ -251,6 +263,17 @@ button[data-testid="stButton"] {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
+    }
+    button[data-testid="stButton"] {
+        width: 36px !important;
+        height: 44px !important;
+    }
+    div[data-testid="column"] {
+        width: calc(280px / 7) !important;
+        max-width: calc(280px / 7) !important;
+        min-width: calc(280px / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .day-header {
         width: calc(280px / 7) !important;
