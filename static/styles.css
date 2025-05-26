@@ -160,7 +160,7 @@ div[data-testid="stToolbar"] {
 }
 
 /* 라이트 모드 - 모바일: 화면 너비 400px 이하 */
-@media (max-width: 400px) and (prefers-color-scheme: light), (max-width: 400px) and [data-theme="light"] {
+@media (max-width: 600px) and (prefers-color-scheme: light), (max-width: 600px) and [data-theme="light"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #ffffff !important; /* 배경: 흰색 */
         color: #000000 !important; /* 텍스트: 검정색 */
@@ -197,7 +197,7 @@ div[data-testid="stToolbar"] {
 }
 
 /* 다크 모드 - 모바일: 화면 너비 500px 이하 */
-@media (max-width: 400px) and (prefers-color-scheme: dark), (max-width: 400px) and [data-theme="dark"] {
+@media (max-width: 600px) and (prefers-color-scheme: dark), (max-width: 600px) and [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
         color: #ffffff !important; /* 텍스트: 흰색 */
@@ -284,8 +284,8 @@ div[data-testid="stToolbar"] {
 
 /* Streamlit 버튼 스타일 (달력 날짜 버튼) */
 button[data-testid="stButton"] {
-    width: 40px !important; /* 너비: 40px */
-    height: 40px !important; /* 높이: 40px */
+    width: 30px !important; /* 너비: 40px */
+    height: 30px !important; /* 높이: 40px */
     min-width: 0 !important; /* 최소 너비: 0 */
     min-height: 0 !important; /* 최소 높이: 0 */
     position: absolute; /* 절대 위치 지정 */
@@ -304,8 +304,8 @@ button[data-testid="stButton"] {
 /* 모바일에서 버튼 크기 조정 */
 @media (max-width: 500px) {
     button[data-testid="stButton"] {
-        width: 50px !important; /* 너비: 50px */
-        height: 50px !important; /* 높이: 50px */
+        width: 30px !important; /* 너비: 50px */
+        height: 30px !important; /* 높이: 50px */
     }
 }
 
