@@ -95,6 +95,23 @@ button[kind="primary"] {
     margin: 0 auto;
 }
 
+.calendar-wrapper h3 {
+    background-color: #f0f0f0;
+    color: #000000 !important;
+    text-align: center;
+    padding: 8px 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    width: 100%;
+}
+
+/* 요일 헤더 래퍼 */
+.header-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+}
+
 /* 달력 헤더 스타일 */
 .day-header {
     display: flex;
@@ -103,21 +120,22 @@ button[kind="primary"] {
     height: 30px;
     font-size: 1em;
     font-weight: bold;
+    text-align: center;
 }
 
 /* Streamlit columns 스타일 오버라이드 */
 div[data-testid="column"] {
-    display: flex !important;
+    display: inline-block !important;
     justify-content: center !important;
     align-items: center !important;
     padding: 0 !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    vertical-align: top !important;
 }
 
 .calendar-day-container {
     position: relative;
-    width: 100% !important;
     height: 44px !important;
     display: flex !important;
     align-items: center !important;
@@ -147,8 +165,8 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 36px !important; /* 숫자 원과 유사 */
-    height: 44px !important; /* 클릭 영역 확보 */
+    width: 36px !important;
+    height: 44px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -194,9 +212,9 @@ button[data-testid="stButton"]:hover {
     .calendar-wrapper {
         min-width: 600px !important;
         max-width: 600px !important;
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0 !important;
+    }
+    .header-wrapper {
+        width: 600px !important;
     }
     .calendar-day-container {
         width: calc(600px / 7) !important;
@@ -214,9 +232,12 @@ button[data-testid="stButton"]:hover {
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
         max-width: calc(600px / 7) !important;
-        flex: 0 0 calc(600px / 7) !important;
+        min-width: calc(600px / 7) !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    .day-header {
+        width: calc(600px / 7) !important;
     }
 }
 
@@ -227,9 +248,11 @@ button[data-testid="stButton"]:hover {
         min-width: 280px !important;
         max-width: 280px !important;
         margin: 0 auto !important;
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0 !important;
+    }
+    .header-wrapper {
+        width: 280px !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
@@ -249,9 +272,11 @@ button[data-testid="stButton"]:hover {
         width: calc(280px / 7) !important;
         max-width: calc(280px / 7) !important;
         min-width: calc(280px / 7) !important;
-        flex: 0 0 calc(280px / 7) !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+    .day-header {
+        width: calc(280px / 7) !important;
     }
 }
 
