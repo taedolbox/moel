@@ -7,12 +7,16 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 7:53 KST)
-current_datetime = datetime(2025, 5, 26, 19, 53)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 7:57 KST)
+current_datetime = datetime(2025, 5, 26, 19, 57)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
-def get_date_range():
+def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
+    if not isinstance(apply_date, (datetime, date)):
+        raise TypeError("apply_date must be a datetime or date object")
+    if isinstance(apply_date, datetime):
+        apply_date = apply_date.date()
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
@@ -37,13 +41,13 @@ def render_calendar_interactive(apply_date):
         for year, month in months_to_display:
             st.markdown(f'<h3>{year}년 {month}월</h3>', unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
-            days_of_week = ["일", "월", "수", "화", "목", "금", "토"]
+            days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더
             cols = st.columns(7, gap="small")
             for i, day_name in enumerate(days_of_week):
                 with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "#000000"
+                    color = "red" if i == 0 else "#000000"
                     st.markdown(
                         f'<div class="day-header" style="color: {color};">{day_name}</div>',
                         unsafe_allow_html=True
