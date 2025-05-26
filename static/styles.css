@@ -9,33 +9,61 @@ body, div[data-testid="stAppViewContainer"] {
 
 /* Streamlit 컴포넌트(마크다운, 텍스트, 상태 메시지 등)의 텍스트 색상 설정 */
 .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
-    color: #000000 !important; /* 검은색 텍스트 */
+    color: #000000 !important; /* 라이트 모드에서 검은색 텍스트 */
 }
 
 /* 사이드바 콘텐츠의 텍스트 색상 설정 */
 .sidebar .sidebar-content, .sidebar .sidebar-content * {
-    color: #000000 !important; /* 사이드바의 검은색 텍스트 */
+    color: #000000 !important; /* 라이트 모드에서 사이드바의 검은색 텍스트 */
+}
+
+/* 다크 모드에서 body와 메인 컨테이너 스타일 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    body, div[data-testid="stAppViewContainer"] {
+        background-color: #2a2a2a !important; /* 어두운 회색 배경 */
+        color: #ffffff !important; /* 흰색 텍스트 */
+    }
+    .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
+        color: #ffffff !important; /* 다크 모드에서 Streamlit 컴포넌트의 흰색 텍스트 */
+    }
+    .sidebar .sidebar-content, .sidebar .sidebar-content * {
+        color: #ffffff !important; /* 다크 모드에서 사이드바의 흰색 텍스트 */
+    }
 }
 
 /* 라디오 버튼 레이블 스타일링 */
 .stRadio>label {
     font-size: 16px;
-    color: #333 !important; /* 짙은 회색 텍스트 */
+    color: #333 !important; /* 라이트 모드에서 라디오 레이블의 짙은 회색 텍스트 */
+}
+
+/* 다크 모드에서 라디오 버튼 레이블 스타일 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .stRadio>label {
+        color: #ffffff !important; /* 다크 모드에서 라디오 레이블의 흰색 텍스트 */
+    }
 }
 
 /* 특정 Streamlit 컴포넌트에 Nanum Gothic 폰트 적용 */
 .stMarkdown, .stSuccess, .stWarning {
-    font-family: 'Nanum Gothic', sans-serif; /* 사용자 지정 폰트 */
+    font-family: 'Nanum Gothic', sans-serif; /* 텍스트에 사용자 지정 폰트 적용 */
 }
 
 /* 사이드바 배경 색상 */
 .sidebar .sidebar-content {
-    background-color: #f8f9fa !important; /* 밝은 회색 배경 */
+    background-color: #f8f9fa !important; /* 라이트 모드에서 사이드바의 밝은 회색 배경 */
+}
+
+/* 다크 모드에서 사이드바 배경 색상 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .sidebar .sidebar-content {
+        background-color: #333333 !important; /* 다크 모드에서 사이드바의 더 어두운 회색 배경 */
+    }
 }
 
 /* Streamlit 상단 툴바 숨기기 */
 div[data-testid="stToolbar"] {
-    display: none !important; /* 상단 툴바 숨김 */
+    display: none !important; /* 상단 툴바를 화면에서 숨김 */
 }
 
 /* 사이드바 토글 버튼 스타일 */
@@ -46,6 +74,14 @@ button[kind="primary"] {
     padding: 8px 16px;
     font-size: 14px;
     margin: 10px;
+}
+
+/* 라이트 모드에서 토글 버튼 스타일 */
+@media (prefers-color-scheme: light), [data-theme="light"] {
+    button[kind="primary"] {
+        background-color: #4CAF50 !important; /* 초록색 배경 */
+        color: white !important; /* 흰색 텍스트 */
+    }
 }
 
 /* 달력 컨테이너 스타일 */
@@ -129,31 +165,48 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 34px !important;
-    height: 34px !important;
+    width: 44px !important;
+    height: 44px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    transform: translate(-50%, -50%) !important; /* 중앙 정렬 */
-    background-color: #ffffff !important; /* 흰색 배경 */
-    border: 1px solid #333 !important; /* 짙은 회색 테두리 */
-    border-radius: 50% !important; /* 원형 */
-    color: #000000 !important; /* 검은색 텍스트 */
+    transform: translate(-50%, -50%) !important;
+    background: transparent !important; /* 투명 배경 */
+    border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    opacity: 1 !important;
+    opacity: 0.6 !important;
     z-index: 2 !important;
     box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 
 /* 버튼 호버 효과 */
 button[data-testid="stButton"]:hover {
-    background-color: #e0e0e0 !important; /* 연한 회색 배경 */
-    border-color: #555 !important; /* 짙은 회색 테두리 */
+    background-color: rgba(200, 200, 200, 0.3) !important; /* 반투명 회색 배경 */
+}
+
+/* 다크 모드에서 버튼 호버 효과 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    button[data-testid="stButton"]:hover {
+        background-color: rgba(80, 80, 80, 0.5) !important; /* 다크 모드에서 반투명 어두운 회색 배경 */
+    }
+}
+
+/* 다크 모드에서 달력 스타일 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-wrapper h3 {
+        background-color: #333333 !important; /* 어두운 회색 배경 */
+        color: #ffffff !important; /* 흰색 텍스트 */
+    }
+    .calendar-day-container {
+        background-color: #2a2a2a !important; /* 어두운 회색 배경 */
+    }
+    .calendar-day-box {
+        border: 1px solid #888 !important; /* 회색 테두리 */
+        background-color: #000000 !important; /* 검은색 배경 */
+        color: #ffffff !important; /* 흰색 텍스트 */
+    }
 }
 
 /* PC 화면 스타일 (최소 너비 501px) */
@@ -173,42 +226,10 @@ button[data-testid="stButton"]:hover {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
-        margin-right: 10px !important; /* 버튼과의 간격 */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
-        background-color: #ffffff !important; /* 흰색 배경 */
-        color: #000000 !important; /* 검은색 텍스트 */
-        border-radius: 50% !important;
-        box-sizing: border-box !important;
-        user-select: none !important;
-        z-index: 1 !important;
     }
     button[data-testid="stButton"] {
-        width: 38px !important; /* .calendar-day-box와 동일한 크기 */
-        height: 38px !important;
-        position: absolute !important;
-        top: 50% !important;
-        right: 5px !important; /* 오른쪽 끝에서 5px */
-        transform: translateY(-50%) !important; /* 수직 중앙 정렬 */
-        background-color: #ffffff !important; /* 흰색 배경 */
-        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
-        border-radius: 50% !important; /* 원형 */
-        color: #000000 !important; /* 검은색 텍스트 */
-        padding: 0 !important;
-        margin: 0 !important;
-        cursor: pointer !important;
-        opacity: 1 !important;
-        z-index: 2 !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    button[data-testid="stButton"]:hover {
-        background-color: #e0e0e0 !important; /* 연한 회색 배경 */
-        border-color: #555 !important; /* 짙은 회색 테두리 */
+        width: 40px !important;
+        height: 40px !important;
     }
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
@@ -244,23 +265,10 @@ button[data-testid="stButton"]:hover {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
-        margin-right: 5px !important; /* 버튼과의 간격 */
     }
     button[data-testid="stButton"] {
-        width: 34px !important;
-        height: 34px !important;
-        background-color: #ffffff !important; /* 흰색 배경 */
-        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
-        border-radius: 50% !important;
-        color: #000000 !important; /* 검은색 텍스트 */
-        opacity: 1 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    button[data-testid="stButton"]:hover {
-        background-color: #e0e0e0 !important;
-        border-color: #555 !important;
+        width: 44px !important;
+        height: 44px !important;
     }
     div[data-testid="column"] {
         width: calc(280px / 7) !important;
@@ -274,10 +282,30 @@ button[data-testid="stButton"]:hover {
     }
 }
 
+/* 모바일 다크 모드 스타일 */
+@media (max-width: 500px) and (prefers-color-scheme: dark), (max-width: 500px) and [data-theme="dark"] {
+    .calendar-day-container {
+        background-color: #2a2a2a !important; /* 어두운 회색 배경 */
+    }
+    .calendar-day-box {
+        border: 1px solid #888 !important; /* 회색 테두리 */
+        background-color: #000000 !important; /* 검은색 배경 */
+        color: #ffffff !important; /* 흰색 텍스트 */
+    }
+}
+
 /* 공통 스타일: 날짜 박스 호버 효과 */
 .calendar-day-box:hover {
-    background-color: #e0e0e0 !important; /* 연한 회색 배경 */
+    background-color: #e0e0e0 !important; /* 라이트 모드에서 연한 회색 배경 */
     border-color: #555 !important; /* 짙은 회색 테두리 */
+}
+
+/* 다크 모드에서 날짜 박스 호버 효과 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box:hover {
+        background-color: #333333 !important; /* 어두운 회색 배경 */
+        border-color: #aaaaaa !important; /* 밝은 회색 테두리 */
+    }
 }
 
 /* 오늘 날짜 스타일 */
@@ -299,6 +327,15 @@ button[data-testid="stButton"]:hover {
     background-color: #cccccc !important; /* 연한 회색 배경 */
     color: #666 !important; /* 어두운 회색 텍스트 */
     cursor: not-allowed !important;
+}
+
+/* 다크 모드에서 비활성화된 날짜 스타일 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box.disabled-day {
+        background-color: #333333 !important; /* 어두운 회색 배경 */
+        border: 1px solid #444 !important; /* 더 어두운 회색 테두리 */
+        color: #666 !important; /* 어두운 회색 텍스트 */
+    }
 }
 
 /* 선택 표시 스타일 */
