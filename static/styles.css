@@ -178,7 +178,7 @@ div[data-testid="stToolbar"] {
         width: 100% !important; /* 너비: 100% */
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 !important; /* 여백 없음 */
-        background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
+        background-color: #ffffff !important; /* 배경: 연한 회색 */
     }
     .calendar-day-container {
         width: 50px; /* 너비: 50px */
