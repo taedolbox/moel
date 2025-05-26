@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-/* 전체 페이지 배경 및 텍스트 */
+/* 전체 페이지 배경 및 텍스트 설정 */
 body, div[data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
 
-/* Streamlit 컴포넌트 텍스트 */
+/* Streamlit 컴포넌트 텍스트 색상 */
 .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
     color: #000000 !important;
 }
 
-/* 사이드바 텍스트 */
+/* 사이드바 텍스트 색상 */
 .sidebar .sidebar-content, .sidebar .sidebar-content * {
     color: #000000 !important;
 }
 
-/* 다크 모드 */
+/* 다크 모드 전체 설정 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important;
@@ -69,7 +69,7 @@ div[data-testid="stToolbar"] {
     display: none !important;
 }
 
-/* 사이드바 토글 버튼 */
+/* 사이드바 토글 버튼 스타일 */
 button[kind="primary"] {
     background-color: #4CAF50 !important;
     color: white !important;
@@ -86,7 +86,7 @@ button[kind="primary"] {
     }
 }
 
-/* 달력 스타일 */
+/* 달력 전용 스타일 */
 .calendar-wrapper {
     display: flex;
     flex-direction: column;
@@ -105,7 +105,7 @@ button[kind="primary"] {
     width: 100%;
 }
 
-/* 달력 헤더 */
+/* 달력 헤더 스타일 */
 .day-header {
     display: flex;
     align-items: center;
@@ -115,7 +115,7 @@ button[kind="primary"] {
     font-weight: bold;
 }
 
-/* Streamlit columns 오버라이드 */
+/* Streamlit columns 스타일 오버라이드 */
 div[data-testid="column"] {
     display: flex !important;
     justify-content: center !important;
@@ -127,7 +127,7 @@ div[data-testid="column"] {
 
 .calendar-day-container {
     position: relative;
-    width: 100% !important;
+    width: auto !important; /* 100% 제거, 열 너비에 맞춤 */
     height: 44px !important;
     display: flex !important;
     align-items: center !important;
@@ -135,7 +135,7 @@ div[data-testid="column"] {
     box-sizing: border-box !important;
 }
 
-/* 숫자 원 */
+/* 숫자 원 스타일 */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -155,10 +155,10 @@ div[data-testid="column"] {
     z-index: 1 !important;
 }
 
-/* Streamlit 버튼 */
+/* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 40px !important;
-    height: 44px !important;
+    width: 36px !important; /* 숫자 원과 유사 */
+    height: 44px !important; /* 클릭 영역 확보 */
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -183,7 +183,7 @@ button[data-testid="stButton"]:hover {
     }
 }
 
-/* 다크 모드 */
+/* 다크 모드 - PC 및 모바일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-wrapper h3 {
         background-color: #333333 !important;
@@ -214,13 +214,13 @@ button[data-testid="stButton"]:hover {
         font-size: 1em !important;
     }
     button[data-testid="stButton"] {
-        width: 44px !important;
+        width: 40px !important;
         height: 48px !important;
     }
     div[data-testid="column"] {
-        width: calc(100% / 7) !important;
-        max-width: calc(100% / 7) !important;
-        flex: 1 1 calc(100% / 7) !important;
+        width: calc(600px / 7) !important;
+        max-width: calc(600px / 7) !important;
+        flex: 0 0 calc(600px / 7) !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -233,6 +233,8 @@ button[data-testid="stButton"]:hover {
         min-width: 280px !important;
         max-width: 280px !important;
         margin: 0 auto !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
@@ -245,7 +247,7 @@ button[data-testid="stButton"]:hover {
         font-size: 0.9em !important;
     }
     button[data-testid="stButton"] {
-        width: 40px !important;
+        width: 36px !important;
         height: 44px !important;
     }
     div[data-testid="column"] {
