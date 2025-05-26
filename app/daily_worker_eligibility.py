@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, date
 import calendar
 import os
 
-# 달력의 시작 요일을 일요일로 설정
-calendar.setfirstweekday(calendar.SUNDAY)
+# 달력의 시작 요일을 월요일로 설정 (기존 SUNDAY에서 변경)
+calendar.setfirstweekday(calendar.MONDAY)
 
 # 현재 날짜 및 시간 설정 (2025년 5월 26일 오후 3:36 KST)
 current_datetime = datetime(2025, 5, 26, 15, 36)
@@ -47,78 +47,71 @@ def render_calendar_interactive(apply_date):
         for year, month in months_to_display:
             # 월 헤더 (현재 월 이름은 표시하지 않음)
             
-            # 요일 헤더를 위한 HTML 그리드 생성
-            st.markdown('<div class="weekday-header-row">', unsafe_allow_html=True)
-            for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
-                color = "red" if i == 0 or i == 6 else "#000000"
-                # day-header 클래스는 CSS에서 정의됨
-                st.markdown(f'<div class="day-header" style="color: {color};">{day_name}</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True) # weekday-header-row 닫기
+            # 요일 헤더 (월, 화, 수, 목, 금, 토, 일) - st.columns 사용
+            cols = st.columns(7, gap="small")
+            # 요일 이름 순서 변경: 월요일부터 시작
+            day_names = ["월", "화", "수", "목", "금", "토", "일"]
+            for i, day_name in enumerate(day_names):
+                with cols[i]:
+                    # 주말(토, 일)만 빨간색으로 표시 (월요일 시작이므로 토요일은 인덱스 5, 일요일은 인덱스 6)
+                    color = "red" if i == 5 or i == 6 else "#000000" 
+                    st.markdown(
+                        f'<div class="day-header" style="color: {color};">{day_name}</div>',
+                        unsafe_allow_html=True
+                    )
 
-            # 날짜 그리드 시작 (HTML 그리드)
-            st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
+            # 달력 날짜 렌더링 - st.columns 사용
             cal = calendar.monthcalendar(year, month)
-
             for week in cal:
-                for day in week:
-                    # 각 날짜를 그리드 셀에 직접 배치
-                    # st.columns를 사용하지 않고 HTML 구조를 직접 만듭니다.
-                    st.markdown('<div class="calendar-day-cell">', unsafe_allow_html=True) # 그리드 셀 시작
+                cols = st.columns(7, gap="small") # 각 주마다 7개의 컬럼 생성
+                for i, day in enumerate(week):
+                    with cols[i]:
+                        if day == 0:
+                            # 해당 월에 속하지 않는 날짜는 빈 공간으로 처리
+                            st.markdown('<div class="calendar-day-box" style="background-color: transparent; border: none;"></div>', unsafe_allow_html=True)
+                            continue
 
-                    if day == 0:
-                        # 해당 월에 속하지 않는 날짜는 빈 공간으로 처리
-                        st.markdown('</div>', unsafe_allow_html=True) # 빈 셀을 위한 calendar-day-cell 닫기
-                        continue
+                        date_obj = date(year, month, day)
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        is_disabled = date_obj > apply_date # 신청일 이후의 날짜는 비활성화
 
-                    date_obj = date(year, month, day)
-                    is_selected = date_obj in selected_dates
-                    is_current = date_obj == current_date
-                    is_disabled = date_obj > apply_date # 신청일 이후의 날짜는 비활성화
+                        button_key = f"day_button_{year}_{month}_{day}"
 
-                    button_key = f"day_button_{year}_{month}_{day}"
+                        if is_disabled:
+                            # 비활성화된 날짜는 클릭 불가능하게 텍스트로 렌더링
+                            st.markdown(
+                                f'<div class="calendar-day-box disabled-day">{day}</div>',
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            # 활성화된 날짜는 클릭 가능한 버튼으로 렌더링
+                            if st.button(str(day), key=button_key, use_container_width=True):
+                                if date_obj in selected_dates:
+                                    selected_dates.remove(date_obj)
+                                else:
+                                    selected_dates.add(date_obj)
+                                st.session_state.selected_dates = selected_dates
+                                st.rerun()
 
-                    if is_disabled:
-                        # 비활성화된 날짜는 클릭 불가능하게 텍스트로 렌더링
-                        st.markdown(
-                            f'<div class="calendar-day-box disabled-day">{day}</div>',
-                            unsafe_allow_html=True
-                        )
-                    else:
-                        # 활성화된 날짜는 클릭 가능한 버튼으로 렌더링
-                        # Streamlit의 버튼은 자체적으로 div[data-testid="column"]에 래핑되므로,
-                        # 버튼의 스타일은 CSS에서 해당 selector를 사용해 제어합니다.
-                        if st.button(str(day), key=button_key, use_container_width=True):
-                            if date_obj in selected_dates:
-                                selected_dates.remove(date_obj)
-                            else:
-                                selected_dates.add(date_obj)
-                            st.session_state.selected_dates = selected_dates
-                            st.rerun()
-
-                        # 동적으로 CSS 클래스 추가 (버튼에 직접 적용)
-                        button_classes_to_add = []
-                        if is_selected:
-                            button_classes_to_add.append("selected-day")
-                        if is_current and not is_selected:
-                            button_classes_to_add.append("current-day")
-                        
-                        # 생성된 Streamlit 버튼에 CSS 클래스를 적용하기 위해 <style> 태그를 주입합니다.
-                        # 이는 Streamlit 버튼이 고유한 key를 가지므로, 이 key를 이용해 특정 버튼을 타겟팅합니다.
-                        st.markdown(
-                            f"""
-                            <style>
-                                /* 이 스타일은 특정 버튼에만 적용됩니다 */
-                                div[data-testid="column"] > button[key="{button_key}"] {{
-                                    {" ".join(button_classes_to_add)} /* CSS 클래스 적용 */
-                                }}
-                            </style>
-                            """,
-                            unsafe_allow_html=True
-                        )
-                    
-                    st.markdown('</div>', unsafe_allow_html=True) # calendar-day-cell 닫기 (각 날짜 셀의 끝)
-
-            st.markdown('</div>', unsafe_allow_html=True) # calendar-grid 닫기
+                            # 동적으로 CSS 클래스 추가 (버튼에 직접 적용)
+                            button_classes_to_add = []
+                            if is_selected:
+                                button_classes_to_add.append("selected-day")
+                            if is_current and not is_selected:
+                                button_classes_to_add.append("current-day")
+                            
+                            # 생성된 Streamlit 버튼에 CSS 클래스를 적용하기 위해 <style> 태그를 주입합니다.
+                            st.markdown(
+                                f"""
+                                <style>
+                                    div[data-testid="column"] > button[key="{button_key}"] {{
+                                        {" ".join(button_classes_to_add)}
+                                    }}
+                                </style>
+                                """,
+                                unsafe_allow_html=True
+                            )
 
         st.markdown('</div>', unsafe_allow_html=True) # calendar-wrapper 닫기
 
