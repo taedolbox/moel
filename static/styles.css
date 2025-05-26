@@ -88,12 +88,12 @@ button[kind="primary"] {
 
 /* 달력 전용 스타일 */
 .calendar-wrapper {
-    display: flex;
-    flex-direction: column;
+    display: block; /* 중앙 정렬을 위해 block으로 설정 */
+    flex-direction: column; /* flex-direction은 display: flex일 때만 유효 */
     align-items: center;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 !important;
+    width: 100%; /* 너비 100%로 설정하고 max-width로 제어 */
+    max-width: 600px; /* PC 기본 max-width */
+    margin: 0 auto; /* 중앙 정렬 */
 }
 
 .calendar-wrapper h3 {
@@ -101,7 +101,7 @@ button[kind="primary"] {
     color: #000000 !important;
     text-align: center;
     padding: 8px 0;
-    margin: 0 0 15px 0 !important;
+    margin-bottom: 15px;
     font-size: 1.5em;
     width: 100%;
 }
@@ -112,8 +112,9 @@ button[kind="primary"] {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     justify-content: space-between !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    width: 100%; /* 부모에 맞게 100% */
+    max-width: 600px; /* PC 기본 max-width */
+    margin: 0 auto; /* 중앙 정렬 */
 }
 
 /* 달력 헤더 스타일 */
@@ -125,8 +126,9 @@ button[kind="primary"] {
     font-size: 1em;
     font-weight: bold;
     text-align: center;
-    margin: 0 !important;
-    padding: 0 !important;
+    flex-grow: 1; /* 요일별로 균등한 너비 */
+    flex-basis: 0; /* flex-grow와 함께 사용 시 균등 분배 */
+    width: calc(100% / 7); /* 7등분 */
 }
 
 /* 달력 그리드 */
@@ -134,24 +136,14 @@ button[kind="primary"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
     gap: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
+    width: 100%; /* 부모에 맞게 100% */
+    max-width: 600px; /* PC 기본 max-width */
+    margin: 0 auto; /* 중앙 정렬 */
 }
 
-/* 버튼 그리드 */
-.button-grid {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    pointer-events: none !important; /* 버튼 클릭 방해 방지 */
-}
-
-/* Streamlit columns 스타일 제거 (사용 안 함) */
+/* Streamlit columns 스타일 제거 (사용 안 함) - 이 부분은 Python에서 st.columns를 사용하지 않으므로 불필요하지만 혹시 모를 충돌을 위해 유지*/
 div[data-testid="column"] {
-    display: none !important; /* st.columns 사용 안 함 */
+    /* display: none !important; */ /* st.columns 사용 안 함, 그러나 이 스타일은 다른 st.columns에 영향을 줄 수 있으므로 제거하거나 신중하게 사용 */
 }
 
 .calendar-day-container {
@@ -161,8 +153,7 @@ div[data-testid="column"] {
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    width: 100%; /* 그리드 아이템이 차지하는 너비 */
 }
 
 /* 숫자 원 스타일 */
@@ -180,44 +171,17 @@ div[data-testid="column"] {
     box-sizing: border-box !important;
     user-select: none !important;
     white-space: nowrap !important;
-    margin: 0 !important;
+    margin: 0 auto !important; /* 내부에서 중앙 정렬 */
     padding: 0 !important;
+    cursor: pointer !important; /* 클릭 가능하도록 커서 변경 */
     z-index: 1 !important;
 }
 
-/* Streamlit 버튼 스타일 */
+/* Streamlit 버튼 스타일 제거 - 이제 JavaScript로 클릭 이벤트를 처리하므로 Streamlit 버튼은 사용하지 않습니다. */
 button[data-testid="stButton"] {
-    width: 36px !important;
-    height: 44px !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: transparent !important;
-    border: 1px dotted #999 !important; /* 디버깅용 */
-    padding: 0 !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    opacity: 0.6 !important;
-    z-index: 2 !important;
-    box-sizing: border-box !important;
-    pointer-events: auto !important;
+    display: none !important; /* Streamlit 버튼을 완전히 숨김 */
 }
 
-button[data-testid="stButton"]:hover {
-    background-color: rgba(200, 200, 200, 0.3) !important;
-}
-
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
-    button[data-testid="stButton"]:hover {
-        background-color: rgba(80, 80, 80, 0.5) !important;
-    }
-}
-
-/* 버튼 래퍼 */
-.button-wrapper {
-    pointer-events: auto !important;
-}
 
 /* 다크 모드 스타일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
@@ -248,7 +212,7 @@ button[data-testid="stButton"]:hover {
         width: 600px !important;
     }
     .calendar-day-container {
-        width: calc(600px / 7) !important;
+        width: calc(600px / 7) !important; /* 각 날짜 컨테이너의 너비 재계산 */
         height: 48px !important;
     }
     .calendar-day-box {
@@ -256,10 +220,7 @@ button[data-testid="stButton"]:hover {
         height: 38px !important;
         font-size: 1em !important;
     }
-    button[data-testid="stButton"] {
-        width: 40px !important;
-        height: 48px !important;
-    }
+    /* button[data-testid="stButton"] 스타일은 더 이상 사용하지 않음 */
     .day-header {
         width: calc(600px / 7) !important;
     }
@@ -271,18 +232,20 @@ button[data-testid="stButton"]:hover {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
-        margin: 0 auto !important;
+        margin: 0 auto !important; /* 중앙 정렬 */
     }
     .header-wrapper {
         width: 280px !important;
+        margin: 0 auto !important; /* 중앙 정렬 */
         display: flex !important;
         flex-wrap: nowrap !important;
     }
     .calendar-grid {
         width: 280px !important;
+        margin: 0 auto !important; /* 중앙 정렬 */
     }
     .calendar-day-container {
-        width: calc(280px / 7) !important;
+        width: calc(280px / 7) !important; /* 각 날짜 컨테이너의 너비 재계산 */
         height: 44px !important;
         background-color: #f0f0f0 !important;
     }
@@ -291,10 +254,7 @@ button[data-testid="stButton"]:hover {
         height: 34px !important;
         font-size: 0.9em !important;
     }
-    button[data-testid="stButton"] {
-        width: 36px !important;
-        height: 44px !important;
-    }
+    /* button[data-testid="stButton"] 스타일은 더 이상 사용하지 않음 */
     .day-header {
         width: calc(280px / 7) !important;
     }
