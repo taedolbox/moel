@@ -109,7 +109,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    # selected_dates = render_calendar_interactive(apply_date)
+    selected_dates = render_calendar_interactive(apply_date)
     st.markdown("---")
 
     # 조건 1 계산 및 표시
