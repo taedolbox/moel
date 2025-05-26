@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 7:09 KST)
-current_datetime = datetime(2025, 5, 26, 19, 9)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 7:13 KST)
+current_datetime = datetime(2025, 5, 26, 19, 13)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -41,34 +41,27 @@ def render_calendar_interactive(apply_date):
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더
-            st.markdown(
-                '<div class="calendar-header">'
-                '<div class="day-header" style="color: red;">일</div>'
-                '<div class="day-header">월</div>'
-                '<div class="day-header">화</div>'
-                '<div class="day-header">수</div>'
-                '<div class="day-header">목</div>'
-                '<div class="day-header">금</div>'
-                '<div class="day-header" style="color: red;">토</div>'
-                '</div>',
-                unsafe_allow_html=True
-            )
+            header_html = '<div class="calendar-header">'
+            for i, day_name in enumerate(days_of_week_korean):
+                color = "red" if i == 0 or i == 6 else "#000000"
+                header_html += f'<div class="day-header" style="color: {color};">{day_name}</div>'
+            header_html += '</div>'
+            st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 본체 (CSS 그리드에 의존)
-            st.markdown('<div class="calendar-container">', unsafe_allow_html=True)
+            # 달력 본체
+            calendar_html = '<div class="calendar-container">'
             for week in cal:
                 for day in week:
                     if day == 0:
-                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                        calendar_html += '<div class="calendar-day-container"></div>'
                         continue
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
-                        st.markdown(
+                        calendar_html += (
                             f'<div class="calendar-day-container">'
                             f'<div class="calendar-day-box disabled-day">{day}</div>'
                             f'<button data-testid="stButton" style="display: none;"></button>'
-                            f'</div>',
-                            unsafe_allow_html=True
+                            f'</div>'
                         )
                         continue
 
@@ -81,17 +74,17 @@ def render_calendar_interactive(apply_date):
                         class_name += " current-day"
 
                     container_key = f"date_{date_obj.isoformat()}"
-                    st.markdown(
+                    calendar_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
                         f'<div class="{class_name}">{day}</div>'
                         f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
-                        f'</div>',
-                        unsafe_allow_html=True
+                        f'</div>'
                     )
-                    if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
-                        pass
-            st.markdown('</div>', unsafe_allow_html=True)
+                    # 버튼은 별도로 렌더링
+                    st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True)
+            calendar_html += '</div>'
+            st.markdown(calendar_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.rerun_trigger:
@@ -121,7 +114,11 @@ def daily_worker_eligibility_app():
     # 모바일 감지: JavaScript로 화면 너비 확인
     screen_width_script = """
     <script>
-        window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
+        function updateScreenWidth() {
+            window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
+        }
+        window.addEventListener('resize', updateScreenWidth);
+        updateScreenWidth();
     </script>
     """
     html(screen_width_script)
@@ -301,7 +298,7 @@ if __name__ == "__main__":
         if 'screen_width_event' in st.session_state:
             st.session_state.screen_width = st.session_state.screen_width_event
 
-    st.session_state.screen_width_event = st_javascript("window.innerWidth")
+    st.session_state.screen_width_event = st.experimental_get_query_params().get("screen_width", [1000])[0]
     update_screen_width()
 
     daily_worker_eligibility_app()
