@@ -2,19 +2,28 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
-import os
+import os # <-- Add this line
 
-# Set the first day of the week to Sunday
+# 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# Current date and time (2025년 5월 26일 오후 3:36 KST) - this is for demonstration
+# 현재 날짜와 시간 (2025년 5월 26일 오후 3:36 KST) - this is for demonstration
 current_datetime = datetime(2025, 5, 26, 15, 36)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # --- Load the external CSS file ---
 def load_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    # Construct the absolute path to the CSS file
+    # This assumes styles.css is in the same directory as the script calling this function
+    css_path = os.path.join(os.path.dirname(__file__), file_name)
+    try:
+        with open(css_path) as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.error(f"CSS file not found: {css_path}. Please ensure 'styles.css' is in the correct directory.")
+        # Optionally, you can log the error for debugging
+        # import logging
+        # logging.error(f"CSS file not found: {css_path}")
 
 # Load your styles.css
 load_css('styles.css')
