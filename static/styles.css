@@ -173,7 +173,7 @@ button[data-testid="stButton"]:hover {
         height: 38px !important;
     }
     div[data-testid="column"] {
-        width: calc(600px / 7) !important;
+        width: calc(800px / 7) !important;
         max-width: calc(600px / 7) !important;
         min-width: calc(600px / 7) !important;
         margin: 0 !important;
