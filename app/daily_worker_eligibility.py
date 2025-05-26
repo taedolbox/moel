@@ -34,7 +34,8 @@ def render_calendar_interactive(apply_date):
     # 달력 전용 컨테이너
     with st.container():
         # 달력을 가운데 정렬하되, 최소 너비를 보장
-        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
+        # 모바일과 PC 구분을 위해 클래스 추가
+        st.markdown('<div class="calendar-wrapper mobile-calendar">', unsafe_allow_html=True)
         # 각 월별 달력 렌더링
         for year, month in months_to_display:
             st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
@@ -53,55 +54,64 @@ def render_calendar_interactive(apply_date):
             # 달력 시작 요일과 날짜 수 계산
             first_day = date(year, month, 1)
             days_in_month = (datetime(year, month+1, 1) - timedelta(days=1)).day if month < 12 else 31
-            start_weekday = first_day.weekday()  # 0: 일요일, 6: 토요일 (calendar.SUNDAY 설정 반영)
+            start_weekday = first_day.weekday()  # 0: 일요일, 6: 토요일
 
-            # 7줄(7주)로 고정
-            for week in range(7):
+            # 모바일에서는 7줄 고정, PC에서는 calendar.monthcalendar 사용
+            cal = calendar.monthcalendar(year, month)
+            rows = 7 if 'mobile' in st.get_option('theme.base', '').lower() else len(cal)
+            for week in range(rows):
                 cols = st.columns(7, gap="small")
                 for day in range(7):
                     with cols[day]:
-                        day_idx = week * 7 + day
-                        day_num = day_idx - start_weekday + 1
-                        if 1 <= day_num <= days_in_month:
-                            # 유효한 날짜
-                            date_obj = date(year, month, day_num)
-                            if date_obj > apply_date:
+                        if week < len(cal) and rows == len(cal):
+                            # PC: 원본 동적 행 수
+                            day_num = cal[week][day]
+                            if day_num == 0:
+                                st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                                continue
+                        else:
+                            # 모바일: 7줄 고정
+                            day_idx = week * 7 + day
+                            day_num = day_idx - start_weekday + 1
+                            if not (1 <= day_num <= days_in_month):
                                 st.markdown(
                                     f'<div class="calendar-day-container">'
-                                    f'<div class="calendar-day-box disabled-day">{day_num}</div>'
-                                    f'<button data-testid="stButton" style="display: none;"></button>'
+                                    f'<div class="calendar-day-box disabled-day"></div>'
                                     f'</div>',
                                     unsafe_allow_html=True
                                 )
                                 continue
 
-                            is_selected = date_obj in selected_dates
-                            is_current = date_obj == current_date
-                            class_name = "calendar-day-box"
-                            if is_selected:
-                                class_name += " selected-day"
-                            if is_current:
-                                class_name += " current-day"
+                        date_obj = date(year, month, day_num)
+                        if date_obj > apply_date:
+                            st.markdown(
+                                f'<div class="calendar-day-container">'
+                                f'<div class="calendar-day-box disabled-day">{day_num}</div>'
+                                f'<button data-testid="stButton" style="display: none;"></button>'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                            continue
 
-                            container_key = f"date_{date_obj.isoformat()}"
-                            st.markdown(
-                                f'<div class="calendar-day-container">'
-                                f'<div class="selection-mark"></div>'
-                                f'<div class="{class_name}">{day_num}</div>'
-                                f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-                            if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
-                                pass
-                        else:
-                            # 비활성화된 날짜 (월의 첫 날 이전 또는 마지막 날 이후)
-                            st.markdown(
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day"></div>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        class_name = "calendar-day-box"
+                        if is_selected:
+                            class_name += " selected-day"
+                        if is_current:
+                            class_name += " current-day"
+
+                        container_key = f"date_{date_obj.isoformat()}"
+                        st.markdown(
+                            f'<div class="calendar-day-container">'
+                            f'<div class="selection-mark"></div>'
+                            f'<div class="{class_name}">{day_num}</div>'
+                            f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
+                            pass
         st.markdown('</div>', unsafe_allow_html=True)
 
     # rerun_trigger 확인 및 페이지 새로고침
