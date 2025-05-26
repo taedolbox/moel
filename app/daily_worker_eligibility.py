@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜 및 시간 (2025년 5월 27일 오전 2시 15분 KST)
-current_datetime = datetime(2025, 5, 27, 2, 15)
+# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:19 KST)
+current_datetime = datetime(2025, 5, 26, 20, 19)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -38,20 +38,20 @@ def render_calendar_interactive(apply_date):
 
     # 달력 컨테이너
     with st.container():
-        st.markdown('<div class="calendar-wrapper">', unsafe_html=True)
+        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
         for year, month in months_to_display:
-            st.markdown(f'<h3>{year}년 {month}월</h3>', unsafe_html=True)
+            st.markdown(f'<h3>{year}년 {month}월</h3>', unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
             days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더
-            cols = st.columns(7, gap="small")  # gap="zero" 대신 "small"
+            cols = st.columns(7, gap="small")
             for i, day_name in enumerate(days_of_week):
                 with cols[i]:
                     color = "red" if i == 0 else "#000000"
                     st.markdown(
                         f'<div class="day-header" style="color: {color};">{day_name}</div>',
-                        unsafe_html=True
+                        unsafe_allow_html=True
                     )
 
             # 달력 본체
@@ -60,7 +60,7 @@ def render_calendar_interactive(apply_date):
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
-                            st.markdown('<div class="calendar-day-container"></div>', unsafe_html=True)
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
                             continue
                         date_obj = date(year, month, day)
                         if date_obj > apply_date:
@@ -68,7 +68,7 @@ def render_calendar_interactive(apply_date):
                                 f'<div class="calendar-day-container">'
                                 f'<div class="calendar-day-box disabled-day">{day}</div>'
                                 '</div>',
-                                unsafe_html=True
+                                unsafe_allow_html=True
                             )
                             continue
 
@@ -85,12 +85,12 @@ def render_calendar_interactive(apply_date):
                             f'<div class="selection-mark"></div>'
                             f'<div class="{class_name}">{day}</div>'
                             '</div>',
-                            unsafe_html=True
+                            unsafe_allow_html=True
                         )
                         # 선택 버튼
                         st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,), use_container_width=True)
 
-            st.markdown('</div>', unsafe_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.rerun_trigger:
         st.session_state.rerun_trigger = False
@@ -147,7 +147,7 @@ def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
     # 현재 날짜와 시간 표시
-    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_html=True)
+    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
     # 요건 조건 설명
     st.markdown("### 📋 요건 조건")
@@ -180,7 +180,7 @@ def daily_worker_eligibility_app():
         f'<div class="result-text">'
         f'<p>{"✅ 조건 1 충족: 근무일 수가 기준 미만입니다." if condition1 else "❌ 조건 1 불충족: 근무일 수가 기준 이상입니다."}</p>'
         f'</div>',
-        unsafe_html=True
+        unsafe_allow_html=True
     )
 
     # 조건 2 계산 및 표시 (건설일용근로자 기준)
@@ -192,16 +192,16 @@ def daily_worker_eligibility_app():
 
     st.markdown(
         f'<div class="result-text">'
-        f'<p>{"✅ 조건 2 충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 근무내역이 없습니다." if no_work_14_days else "❌ 조건 2 불충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 내 근무기록이 존재합니다."}</p>'
+        f'<p>{"✅ 조건 2 충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 근무내역이 없습니다." if no_work_14_days else "❌ 조건 2 불충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 내 근무림이 있습니다."}</p>'
         f'</div>',
-        unsafe_html=True
+        unsafe_allow_html=True
     )
 
     st.markdown("---")
 
-    # 조건 1 불충족 시 미래 신청일 제안
+    # 조건 1 불충족 시 미래 계산
     if not condition1:
-        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
+        st.markdown("### 📅 조건 1을 위해 언제 신청해야 하나?")
         found_suggestion = False
         for i in range(1, 31):
             future_date = apply_date + timedelta(days=i)
@@ -213,38 +213,38 @@ def daily_worker_eligibility_app():
             if worked_days_future < threshold_future:
                 st.markdown(
                     f'<div class="result-text">'
-                    f'<p>✅ <b>{future_date.strftime("%Y-%m-%d")}</b> 이후에 신청하면 요건을 충족할 수 있습니다.</p>'
-                    f'</div>',
-                    unsafe_html=True
+                    f'<p>✅ <b>{future_date.strftime("%Y-%m-%d")}</b> 이후에 신청하면 조건 1 충족 가능.</p>'
+                    '</div>',
+                    unsafe_allow_html=True
                 )
                 found_suggestion = True
                 break
         if not found_suggestion:
             st.markdown(
                 f'<div class="result-text">'
-                f'<p>❗ 앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.</p>'
-                f'</div>',
-                unsafe_html=True
+                f'<p>❗ 30일 이내에는 조건 1 충족 불가. 근무일 수 조정 필요.</p>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
-    # 조건 2 불충족 시 미래 신청일 제안 (건설일용근로자 기준)
+    # 조건 2 불충족 시 (건설일용)
     if not condition2:
-        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
+        st.markdown("### 📅 조건 2를 위해 언제 신청해야 하나?")
         last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
         if last_worked_day:
             suggested_date = last_worked_day + timedelta(days=15)
             st.markdown(
                 f'<div class="result-text">'
-                f'<p>✅ <b>{suggested_date.strftime("%Y-%m-%d")}</b> 이후에 신청하면 조건 2를 충족할 수 있습니다.</p>'
-                f'</div>',
-                unsafe_html=True
+                f'<p>✅ <b>{suggested_date.strftime("%Y-%m-%d")}</b> 이후에 조건 2 충족 가능.</p>'
+                '</div>',
+                unsafe_allow_html=True
             )
         else:
             st.markdown(
                 f'<div class="result-text">'
-                f'<p>이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
-                f'</div>',
-                unsafe_html=True
+                f'<p>최근 14일 근무 없음 → 신청일 조정 불필요.</p>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
     st.subheader("📌 최종 판단")
@@ -252,38 +252,38 @@ def daily_worker_eligibility_app():
         st.markdown(
             f'<div class="result-text">'
             f'<p>✅ 일반일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만</b></p>'
-            f'</div>',
-            unsafe_html=True
+            f'<b>{start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")} 근무일 수가 1/3 미만</b>.</p>'
+            '</div>',
+            unsafe_allow_html=True
         )
     else:
         st.markdown(
             f'<div class="result-text">'
             f'<p>❌ 일반일용근로자: 신청 불가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b></p>'
-            f'</div>',
-            unsafe_html=True
+            f'<b>{start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")} 근무일 수가 1/3 이상</b>.</p>'
+            '</div>',
+            unsafe_allow_html=True
         )
 
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
             f'<p>✅ 건설일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime("%Y-%m-%d")} ~ {fourteen_days_prior_end.strftime("%Y-%m-%d")}) 근무 사실이 없음을 확인합니다.</b></p>'
-            f'</div>',
-            unsafe_html=True
+            f'<b>{start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")} 근무일 1/3 미만, {fourteen_days_prior_start.strftime("%Y-%m-%d")} ~ {fourteen_days_prior_end.strftime("%Y-%m-%d")} 근무 없음.</b></p>'
+            '</div>',
+            unsafe_allow_html=True
         )
     else:
         error_message = "❌ 건설일용근로자: 신청 불가능<br>"
         if not condition1:
-            error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
+            error_message += f"<b>{start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')} 근무일 수가 1/3 이상.</b><br>"
         if not condition2:
-            error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
+            error_message += f"<b>{fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')} 근무 있음.</b>"
         st.markdown(
             f'<div class="result-text">'
             f'<p>{error_message}</p>'
-            f'</div>',
-            unsafe_html=True
+            '</div>',
+            unsafe_allow_html=True
         )
 
 if __name__ == "__main__":
