@@ -8,7 +8,7 @@
     max-width: 300px;
     margin: 0 auto;
 }
-.calendar-wrapper h3 {
+.calendar-wrapper h3 { /* This rule is now effectively unused since the h3 is removed from Python */
     background-color: #f0f0f0;
     color: #000000;
     text-align: center;
@@ -17,6 +17,7 @@
     font-size: 1.5em;
     width: 100%;
 }
+/* Note: .calendar-container and .calendar-day-container/box styles are largely overridden by st.button styling for clickability */
 .calendar-container {
     display: grid !important;
     grid-template-columns: repeat(7, 40px) !important;
@@ -38,7 +39,7 @@
     box-sizing: border-box;
     background-color: #ffffff !important;
 }
-.calendar-day-box {
+.calendar-day-box { /* This style is now applied to the button via direct CSS injection */
     width: 30px;
     height: 30px;
     display: flex;
@@ -73,17 +74,20 @@
     div[data-testid="column"] {
         display: flex !important;
         flex-direction: row !important;
-        width: 280px !important;
+        /* Adjust width as necessary for 7 columns to fit */
+        /* This width might need fine-tuning based on actual rendering and padding */
+        width: calc(30px * 7 + 2px * 6 + 10px) !important; /* Example: 30px day + 2px gap + some padding */
         margin: 0 auto !important;
         flex-wrap: nowrap !important;
+        justify-content: center; /* Center the columns within their container */
     }
 }
-.calendar-day-box.selected-day {
+.calendar-day-box.selected-day { /* This style is now applied to the button via direct CSS injection */
     background-color: #4CAF50 !important;
     color: #ffffff !important;
     border: 2px solid #4CAF50 !important;
 }
-.calendar-day-box.current-day:not(.selected-day) {
+.calendar-day-box.current-day:not(.selected-day) { /* This style is now applied to the button via direct CSS injection */
     border: 2px solid blue !important;
 }
 .calendar-day-box.disabled-day {
@@ -92,7 +96,7 @@
     color: #666 !important;
     cursor: not-allowed;
 }
-.selection-mark {
+.selection-mark { /* This class is visually managed by the button's background/border now */
     position: absolute;
     top: 2px;
     width: 12px;
@@ -104,4 +108,18 @@
 }
 .selected-day .selection-mark {
     display: block;
+}
+
+/* Additional styles to make Streamlit buttons behave like your calendar boxes */
+div[data-testid="column"] > button {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important; /* Ensure min-width for mobile */
+    min-height: 30px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
 }
