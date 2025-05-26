@@ -8,8 +8,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오전 6:38 KST)
-current_datetime = datetime(2025, 5, 26, 6, 38)
+# 현재 날짜와 시간 (2025년 5월 26일 오전 6:34 KST)
+current_datetime = datetime(2025, 5, 26, 6, 34)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -179,4 +179,39 @@ def daily_worker_eligibility_app():
             worked_days_future = sum(1 for d in selected_dates if d <= future_date)
 
             if worked_days_future < threshold_future:
-                st.info(f"✅ **{future_date.strftime('%Y-%m-%d
+                st.info(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후에 신청하면 요건을 충족할 수 있습니다.")
+                found_suggestion = True
+                break
+        if not found_suggestion:
+            st.warning("❗앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.")
+
+    # 조건 2 불충족 시 미래 신청일 제안 (건설일용근로자 기준)
+    if not condition2:
+        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
+        last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
+        if last_worked_day:
+            suggested_date = last_worked_day + timedelta(days=15)
+            st.info(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후에 신청하면 조건 2를 충족할 수 있습니다.")
+        else:
+            st.info("이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.")
+
+    st.subheader("📌 최종 판단")
+    # 일반일용근로자: 조건 1만 판단
+    if condition1:
+        st.success(f"✅ 일반일용근로자: 신청 가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만**")
+    else:
+        st.error(f"❌ 일반일용근로자: 신청 불가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.**")
+
+    # 건설일용근로자: 조건 1과 조건 2 모두 판단
+    if condition1 and condition2:
+        st.success(f"✅ 건설일용근로자: 신청 가능\n\n**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무 사실이 없음을 확인합니다.**")
+    else:
+        error_message = "❌ 건설일용근로자: 신청 불가능\n\n"
+        if not condition1:
+            error_message += f"**수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.**\n\n"
+        if not condition2:
+            error_message += f"**신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.**"
+        st.error(error_message)
+
+if __name__ == "__main__":
+    daily_worker_eligibility_app()
