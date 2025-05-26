@@ -3,8 +3,6 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
-from streamlit.components.v1 import html
-import json # json 모듈 추가
 
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
