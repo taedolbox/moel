@@ -159,7 +159,7 @@ div[data-testid="stToolbar"] {
     }
 }
 
-/* 라이트 모드 - 모바일: 화면 너비 500px 이하 */
+/* 라이트 모드 - 모바일: 화면 너비 400px 이하 */
 @media (max-width: 500px) and (prefers-color-scheme: light), (max-width: 500px) and [data-theme="light"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #ffffff !important; /* 배경: 흰색 */
@@ -178,7 +178,7 @@ div[data-testid="stToolbar"] {
         width: 100% !important; /* 너비: 100% */
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 !important; /* 여백 없음 */
-        background-color: #ffffff !important; /* 배경: 연한 회색 */
+        background-color: #2a2a2a !important; /* 배경: 연한 회색 */
     }
     .calendar-day-container {
         width: 50px; /* 너비: 50px */
