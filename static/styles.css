@@ -137,7 +137,7 @@ div[data-testid="stToolbar"] {
     background-color: #ffffff !important; /* 배경: 흰색 */
 }
 
-/* 달력 날짜 박스: 개별 날짜의 스타일, 클릭 가능 요소 */
+/* 달력 날짜 박스: 개별 날짜의 스타일 */
 .calendar-day-box {
     width: 40px; /* 너비: 40px */
     height: 40px; /* 높이: 40px */
@@ -379,4 +379,9 @@ div[data-testid="stToolbar"] {
 /* 선택된 날짜에 선택 마크 표시 */
 .selected-day .selection-mark {
     display: block; /* 표시 */
+}
+
+/* Streamlit 폼 제출 버튼 숨김 */
+button[data-testid="stFormSubmitButton"] {
+    display: none; /* 폼 제출 버튼 숨김 */
 }
