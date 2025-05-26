@@ -7,9 +7,12 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:24 KST)
-current_datetime = datetime(2025, 5, 26, 20, 24)
+# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:28 KST)
+current_datetime = datetime(2025, 5, 26, 20, 28)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
+
+# CSS 로드
+st.markdown('<link rel="stylesheet" href="/static/styles.css">', unsafe_allow_html=True)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지."""
@@ -87,7 +90,7 @@ def render_calendar_interactive(apply_date):
                             '</div>',
                             unsafe_allow_html=True
                         )
-                        # 선택 버튼 (use_container_width 제거)
+                        # 선택 버튼
                         st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,))
 
             st.markdown('</div>', unsafe_allow_html=True)
