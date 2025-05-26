@@ -98,6 +98,7 @@ div[data-testid="stToolbar"] {
     min-width: 280px !important; /* 최소 너비: 280px */
     max-width: 280px !important; /* 최대 너비: 280px */
     background-color: #ffffff !important; /* 배경: 흰색 */
+    overflow: hidden; /* 넘치는 콘텐츠 숨김 */
 }
 
 /* 요일 표시 스타일: 일, 월, 화, 수, 목, 금, 토 */
@@ -126,7 +127,7 @@ div[data-testid="stToolbar"] {
 
 /* 달력 날짜 컨테이너: 각 날짜 셀의 부모 컨테이너 */
 .calendar-day-container {
-    position: relative; /* 버튼 및 선택 마크의 절대 위치를 위해 상대 위치 설정 */
+    position: relative; /* 선택 마크의 절대 위치를 위해 상대 위치 설정 */
     width: 40px; /* 너비: 40px */
     height: 40px; /* 높이: 40px */
     display: flex; /* 플렉스 박스 사용 */
@@ -136,7 +137,7 @@ div[data-testid="stToolbar"] {
     background-color: #ffffff !important; /* 배경: 흰색 */
 }
 
-/* 달력 날짜 박스: 개별 날짜의 스타일 */
+/* 달력 날짜 박스: 개별 날짜의 스타일, 클릭 가능 요소 */
 .calendar-day-box {
     width: 40px; /* 너비: 40px */
     height: 40px; /* 높이: 40px */
@@ -153,6 +154,7 @@ div[data-testid="stToolbar"] {
     white-space: nowrap; /* 텍스트 줄바꿈 방지 */
     margin: 0; /* 여백 없음 */
     padding: 0; /* 패딩 없음 */
+    cursor: pointer; /* 클릭 가능 커서 */
 }
 
 /* 다크 모드 - PC: 달력 및 요일 관련 스타일 */
@@ -203,6 +205,7 @@ div[data-testid="stToolbar"] {
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 auto !important; /* 중앙 정렬 */
         background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
+        overflow: hidden; /* 넘치는 콘텐츠 숨김 */
     }
     .calendar-weekdays {
         display: grid !important; /* 그리드 레이아웃 사용 */
@@ -245,23 +248,7 @@ div[data-testid="stToolbar"] {
         display: flex; /* 플렉스 박스 사용 */
         align-items: center; /* 세로 중앙 정렬 */
         justify-content: center; /* 가로 중앙 정렬 */
-    }
-    button[data-testid="stButton"] {
-        width: 35px !important; /* 버튼 너비: 35px (고정, 날짜 동그라미와 동일) */
-        height: 35px !important; /* 버튼 높이: 35px (고정, 날짜 동그라미와 동일) */
-        min-width: 0 !important; /* 최소 너비: 0 */
-        min-height: 0 !important; /* 최소 높이: 0 */
-        position: absolute; /* 절대 위치 지정 */
-        top: 50%; /* 상단 50% */
-        left: 50%; /* 좌측 50% */
-        transform: translate(-50%, -50%); /* 중앙 정렬 */
-        background: none !important; /* 배경: 투명 */
-        border: none !important; /* 테두리: 없음 */
-        padding: 0 !important; /* 패딩 없음 */
-        margin: 0 !important; /* 여백 없음 */
-        cursor: pointer; /* 커서: 포인터 */
-        opacity: 0; /* 투명도: 0 (보이지 않음) */
-        box-sizing: border-box; /* 테두리와 패딩 포함 */
+        cursor: pointer; /* 클릭 가능 커서 */
     }
 }
 
@@ -286,6 +273,7 @@ div[data-testid="stToolbar"] {
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 auto !important; /* 중앙 정렬 */
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
+        overflow: hidden; /* 넘치는 콘텐츠 숨김 */
     }
     .calendar-weekdays {
         display: grid !important; /* 그리드 레이아웃 사용 */
@@ -328,23 +316,7 @@ div[data-testid="stToolbar"] {
         display: flex; /* 플렉스 박스 사용 */
         align-items: center; /* 세로 중앙 정렬 */
         justify-content: center; /* 가로 중앙 정렬 */
-    }
-    button[data-testid="stButton"] {
-        width: 35px !important; /* 버튼 너비: 35px (고정, 날짜 동그라미와 동일) */
-        height: 35px !important; /* 버튼 높이: 35px (고정, 날짜 동그라미와 동일) */
-        min-width: 0 !important; /* 최소 너비: 0 */
-        min-height: 0 !important; /* 최소 높이: 0 */
-        position: absolute; /* 절대 위치 지정 */
-        top: 50%; /* 상단 50% */
-        left: 50%; /* 좌측 50% */
-        transform: translate(-50%, -50%); /* 중앙 정렬 */
-        background: none !important; /* 배경: 투명 */
-        border: none !important; /* 테두리: 없음 */
-        padding: 0 !important; /* 패딩 없음 */
-        margin: 0 !important; /* 여백 없음 */
-        cursor: pointer; /* 커서: 포인터 */
-        opacity: 0; /* 투명도: 0 (보이지 않음) */
-        box-sizing: border-box; /* 테두리와 패딩 포함 */
+        cursor: pointer; /* 클릭 가능 커서 */
     }
 }
 
@@ -407,14 +379,4 @@ div[data-testid="stToolbar"] {
 /* 선택된 날짜에 선택 마크 표시 */
 .selected-day .selection-mark {
     display: block; /* 표시 */
-}
-
-/* Streamlit 버튼 호버 효과 (공통) */
-button[data-testid="stButton"]:hover {
-    opacity: 0.1; /* 호버 시 투명도: 0.1 */
-}
-
-/* 폼 제출 버튼 숨김 */
-button[data-testid="stFormSubmitButton"] {
-    display: none; /* 폼 제출 버튼 숨김 */
 }
