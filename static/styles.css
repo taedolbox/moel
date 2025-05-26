@@ -102,8 +102,8 @@ div[data-testid="stToolbar"] {
 
 /* 요일 표시 스타일: 일, 월, 화, 수, 목, 금, 토 */
 .calendar-weekdays {
-    display: grid; /* 그리드 레이아웃 사용 */
-    grid-template-columns: repeat(7, 40px); /* 7열, 각 열 너비 40px */
+    display: grid !important; /* 그리드 레이아웃 사용 */
+    grid-template-columns: repeat(7, 40px) !important; /* 7열, 각 열 너비 40px */
     gap: 2px; /* 셀 간 간격: 2px */
     width: 100%; /* 너비: 100% */
     max-width: 280px; /* 최대 너비: 280px */
@@ -247,8 +247,8 @@ div[data-testid="stToolbar"] {
         justify-content: center; /* 가로 중앙 정렬 */
     }
     button[data-testid="stButton"] {
-        width: 35px !important; /* 버튼 너비: 35px (고정) */
-        height: 35px !important; /* 버튼 높이: 35px */
+        width: 35px !important; /* 버튼 너비: 35px (고정, 날짜 동그라미와 동일) */
+        height: 35px !important; /* 버튼 높이: 35px (고정, 날짜 동그라미와 동일) */
         min-width: 0 !important; /* 최소 너비: 0 */
         min-height: 0 !important; /* 최소 높이: 0 */
         position: absolute; /* 절대 위치 지정 */
@@ -330,8 +330,8 @@ div[data-testid="stToolbar"] {
         justify-content: center; /* 가로 중앙 정렬 */
     }
     button[data-testid="stButton"] {
-        width: 35px !important; /* 버튼 너비: 35px (고정) */
-        height: 35px !important; /* 버튼 높이: 35px */
+        width: 35px !important; /* 버튼 너비: 35px (고정, 날짜 동그라미와 동일) */
+        height: 35px !important; /* 버튼 높이: 35px (고정, 날짜 동그라미와 동일) */
         min-width: 0 !important; /* 최소 너비: 0 */
         min-height: 0 !important; /* 최소 높이: 0 */
         position: absolute; /* 절대 위치 지정 */
