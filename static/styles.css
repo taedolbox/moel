@@ -2,25 +2,25 @@
 
 /* 전체 페이지 배경 및 텍스트 설정 */
 body, div[data-testid="stAppViewContainer"] {
-    background-color: #ffffff !important; /* 라이트 모드 기본 배경 */
-    color: #000000 !important; /* 라이트 모드 기본 텍스트 색상 */
+    background-color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* Streamlit 컴포넌트 텍스트 색상 */
 .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
-    color: #000000 !important; /* 라이트 모드 텍스트 색상 */
+    color: #000000 !important;
 }
 
 /* 사이드바 텍스트 색상 */
 .sidebar .sidebar-content, .sidebar .sidebar-content * {
-    color: #000000 !important; /* 라이트 모드 사이드바 텍스트 */
+    color: #000000 !important;
 }
 
 /* 다크 모드 전체 설정 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important;
-        color: #ffffff !important; /* 다크 모드 텍스트 색상 */
+        color: #ffffff !important;
     }
     .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
         color: #ffffff !important;
@@ -41,12 +41,12 @@ body, div[data-testid="stAppViewContainer"] {
 
 .stRadio>label {
     font-size: 16px;
-    color: #333 !important; /* 라이트 모드 라디오 버튼 */
+    color: #333 !important;
 }
 
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .stRadio>label {
-        color: #ffffff !important; /* 다크 모드 라디오 버튼 */
+        color: #ffffff !important;
     }
 }
 
@@ -69,7 +69,7 @@ div[data-testid="stToolbar"] {
     display: none !important;
 }
 
-/* 사이드바 토글 버튼 스타일 (모바일 다크 모드) */
+/* 사이드바 토글 버튼 스타일 */
 button[kind="primary"] {
     background-color: #4CAF50 !important;
     color: white !important;
@@ -97,7 +97,7 @@ button[kind="primary"] {
 
 .calendar-wrapper h3 {
     background-color: #f0f0f0;
-    color: #000000 !important; /* 라이트 모드 제목 */
+    color: #000000 !important;
     text-align: center;
     padding: 8px 0;
     margin-bottom: 15px;
@@ -128,7 +128,7 @@ div[data-testid="column"] {
 .calendar-day-container {
     position: relative;
     width: 100% !important;
-    height: 44px !important; /* 버튼 높이 확장 */
+    height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -157,8 +157,8 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 40px !important; /* 숫자 원보다 큼 */
-    height: 44px !important; /* 위아래 확장 */
+    width: 40px !important;
+    height: 44px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -168,7 +168,7 @@ button[data-testid="stButton"] {
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    opacity: 0.6 !important; /* 약간 보이게 */
+    opacity: 0.6 !important;
     z-index: 2 !important;
     box-sizing: border-box !important;
 }
@@ -183,19 +183,19 @@ button[data-testid="stButton"]:hover {
     }
 }
 
-/* 다크 모드 - PC 및 모바일 스타일 */
+/* 다크 모드 스타일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-wrapper h3 {
         background-color: #333333 !important;
         color: #ffffff !important;
     }
     .calendar-day-container {
-        background-color: #2a2e2a !important;
+        background-color: #2a2a2a !important;
     }
     .calendar-day-box {
-        border: 1px solid #888888 !important;
+        border: 1px solid #888 !important;
         background-color: #000000 !important;
-    color: #ffffff !important;
+        color: #ffffff !important;
     }
 }
 
@@ -221,6 +221,8 @@ button[data-testid="stButton"]:hover {
         width: calc(100% / 7) !important;
         max-width: calc(100% / 7) !important;
         flex: 1 1 calc(100% / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 }
 
@@ -246,13 +248,13 @@ button[data-testid="stButton"]:hover {
         width: 40px !important;
         height: 44px !important;
     }
-    /* 모바일에서 7열 강제 */
     div[data-testid="column"] {
         width: calc(280px / 7) !important;
         max-width: calc(280px / 7) !important;
         min-width: calc(280px / 7) !important;
-        flex: 0 0 calc(280px / 7) !important; /* 고정 크기로 7열 */
-        box-sizing: border-box !important;
+        flex: 0 0 calc(280px / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 }
 
@@ -261,7 +263,7 @@ button[data-testid="stButton"]:hover {
         background-color: #2a2a2a !important;
     }
     .calendar-day-box {
-        border-color: #888888 !important;
+        border: 1px solid #888 !important;
         background-color: #000000 !important;
         color: #ffffff !important;
     }
@@ -276,33 +278,33 @@ button[data-testid="stButton"]:hover {
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-day-box:hover {
         background-color: #333333 !important;
-        border-color: #555555 !important;
+        border-color: #aaaaaa !important;
     }
 }
 
-.calendar-day-box.current-day:not(.selected-day-box) {
+.calendar-day-box.current-day:not(.selected-day) {
     border: 2px solid #0000ff !important;
 }
 
-.calendar-day-box.selected-day-box {
+.calendar-day-box.selected-day {
     background-color: #4CAF50 !important;
     color: #ffffff !important;
-    border-color 2px solid #4CAF50 !important;
+    border: 2px solid #4CAF50 !important;
     font-weight: bold !important;
 }
 
-.calendar-day-box.disabled-day-box {
-    border-color: #555555 !important;
+.calendar-day-box.disabled-day {
+    border: 1px solid #555 !important;
     background-color: #cccccc !important;
-    color: #666666 !important;
+    color: #666 !important;
     cursor: not-allowed !important;
 }
 
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-box.disabled-day-box {
+    .calendar-day-box.disabled-day {
         background-color: #333333 !important;
-        border-color: #444444 !important;
-        color: #666666 !important;
+        border: 1px solid #444 !important;
+        color: #666 !important;
     }
 }
 
@@ -323,7 +325,7 @@ button[data-testid="stButton"]:hover {
     display: block !important;
 }
 
-/* 폼フォーム 버튼 숨기기 */
+/* 폼 버튼 숨기기 */
 button[data-testid="stFormSubmitButton"] {
     display: none !important;
 }
