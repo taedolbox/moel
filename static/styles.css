@@ -116,11 +116,11 @@ button[kind="primary"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc(280px / 7) !important; /* 7줄 달력에 맞춘 높이 */
+    height: 30px;
     font-size: 1em;
     font-weight: bold;
     text-align: center;
-    background-color: #f0f0f0 !important; /* 라이트 모드에서 밝은 회색 배경 */
+    background-color: #f0f0f0 !important;
 }
 
 /* Streamlit 컬럼 스타일 오버라이드 */
@@ -138,7 +138,7 @@ div[data-testid="column"] {
 .calendar-day-container {
     position: relative;
     background-color: #ffffff;
-    height: calc(280px / 7) !important; /* 7줄을 위해 높이 조정 */
+    height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -178,9 +178,11 @@ button[data-testid="stButton"] {
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    opacity: 0.6 !important;
+    opacity: 1 !important;
     z-index: 2 !important;
     box-sizing: border-box !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
 }
 
 /* 버튼 호버 효과 */
@@ -210,7 +212,7 @@ button[data-testid="stButton"]:hover {
         color: #ffffff !important;
     }
     .day-header {
-        background-color: #333333 !important; /* 다크 모드에서 어두운 회색 배경 */
+        background-color: #333333 !important;
         color: #ffffff !important;
     }
 }
@@ -246,13 +248,13 @@ button[data-testid="stButton"]:hover {
     }
     .day-header {
         width: calc(600px / 7) !important;
-        height: 48px !important; /* PC에서는 기존 높이 유지 */
+        height: 48px !important;
     }
 }
 
 /* 모바일 화면 스타일 (최대 너비 500px) */
 @media (max-width: 500px) {
-    .calendar-wrapper {
+    .calendar-wrapper.mobile-calendar {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
@@ -265,7 +267,7 @@ button[data-testid="stButton"]:hover {
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
-        height: calc(280px / 7) !important; /* 7줄을 위해 높이 조정 */
+        height: calc(280px / 7) !important;
         background-color: #f0f0f0 !important;
     }
     .calendar-day-box {
@@ -286,7 +288,7 @@ button[data-testid="stButton"]:hover {
     }
     .day-header {
         width: calc(280px / 7) !important;
-        height: calc(280px / 7) !important; /* 요일 헤더 높이를 7줄에 맞춤 */
+        height: calc(280px / 7) !important;
     }
 }
 
