@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 7:13 KST)
-current_datetime = datetime(2025, 5, 26, 19, 13)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 7:20 KST)
+current_datetime = datetime(2025, 5, 26, 19, 20)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -31,6 +31,35 @@ def render_calendar_interactive(apply_date):
     start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
+
+    # JavaScript로 클릭 이벤트 처리
+    click_handler_script = """
+    <script>
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('calendar-day-button')) {
+                const date = event.target.getAttribute('data-date');
+                fetch('/_stcore/session-state/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'clicked_date', value: date })
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
+    """
+    html(click_handler_script)
+
+    # 클릭된 날짜 처리
+    if 'clicked_date' in st.session_state:
+        date_str = st.session_state.clicked_date
+        try:
+            date_obj = date.fromisoformat(date_str)
+            toggle_date(date_obj)
+            del st.session_state.clicked_date  # 클릭 처리 후 제거
+        except ValueError:
+            pass
 
     # 달력 전용 컨테이너
     with st.container():
@@ -60,7 +89,6 @@ def render_calendar_interactive(apply_date):
                         calendar_html += (
                             f'<div class="calendar-day-container">'
                             f'<div class="calendar-day-box disabled-day">{day}</div>'
-                            f'<button data-testid="stButton" style="display: none;"></button>'
                             f'</div>'
                         )
                         continue
@@ -73,16 +101,13 @@ def render_calendar_interactive(apply_date):
                     if is_current:
                         class_name += " current-day"
 
-                    container_key = f"date_{date_obj.isoformat()}"
                     calendar_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
                         f'<div class="{class_name}">{day}</div>'
-                        f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
+                        f'<button class="calendar-day-button" data-date="{date_obj.isoformat()}"></button>'
                         f'</div>'
                     )
-                    # 버튼은 별도로 렌더링
-                    st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True)
             calendar_html += '</div>'
             st.markdown(calendar_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
