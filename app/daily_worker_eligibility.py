@@ -6,8 +6,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 3:30 KST)
-current_datetime = datetime(2025, 5, 26, 15, 30)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 3:36 KST)
+current_datetime = datetime(2025, 5, 26, 15, 36)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -16,7 +16,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌더링합니다. 버튼 제거, CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링합니다. 요일 제거, CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -35,19 +35,18 @@ def render_calendar_interactive(apply_date):
         for year, month in months_to_display:
             st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
-            days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더 생성 (7열 고정)
-            cols = st.columns(7, gap="small")
-            for i, day_name in enumerate(days_of_week_korean):
-                with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "#000000"
-                    st.markdown(
-                        f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-                        unsafe_allow_html=True
-                    )
+            # 요일 헤더 제거
+            # cols = st.columns(7, gap="small")
+            # for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
+            #     with cols[i]:
+            #         color = "red" if i == 0 or i == 6 else "#000000"
+            #         st.markdown(
+            #             f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
+            #             unsafe_allow_html=True
+            #         )
 
-            # 달력 렌더링 (버튼 제거)
+            # 달력 렌더링
             for week in cal:
                 cols = st.columns(7, gap="small")
                 for i, day in enumerate(week):
