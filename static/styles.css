@@ -205,8 +205,8 @@ div[data-testid="stToolbar"] {
         background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
     }
     .calendar-weekdays {
-        display: grid; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(35px, 1fr)); /* 7열, 각 열 최소 35px, 비례 분배 */
+        display: grid !important; /* 그리드 레이아웃 사용 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)) !important; /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px; /* 셀 간 간격: 2px */
         width: 100%; /* 너비: 100% */
         max-width: 280px; /* 최대 너비: 280px */
@@ -214,18 +214,24 @@ div[data-testid="stToolbar"] {
         background-color: #e0e0e0; /* 배경: 연한 회색 */
     }
     .calendar-weekdays .weekday {
-        height: 25px; /* 높이: 25px (모바일에서 작게) */
+        height: 25px; /* 높이: 25px */
         font-size: 0.8em; /* 폰트 크기: 0.8em */
         color: #000000; /* 텍스트: 검정색 */
         background-color: #f0f0f0; /* 배경: 연한 회색 */
         border: 1px solid #333; /* 테두리: 1px, 어두운 회색 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     .calendar-day-container {
-        width: 100%; /* 너비: 그리드 열에 맞춤 */
-        height: 35px; /* 높이: 35px (모바일에서 작게) */
+        width: 35px; /* 너비: 35px (고정) */
+        height: 35px; /* 높이: 35px */
         margin: 0; /* 여백 제거 */
         background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
         box-sizing: border-box; /* 테두리와 패딩 포함 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     .calendar-day-box {
         width: 35px; /* 너비: 35px (고정) */
@@ -236,6 +242,9 @@ div[data-testid="stToolbar"] {
         color: #000000 !important; /* 텍스트: 검정색 */
         border-radius: 50%; /* 원형 모서리 */
         box-sizing: border-box; /* 테두리와 패딩 포함 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     button[data-testid="stButton"] {
         width: 35px !important; /* 버튼 너비: 35px (고정) */
@@ -279,8 +288,8 @@ div[data-testid="stToolbar"] {
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
     }
     .calendar-weekdays {
-        display: grid; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(35px, 1fr)); /* 7열, 각 열 최소 35px, 비례 분배 */
+        display: grid !important; /* 그리드 레이아웃 사용 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)) !important; /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px; /* 셀 간 간격: 2px */
         width: 100%; /* 너비: 100% */
         max-width: 280px; /* 최대 너비: 280px */
@@ -293,13 +302,19 @@ div[data-testid="stToolbar"] {
         color: #ffffff; /* 텍스트: 흰색 */
         background-color: #333333; /* 배경: 어두운 회색 */
         border: 1px solid #888; /* 테두리: 1px, 중간 회색 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     .calendar-day-container {
-        width: 100%; /* 너비: 그리드 열에 맞춤 */
+        width: 35px; /* 너비: 35px (고정) */
         height: 35px; /* 높이: 35px */
         margin: 0; /* 여백 제거 */
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
         box-sizing: border-box; /* 테두리와 패딩 포함 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     .calendar-day-box {
         width: 35px; /* 너비: 35px (고정) */
@@ -310,6 +325,9 @@ div[data-testid="stToolbar"] {
         color: #ffffff !important; /* 텍스트: 흰색 */
         border-radius: 50%; /* 원형 모서리 */
         box-sizing: border-box; /* 테두리와 패딩 포함 */
+        display: flex; /* 플렉스 박스 사용 */
+        align-items: center; /* 세로 중앙 정렬 */
+        justify-content: center; /* 가로 중앙 정렬 */
     }
     button[data-testid="stButton"] {
         width: 35px !important; /* 버튼 너비: 35px (고정) */
