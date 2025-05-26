@@ -143,6 +143,9 @@ button[data-testid="stButton"] {
     opacity: 0.6 !important;
     z-index: 2 !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* 버튼 호버 효과 */
@@ -167,25 +170,42 @@ button[data-testid="stButton"]:hover {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
+        margin-right: 10px !important; /* 버튼과의 간격 */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
+        background-color: #ffffff !important; /* 흰색 배경 */
+        color: #000000 !important; /* 검은색 텍스트 */
+        border-radius: 50% !important;
+        box-sizing: border-box !important;
+        user-select: none !important;
+        z-index: 1 !important;
     }
     button[data-testid="stButton"] {
-        width: 40px !important;
-        height: 40px !important;
+        width: 38px !important; /* .calendar-day-box와 동일한 크기 */
+        height: 38px !important;
         position: absolute !important;
         top: 50% !important;
-        right: 5px !important; /* 버튼을 오른쪽 끝에서 5px 떨어지게 배치 */
+        right: 5px !important; /* 오른쪽 끝에서 5px */
         transform: translateY(-50%) !important; /* 수직 중앙 정렬 */
-        background: transparent !important; /* 투명 배경 */
-        border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
+        background-color: #ffffff !important; /* 흰색 배경 */
+        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
+        border-radius: 50% !important; /* 원형 */
+        color: #000000 !important; /* 검은색 텍스트 */
         padding: 0 !important;
         margin: 0 !important;
         cursor: pointer !important;
-        opacity: 0.6 !important;
+        opacity: 1 !important;
         z-index: 2 !important;
         box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     button[data-testid="stButton"]:hover {
-        background-color: rgba(200, 200, 200, 0.3) !important; /* 반투명 회색 배경 */
+        background-color: #e0e0e0 !important; /* 연한 회색 배경 */
+        border-color: #555 !important; /* 짙은 회색 테두리 */
     }
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
@@ -223,8 +243,20 @@ button[data-testid="stButton"]:hover {
         font-size: 0.9em !important;
     }
     button[data-testid="stButton"] {
-        width: 44px !important;
-        height: 44px !important;
+        width: 34px !important;
+        height: 34px !important;
+        background-color: #ffffff !important; /* 흰색 배경 */
+        border: 1px solid #333 !important; /* 짙은 회색 테두리 */
+        border-radius: 50% !important;
+        color: #000000 !important; /* 검은색 텍스트 */
+        opacity: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    button[data-testid="stButton"]:hover {
+        background-color: #e0e0e0 !important;
+        border-color: #555 !important;
     }
     div[data-testid="column"] {
         width: calc(280px / 7) !important;
