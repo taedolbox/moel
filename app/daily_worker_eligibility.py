@@ -105,11 +105,6 @@ def daily_worker_eligibility_app():
     # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
 
-    st.markdown("---")
-    st.markdown("#### ✅ 근무일 선택 달력")
-    selected_dates = render_calendar_interactive(apply_date)
-    st.markdown("---")
-
     # 조건 1 계산 및 표시
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
