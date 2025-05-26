@@ -6,9 +6,9 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오전 6:29 KST)
-current_datetime = datetime(2025, 5, 26, 6, 29)
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
+# 현재 날짜와 시간 (2025년 5월 26일 오후 3:30 KST)
+current_datetime = datetime(2025, 5, 26, 15, 30)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
@@ -16,12 +16,10 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링합니다. 버튼 제거, CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
-    if 'rerun_trigger' not in st.session_state:
-        st.session_state.rerun_trigger = False
 
     selected_dates = st.session_state.selected_dates
     current_date = current_datetime.date()
@@ -33,9 +31,7 @@ def render_calendar_interactive(apply_date):
 
     # 달력 전용 컨테이너
     with st.container():
-        # 달력을 가운데 정렬하되, 최소 너비를 보장
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
-        # 각 월별 달력 렌더링
         for year, month in months_to_display:
             st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
@@ -51,9 +47,8 @@ def render_calendar_interactive(apply_date):
                         unsafe_allow_html=True
                     )
 
-            # 달력 렌더링 (CSS와 함께 7열 강제)
+            # 달력 렌더링 (버튼 제거)
             for week in cal:
-                # 각 주를 7열로 나누기 위해 st.columns 사용
                 cols = st.columns(7, gap="small")
                 for i, day in enumerate(week):
                     with cols[i]:
@@ -65,7 +60,6 @@ def render_calendar_interactive(apply_date):
                             st.markdown(
                                 f'<div class="calendar-day-container">'
                                 f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'<button data-testid="stButton" style="display: none;"></button>'
                                 f'</div>',
                                 unsafe_allow_html=True
                             )
@@ -79,23 +73,14 @@ def render_calendar_interactive(apply_date):
                         if is_current:
                             class_name += " current-day"
 
-                        container_key = f"date_{date_obj.isoformat()}"
                         st.markdown(
                             f'<div class="calendar-day-container">'
                             f'<div class="selection-mark"></div>'
                             f'<div class="{class_name}">{day}</div>'
-                            f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
-                            pass
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # rerun_trigger 확인 및 페이지 새로고침
-    if st.session_state.rerun_trigger:
-        st.session_state.rerun_trigger = False
-        st.rerun()
 
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
@@ -103,14 +88,6 @@ def render_calendar_interactive(apply_date):
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
 
     return st.session_state.selected_dates
-
-def toggle_date(date_obj):
-    """날짜를 토글하고 세션 상태를 업데이트합니다."""
-    if date_obj in st.session_state.selected_dates:
-        st.session_state.selected_dates.remove(date_obj)
-    else:
-        st.session_state.selected_dates.add(date_obj)
-    st.session_state.rerun_trigger = True
 
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
