@@ -166,6 +166,34 @@ button[kind="primary"] {
     white-space: nowrap !important;
     margin: 0 !important;
     padding: 0 !important;
+    z-index: 1;
+}
+
+.calendar-day-button {
+    width: 36px !important;
+    height: 36px !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+    z-index: 2;
+}
+
+.calendar-day-button:hover {
+    opacity: 0.1 !important;
+    background: #e0e0e0 !important;
+}
+
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-button:hover {
+        background: #333333 !important;
+    }
 }
 
 /* 다크 모드 - PC 및 모바일 */
@@ -210,6 +238,10 @@ button[kind="primary"] {
         width: 36px !important;
         height: 36px !important;
         font-size: 0.9em !important;
+    }
+    .calendar-day-button {
+        width: 36px !important;
+        height: 36px !important;
     }
 }
 
@@ -279,28 +311,6 @@ button[kind="primary"] {
 
 .selected-day .selection-mark {
     display: block !important;
-}
-
-button[data-testid="stButton"] {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    opacity: 0 !important;
-    box-sizing: border-box !important;
-}
-
-button[data-testid="stButton"]:hover {
-    opacity: 0.1 !important;
 }
 
 /* 폼 버튼 숨김 */
