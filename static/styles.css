@@ -132,8 +132,8 @@ button[data-testid="stButton"] {
     width: 34px !important;
     height: 34px !important;
     position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
+    top: 150% !important;
+    left: 150% !important;
     transform: translate(50%, 50%) !important;
     background: transparent !important; /* 투명 배경 */
     border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
