@@ -2,177 +2,150 @@
 
 /* 달력 전체를 감싸는 컨테이너의 스타일 */
 .calendar-wrapper {
-    display: flex; /* 플렉스박스 레이아웃을 활성화하여 자식 요소 정렬을 쉽게 합니다. */
-    flex-direction: column; /* 자식 요소를 세로 방향으로 쌓습니다. */
-    align-items: center; /* 래퍼 내에서 항목을 수평으로 가운데 정렬합니다. */
-    width: 100%; /* 부모 요소의 전체 너비를 차지합니다. */
-    min-width: 280px; /* 달력 래퍼의 최소 너비 */
-    max-width: 300px; /* 달력 래퍼의 최대 너비 */
-    margin: 0 auto; /* 래퍼를 페이지에서 수평으로 가운데 정렬합니다. */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-width: 280px;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
-/* 달력 래퍼 내 h3 제목의 스타일 (현재 Python 코드에서는 사용되지 않음) */
-.calendar-wrapper h3 {
-    background-color: #f0f0f0; /* 연한 회색 배경 */
-    color: #000000; /* 검은색 텍스트 색상 */
-    text-align: center; /* 텍스트를 수평으로 가운데 정렬합니다. */
-    padding: 8px 0; /* 위아래 패딩 */
-    margin-bottom: 15px; /* 제목 아래 여백 */
-    font-size: 1.5em; /* 부모에 상대적인 글꼴 크기 */
-    width: 100%; /* 전체 너비를 차지합니다. */
+/* 요일 헤더를 위한 스타일 */
+.weekday-header-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7개의 동일한 너비 열 */
+    width: 100%;
+    max-width: 280px; /* 달력 너비와 일치 */
+    margin-bottom: 5px;
 }
 
-/* 전체 달력 그리드 컨테이너의 스타일 */
-/* 참고: 이 스타일은 Streamlit의 내부 버튼 스타일에 의해 부분적으로 재정의될 수 있습니다. */
-.calendar-container {
-    display: grid !important; /* 그리드 레이아웃을 강제하여 Streamlit 기본값을 재정의합니다. */
-    grid-template-columns: repeat(7, 40px) !important; /* 각 40px 너비의 7개 열을 만듭니다. */
-    gap: 2px !important; /* 그리드 항목 사이의 간격을 설정합니다. */
-    padding: 0 !important; /* 내부 패딩을 제거합니다. */
-    margin: 0 auto !important; /* 그리드를 수평으로 가운데 정렬합니다. */
-    min-width: 280px !important; /* 달력 그리드의 최소 너비 */
-    max-width: 280px !important; /* 달력 그리드의 최대 너비 */
-    background-color: #ffffff !important; /* 그리드의 흰색 배경 */
-    overflow: hidden; /* 컨테이너를 벗어나는 콘텐츠를 숨깁니다. */
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
 }
 
-/* 달력 그리드 내 개별 날짜 컨테이너의 스타일 */
+/* 달력 날짜 그리드를 위한 스타일 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7개의 동일한 너비 열 */
+    gap: 2px; /* 그리드 항목 사이의 간격 */
+    width: 100%;
+    max-width: 280px; /* 달력 너비와 일치 */
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+/* 개별 날짜 컨테이너의 스타일 */
 .calendar-day-container {
-    position: relative; /* 자식 요소(예: selection-mark)의 절대 위치 지정을 허용합니다. */
-    width: 30px; /* 날짜 컨테이너의 고정 너비 */
-    height: 30px; /* 날짜 컨테이너의 고정 높이 */
-    display: flex; /* 콘텐츠를 가운데 정렬하기 위해 플렉스박스를 활성화합니다. */
-    align-items: center; /* 콘텐츠를 세로로 가운데 정렬합니다. */
-    justify-content: center; /* 콘텐츠를 수평으로 가운데 정렬합니다. */
-    box-sizing: border-box; /* 패딩과 테두리를 요소의 총 너비와 높이에 포함합니다. */
-    background-color: #ffffff !important; /* 각 날짜 컨테이너의 흰색 배경 */
+    position: relative;
+    width: 100%; /* 부모 그리드 셀에 맞춰 100% 너비 */
+    padding-bottom: 100%; /* 1:1 비율을 유지하여 정사각형 만듦 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: #ffffff; /* 기본 배경색 */
 }
 
-/* 실제 날짜 숫자 상자의 스타일 (이제 직접적인 CSS 삽입을 통해 st.button에 적용됨) */
-.calendar-day-box {
-    width: 30px; /* 날짜 상자의 고정 너비 */
-    height: 30px; /* 날짜 상자의 고정 높이 */
-    display: flex; /* 콘텐츠를 가운데 정렬하기 위해 플렉스박스를 활성화합니다. */
-    align-items: center; /* 콘텐츠를 세로로 가운데 정렬합니다. */
-    justify-content: center; /* 콘텐츠를 수평으로 가운데 정렬합니다. */
-    border: 1px solid #333; /* 연한 회색 테두리 */
-    background-color: #ffffff; /* 흰색 배경 */
-    border-radius: 50%; /* 상자를 원형으로 만듭니다. */
-    font-size: 1.1em; /* 날짜 숫자의 글꼴 크기 */
-    color: #000000 !important; /* 검은색 텍스트 색상 */
-    box-sizing: border-box; /* 패딩과 테두리를 요소의 총 너비와 높이에 포함합니다. */
-    user-select: none; /* 텍스트 선택을 방지합니다. */
-    margin: 0; /* 기본 여백을 제거합니다. */
-    padding: 0; /* 기본 패딩을 제거합니다. */
-}
-
-/* 미디어 쿼리: 화면 너비가 700px 이하일 때 적용 */
-@media (max-width: 700px) {
-    /* 달력 컨테이너의 그리드 템플릿 조정 */
-    .calendar-container {
-        grid-template-columns: repeat(7, 35px) !important; /* 7개 열을 각 35px로 고정 */
-        max-width: 280px !important; /* 달력 컨테이너의 최대 너비 */
-        background-color: #e0e0e0 !important; /* 배경색 변경 */
-    }
-    /* 개별 날짜 컨테이너의 크기 조정 */
-    .calendar-day-container {
-        width: 35px; /* 너비 조정 */
-        height: 35px; /* 높이 조정 */
-    }
-    /* 날짜 상자의 크기와 글꼴 크기 조정 */
-    .calendar-day-box {
-        width: 35px; /* 너비 조정 */
-        height: 35px; /* 높이 조정 */
-        font-size: 0.8em; /* 글꼴 크기 조정 */
-    }
-    /* Streamlit 컬럼(요일 및 날짜)을 7열로 강제 고정 */
-    div[data-testid="column"] {
-        flex-basis: calc(100% / 7) !important; /* 각 컬럼이 전체 너비의 1/7을 차지하도록 강제 */
-        max-width: calc(100% / 7) !important; /* 각 컬럼의 최대 너비 설정 */
-        display: flex !important; /* 플렉스박스 사용 */
-        flex-direction: column !important; /* 자식 요소는 세로로 쌓이도록 (버튼 자체의 정렬) */
-        align-items: center !important; /* 컬럼 내 요소 가운데 정렬 */
-        justify-content: center !important; /* 컬럼 내 요소 가운데 정렬 */
-        padding: 2px !important; /* 패딩 추가 */
-        margin: 0 !important; /* 기본 마진 제거 */
-        box-sizing: border-box !important; /* 패딩과 테두리를 너비에 포함 */
-    }
-}
-
-/* 선택된 날짜의 스타일 */
-.calendar-day-box.selected-day {
-    background-color: #4CAF50 !important; /* 녹색 배경 */
-    color: #ffffff !important; /* 흰색 텍스트 */
-    border: 2px solid #4CAF50 !important; /* 녹색 테두리 */
-}
-
-/* 현재 날짜의 스타일 (선택되지 않은 경우) */
-.calendar-day-box.current-day:not(.selected-day) {
-    border: 2px solid blue !important; /* 파란색 테두리 */
-}
-
-/* 비활성화된 날짜의 스타일 */
-.calendar-day-box.disabled-day {
-    border: 1px solid #555; /* 회색 테두리 */
-    background-color: #e0e0e0; /* 연한 회색 배경 */
-    color: #666 !important; /* 어두운 회색 텍스트 */
-    cursor: not-allowed; /* 클릭 불가 커서 */
-}
-
-/* 선택 표시 (현재 버튼의 배경/테두리로 시각적으로 관리됨) */
-.selection-mark {
-    position: absolute;
-    top: 2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #4CAF50;
-    border: 1px solid #ffffff;
-    display: none;
-}
-
-/* 선택된 날짜에 대해 선택 표시를 표시 */
-.selected-day .selection-mark {
-    display: block;
-}
-
-/* Streamlit 버튼이 달력 일자 박스처럼 보이도록 하는 추가 스타일 */
-div[data-testid="column"] > button {
-    width: 35px !important; /* 버튼 너비를 35px로 설정하여 모바일 레이아웃에 맞춤 */
-    height: 35px !important; /* 버튼 높이를 35px로 설정 */
-    min-width: 35px !important; /* 최소 너비 보장 */
-    min-height: 35px !important; /* 최소 높이 보장 */
-    border-radius: 50% !important; /* 원형으로 만듦 */
-    display: flex !important; /* 플렉스박스 사용 */
-    align-items: center !important; /* 내용 수직 가운데 정렬 */
-    justify-content: center !important; /* 내용 수평 가운데 정렬 */
-    padding: 0 !important; /* 패딩 제거 */
+/* 실제 날짜 숫자 상자 (st.button에 적용될 스타일) */
+div[data-testid="column"] > button { /* Streamlit button을 직접 타겟팅 */
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px !important;
+    min-height: 35px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
     margin: 0 auto !important; /* 컬럼 내에서 버튼 가운데 정렬 */
     border: 1px solid #333; /* 기본 테두리 */
     background-color: #ffffff; /* 기본 배경색 */
     color: #000000; /* 기본 글자색 */
     font-size: 1.1em; /* 기본 글꼴 크기 */
+    line-height: 1; /* 텍스트 수직 정렬 */
 }
 
-/* 버튼 호버 시 스타일 */
+/* 날짜 박스 호버 시 스타일 */
 div[data-testid="column"] > button:hover {
-    background-color: #e0e0e0 !important; /* 호버 시 배경색 변경 */
+    background-color: #e0e0e0 !important;
 }
 
-/* 선택된 버튼 호버 시 스타일 */
+/* 선택된 날짜의 스타일 */
+div[data-testid="column"] > button.selected-day {
+    background-color: #4CAF50 !important;
+    color: #ffffff !important;
+    border: 2px solid #4CAF50 !important;
+}
+
+/* 선택된 날짜 호버 시 스타일 */
 div[data-testid="column"] > button.selected-day:hover {
     background-color: #45a049 !important; /* 선택된 버튼 호버 시 더 어두운 녹색 */
 }
 
-/* 현재 날짜 버튼 (선택되지 않은 경우)의 테두리 */
+/* 현재 날짜의 스타일 (선택되지 않은 경우) */
 div[data-testid="column"] > button.current-day:not(.selected-day) {
     border: 2px solid blue !important;
 }
 
-/* 비활성화된 버튼 스타일 */
+/* 비활성화된 날짜의 스타일 */
+.calendar-day-box.disabled-day { /* 이는 st.markdown으로 렌더링될 텍스트에 적용 */
+    border: 1px solid #555;
+    background-color: #e0e0e0;
+    color: #666 !important;
+    cursor: not-allowed;
+    width: 35px; /* 크기 맞춤 */
+    height: 35px; /* 크기 맞춤 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.1em;
+    margin: 0 auto;
+}
+
+/* 비활성화된 Streamlit 버튼의 스타일 */
 div[data-testid="column"] > button[disabled] {
     border: 1px solid #555 !important;
     background-color: #e0e0e0 !important;
     color: #666 !important;
     cursor: not-allowed !important;
+}
+
+/* 모바일 뷰에 대한 조정 */
+@media (max-width: 700px) {
+    .calendar-wrapper {
+        min-width: unset; /* 더 이상 고정된 최소 너비는 필요 없음 */
+        max-width: 100%; /* 전체 너비를 유동적으로 사용 */
+    }
+
+    .weekday-header-row,
+    .calendar-grid {
+        max-width: 100%; /* 모바일에서 가득 채우도록 */
+        grid-template-columns: repeat(7, 1fr); /* 7열 유지, 각 열은 동일한 비율로 확장 */
+    }
+
+    div[data-testid="column"] {
+        flex-basis: 100% !important; /* 이 규칙은 주로 st.columns의 개별 컬럼에 영향을 주지만,
+                                         달력 날짜 셀은 직접 그리드에 배치되므로 덜 중요함 */
+        max-width: 100% !important; /* 모바일에서 컬럼이 스택되지 않도록 */
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    div[data-testid="column"] > button {
+        width: 35px !important;
+        height: 35px !important;
+        min-width: 35px !important;
+        min-height: 35px !important;
+        font-size: 0.9em !important; /* 모바일에서 글꼴 크기 약간 줄임 */
+    }
+
+    .calendar-day-box.disabled-day {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9em;
+    }
 }
