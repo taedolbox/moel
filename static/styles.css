@@ -1,28 +1,21 @@
 /* static/styles.css */
 
-/* Streamlit의 메인 컨텐츠 블록에 대한 너비 제한 (선택 사항이지만 도움이 될 수 있음) */
-/* 이 부분은 전체 앱의 레이아웃에 영향을 줄 수 있으므로 주의해서 사용하세요. */
-.stApp > header + div { /* Streamlit 메인 컨텐츠 영역 */
-    max-width: 300px; /* 전체 앱의 최대 너비를 달력 너비에 맞춤 */
-    margin: auto;
-}
-
-
-/* 달력 전체를 감싸는 컨테이너 - PC (기본) 스타일 */
+/* --- 전역 설정 및 PC 기본 스타일 --- */
 .calendar-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 300px; /* PC에서 원하는 최대 너비 */
-    min-width: 280px;
+    max-width: 320px; /* PC에서 달력의 최대 너비를 설정하여 너무 커지지 않게 함 */
     margin: 0 auto;
-    /* border: 1px solid blue; /* 디버깅용 */
+    padding: 5px; /* 달력 전체에 약간의 패딩 추가 */
+    box-sizing: border-box;
 }
 
-/* 요일 및 날짜를 담는 Streamlit 컬럼에 대한 스타일 */
-/* 이 선택자는 Streamlit의 컬럼 요소에 직접 적용되어야 합니다. */
-div[data-testid="stColumn"] { /* "stColumn" data-testid는 정확한 Streamlit 컬럼 선택자일 가능성이 높습니다. */
+/* Streamlit 컬럼 (요일 및 날짜) - 기본 (PC) 스타일 */
+/* data-testid 값은 Streamlit 버전 및 구조에 따라 다를 수 있습니다. */
+/* 실제 앱에서 개발자 도구를 열어 Streamlit이 생성하는 컬럼의 정확한 data-testid를 확인하고 필요시 수정하세요. */
+div[data-testid*="stColumn"] { /* "stColumn"을 포함하는 data-testid를 가진 모든 div */
     flex-grow: 0 !important; /* 확장되지 않도록 설정 */
     flex-shrink: 0 !important; /* 축소되지 않도록 설정 */
     flex-basis: calc(100% / 7) !important; /* 각 컬럼이 전체 너비의 1/7을 차지하도록 강제 */
@@ -31,70 +24,131 @@ div[data-testid="stColumn"] { /* "stColumn" data-testid는 정확한 Streamlit �
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 2px !important;
+    padding: 1px !important; /* 컬럼 간 간격 최소화 */
     margin: 0 !important;
     box-sizing: border-box !important;
-    /* border: 1px solid red; /* 디버깅용 */
 }
 
 /* 요일 헤더 텍스트 */
 .day-header {
     text-align: center;
     font-weight: bold;
-    padding: 5px 0;
-    font-size: 0.9em;
+    padding: 3px 0;
+    font-size: 0.85em; /* PC에서도 요일 글자 크기를 약간 줄여 공간 확보 */
     width: 100%;
+    white-space: nowrap; /* 요일 이름 줄바꿈 방지 */
 }
 
-/* Streamlit 버튼에 대한 기본 스타일 및 날짜 박스 역할 */
-div[data-testid="stColumn"] > button { /* 컬럼 내의 버튼에만 적용 */
-    width: 35px !important;
-    height: 35px !important;
-    min-width: 35px !important;
-    min-height: 35px !important;
-    border-radius: 50% !important;
+/* Streamlit 버튼 (각 날짜) - 기본 (PC) 스타일 */
+div[data-testid*="stColumn"] > button {
+    width: 38px !important;  /* 버튼 너비 */
+    height: 38px !important; /* 버튼 높이 */
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border-radius: 50% !important; /* 원형 */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
-    margin: 0 auto !important;
-    border: 1px solid #333 !important;
+    margin: 2px auto !important; /* 위아래 여백 추가, 좌우 가운데 정렬 */
+    border: 1px solid #ccc !important; /* 테두리 */
     background-color: #ffffff !important;
-    color: #000000 !important;
-    font-size: 1.1em !important;
+    color: #333333 !important;
+    font-size: 1.0em !important; /* 글자 크기 */
     line-height: 1 !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* ... (나머지 스타일 유지: hover, selected, current, disabled 등) ... */
+/* 날짜 박스 호버 시 스타일 */
+div[data-testid*="stColumn"] > button:hover {
+    background-color: #f0f0f0 !important;
+}
+
+/* 선택된 날짜의 스타일 */
+div[data-testid*="stColumn"] > button.selected-day {
+    background-color: #4CAF50 !important; /* 녹색 */
+    color: #ffffff !important;
+    border: 2px solid #4CAF50 !important;
+}
+
+/* 선택된 날짜 호버 시 스타일 */
+div[data-testid*="stColumn"] > button.selected-day:hover {
+    background-color: #45a049 !important;
+}
+
+/* 현재 날짜의 스타일 (선택되지 않은 경우) */
+div[data-testid*="stColumn"] > button.current-day:not(.selected-day) {
+    border: 2px solid #007bff !important; /* 파란색 테두리 */
+    font-weight: bold;
+}
+
+/* 비활성화된 날짜 스타일 (클릭 불가능한 날짜 텍스트) */
+.calendar-day-box.disabled-day {
+    width: 38px !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    border: 1px solid #ddd !important;
+    background-color: #f8f8f8 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    font-size: 1.0em !important;
+    margin: 2px auto !important;
+}
 
 /* --- 미디어 쿼리 (모바일 환경에 대한 조정) --- */
-@media (max-width: 700px) {
+@media (max-width: 768px) { /* 태블릿과 모바일을 아우르는 기준 */
     .calendar-wrapper {
-        max-width: 95% !important; /* 모바일에서 화면 너비의 95% 차지 */
+        max-width: 100% !important; /* 모바일에서 전체 너비를 사용 */
         min-width: unset !important;
+        padding: 2px; /* 모바일에서 전체 패딩 줄임 */
     }
 
-    div[data-testid="stColumn"] { /* 모바일 컬럼에도 강제 적용 */
+    div[data-testid*="stColumn"] {
         flex-basis: calc(100% / 7) !important;
         max-width: calc(100% / 7) !important;
-        padding: 1px !important;
+        padding: 0 !important; /* 컬럼 간 패딩을 더 줄임 */
     }
 
-    div[data-testid="stColumn"] > button {
-        width: 30px !important; /* 모바일에서 버튼 크기 약간 줄임 */
+    .day-header {
+        font-size: 0.75em; /* 모바일에서 요일 글자 크기 더 줄임 */
+        padding: 2px 0;
+    }
+
+    div[data-testid*="stColumn"] > button {
+        width: 30px !important; /* 모바일에서 버튼 크기 더 줄임 */
         height: 30px !important;
         min-width: 30px !important;
         min-height: 30px !important;
-        font-size: 0.8em !important;
+        font-size: 0.8em !important; /* 모바일에서 날짜 글자 크기 더 줄임 */
+        margin: 1px auto !important; /* 모바일에서 여백 더 줄임 */
     }
 
     .calendar-day-box.disabled-day {
         width: 30px !important;
         height: 30px !important;
         font-size: 0.8em !important;
+        margin: 1px auto !important;
     }
+}
 
+@media (max-width: 480px) { /* 매우 작은 모바일 기기에 대한 추가 조정 */
     .day-header {
-        font-size: 0.8em;
+        font-size: 0.7em;
+    }
+    div[data-testid*="stColumn"] > button {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        font-size: 0.75em !important;
+    }
+    .calendar-day-box.disabled-day {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.75em !important;
     }
 }
