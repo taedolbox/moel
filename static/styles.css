@@ -1,20 +1,32 @@
 /* static/styles.css */
 
+/* Streamlit의 메인 컨텐츠 블록에 대한 너비 제한 (선택 사항이지만 도움이 될 수 있음) */
+/* 이 부분은 전체 앱의 레이아웃에 영향을 줄 수 있으므로 주의해서 사용하세요. */
+.stApp > header + div { /* Streamlit 메인 컨텐츠 영역 */
+    max-width: 300px; /* 전체 앱의 최대 너비를 달력 너비에 맞춤 */
+    margin: auto;
+}
+
+
 /* 달력 전체를 감싸는 컨테이너 - PC (기본) 스타일 */
 .calendar-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%; /* 기본적으로는 100% 사용하되, max-width로 제한 */
-    min-width: 280px;
+    width: 100%;
     max-width: 300px; /* PC에서 원하는 최대 너비 */
+    min-width: 280px;
     margin: 0 auto;
+    /* border: 1px solid blue; /* 디버깅용 */
 }
 
-/* Streamlit 컬럼 (요일 및 날짜) - PC (기본) 스타일 */
-div[data-testid="column"] {
-    flex-basis: calc(100% / 7) !important;
-    max-width: calc(100% / 7) !important;
+/* 요일 및 날짜를 담는 Streamlit 컬럼에 대한 스타일 */
+/* 이 선택자는 Streamlit의 컬럼 요소에 직접 적용되어야 합니다. */
+div[data-testid="stColumn"] { /* "stColumn" data-testid는 정확한 Streamlit 컬럼 선택자일 가능성이 높습니다. */
+    flex-grow: 0 !important; /* 확장되지 않도록 설정 */
+    flex-shrink: 0 !important; /* 축소되지 않도록 설정 */
+    flex-basis: calc(100% / 7) !important; /* 각 컬럼이 전체 너비의 1/7을 차지하도록 강제 */
+    max-width: calc(100% / 7) !important;  /* 각 컬럼의 최대 너비도 1/7로 강제 */
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -22,10 +34,20 @@ div[data-testid="column"] {
     padding: 2px !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    /* border: 1px solid red; /* 디버깅용 */
 }
 
-/* Streamlit 버튼 - PC (기본) 스타일 */
-div[data-testid="column"] > button {
+/* 요일 헤더 텍스트 */
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 0;
+    font-size: 0.9em;
+    width: 100%;
+}
+
+/* Streamlit 버튼에 대한 기본 스타일 및 날짜 박스 역할 */
+div[data-testid="stColumn"] > button { /* 컬럼 내의 버튼에만 적용 */
     width: 35px !important;
     height: 35px !important;
     min-width: 35px !important;
@@ -43,40 +65,35 @@ div[data-testid="column"] > button {
     line-height: 1 !important;
 }
 
-/* ... (나머지 PC specific styles like hover, selected, current, disabled) ... */
+/* ... (나머지 스타일 유지: hover, selected, current, disabled 등) ... */
 
 /* --- 미디어 쿼리 (모바일 환경에 대한 조정) --- */
 @media (max-width: 700px) {
-    /* 모바일에서 달력 래퍼의 최대 너비를 유동적으로 설정 */
     .calendar-wrapper {
         max-width: 95% !important; /* 모바일에서 화면 너비의 95% 차지 */
-        min-width: unset !important; /* 모바일에서 최소 너비 제한 해제 */
+        min-width: unset !important;
     }
 
-    /* Streamlit 컬럼을 모바일에서도 7열로 강제 유지 */
-    div[data-testid="column"] {
+    div[data-testid="stColumn"] { /* 모바일 컬럼에도 강제 적용 */
         flex-basis: calc(100% / 7) !important;
         max-width: calc(100% / 7) !important;
-        padding: 1px !important; /* 모바일에서는 패딩을 약간 줄여서 공간 확보 */
+        padding: 1px !important;
     }
 
-    /* 모바일에서 버튼 크기 및 글꼴 조정 */
-    div[data-testid="column"] > button {
+    div[data-testid="stColumn"] > button {
         width: 30px !important; /* 모바일에서 버튼 크기 약간 줄임 */
         height: 30px !important;
         min-width: 30px !important;
         min-height: 30px !important;
-        font-size: 0.8em !important; /* 모바일에서 글꼴 크기 약간 줄임 */
+        font-size: 0.8em !important;
     }
 
-    /* 비활성화된 날짜 박스도 모바일 크기에 맞춰 조정 */
     .calendar-day-box.disabled-day {
         width: 30px !important;
         height: 30px !important;
         font-size: 0.8em !important;
     }
 
-    /* 요일 헤더 텍스트 모바일 조정 (선택적) */
     .day-header {
         font-size: 0.8em;
     }
