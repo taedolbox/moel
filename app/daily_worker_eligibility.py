@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:43 KST)
-current_datetime = datetime(2025, 5, 26, 20, 43)
+# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:57 KST)
+current_datetime = datetime(2025, 5, 26, 20, 57)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 # CSS 로드
@@ -57,10 +57,12 @@ def render_calendar_interactive(apply_date):
 
             # 달력 본체 (직접 HTML로 7열 그리드)
             calendar_html = '<div class="calendar-grid">'
+            button_positions = []  # 버튼 위치를 저장할 리스트
             for week in cal:
                 for day in week:
                     if day == 0:
                         calendar_html += '<div class="calendar-day-container"></div>'
+                        button_positions.append(None)
                         continue
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
@@ -69,6 +71,7 @@ def render_calendar_interactive(apply_date):
                             f'<div class="calendar-day-box disabled-day">{day}</div>'
                             '</div>'
                         )
+                        button_positions.append(None)
                         continue
 
                     is_selected = date_obj in selected_dates
@@ -85,12 +88,34 @@ def render_calendar_interactive(apply_date):
                         f'<div class="{class_name}">{day}</div>'
                         f'</div>'
                     )
+                    button_positions.append(date_obj)
 
-                    # 버튼을 별도로 렌더링
-                    st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,))
-            
             calendar_html += '</div>'
             st.markdown(calendar_html, unsafe_allow_html=True)
+
+            # 버튼을 7열로 배치하기 위해 별도 그리드 생성
+            button_html = '<div class="calendar-grid button-grid">'
+            for date_obj in button_positions:
+                if date_obj is None:
+                    button_html += '<div class="calendar-day-container"></div>'
+                    continue
+                button_html += (
+                    f'<div class="calendar-day-container">'
+                    f'</div>'
+                )
+            button_html += '</div>'
+            st.markdown(button_html, unsafe_allow_html=True)
+
+            # 버튼을 각 위치에 렌더링
+            for idx, date_obj in enumerate(button_positions):
+                if date_obj is not None:
+                    # 버튼을 절대 위치로 각 셀에 배치
+                    st.markdown(
+                        f'<div class="button-wrapper" style="position: absolute; top: 0; left: 0; width: 0; height: 0;">',
+                        unsafe_allow_html=True
+                    )
+                    st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,))
+                    st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
