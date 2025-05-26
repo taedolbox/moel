@@ -7,8 +7,8 @@ from streamlit.components.v1 import html
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 7:57 KST)
-current_datetime = datetime(2025, 5, 26, 19, 57)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 8:11 KST)
+current_datetime = datetime(2025, 5, 26, 20, 11)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -38,13 +38,14 @@ def render_calendar_interactive(apply_date):
 
     # 달력 컨테이너
     with st.container():
+        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
         for year, month in months_to_display:
             st.markdown(f'<h3>{year}년 {month}월</h3>', unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
             days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더
-            cols = st.columns(7, gap="small")
+            cols = st.columns(7, gap="zero")
             for i, day_name in enumerate(days_of_week):
                 with cols[i]:
                     color = "red" if i == 0 else "#000000"
@@ -55,7 +56,7 @@ def render_calendar_interactive(apply_date):
 
             # 달력 본체
             for week in cal:
-                cols = st.columns(7, gap="small")
+                cols = st.columns(7, gap="zero")
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
@@ -88,6 +89,7 @@ def render_calendar_interactive(apply_date):
                         )
                         # 선택 버튼
                         st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,), use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.rerun_trigger:
         st.session_state.rerun_trigger = False
