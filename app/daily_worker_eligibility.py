@@ -13,7 +13,6 @@ current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:
 
 # --- 외부 CSS 파일 로드 함수 ---
 def load_css(file_name):
-    # CSS 파일의 절대 경로를 구성 (스크립트와 같은 디렉토리에 있다고 가정)
     css_path = os.path.join(os.path.dirname(__file__), file_name)
     try:
         with open(css_path) as f:
@@ -86,6 +85,8 @@ def render_calendar_interactive(apply_date):
                         )
                     else:
                         # 활성화된 날짜는 클릭 가능한 버튼으로 렌더링
+                        # Streamlit의 버튼은 자체적으로 div[data-testid="column"]에 래핑되므로,
+                        # 버튼의 스타일은 CSS에서 해당 selector를 사용해 제어합니다.
                         if st.button(str(day), key=button_key, use_container_width=True):
                             if date_obj in selected_dates:
                                 selected_dates.remove(date_obj)
@@ -102,9 +103,11 @@ def render_calendar_interactive(apply_date):
                             button_classes_to_add.append("current-day")
                         
                         # 생성된 Streamlit 버튼에 CSS 클래스를 적용하기 위해 <style> 태그를 주입합니다.
+                        # 이는 Streamlit 버튼이 고유한 key를 가지므로, 이 key를 이용해 특정 버튼을 타겟팅합니다.
                         st.markdown(
                             f"""
                             <style>
+                                /* 이 스타일은 특정 버튼에만 적용됩니다 */
                                 div[data-testid="column"] > button[key="{button_key}"] {{
                                     {" ".join(button_classes_to_add)} /* CSS 클래스 적용 */
                                 }}
