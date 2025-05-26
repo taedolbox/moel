@@ -1,121 +1,180 @@
+# daily_worker_eligibility.py
 import streamlit as st
-from datetime import datetime, timedelta
+import pandas as pd
+from datetime import datetime, timedelta, date
 import calendar
 
-# CSS 파일 로드
-def load_css():
-    with open("style.css", "r") as f:
-        css = f"<style>{f.read()}</style>"
-        st.markdown(css, unsafe_allow_html=True)
+calendar.setfirstweekday(calendar.SUNDAY)
+current_datetime = datetime(2025, 5, 26, 6, 29)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
-# 달력 렌더링 함수
-def render_calendar(year, month, selected_date):
-    # 달력 제목
-    month_name = f"{year}년 {month}월"
-    st.markdown(f'<div class="calendar-wrapper"><h3>{month_name}</h3></div>', unsafe_allow_html=True)
+def get_date_range(apply_date):
+    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
+    return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
-    # 요일 헤더
-    cols = st.columns(7)
-    days = ["월", "화", "수", "목", "금", "토", "일"]
-    for col, day in zip(cols, days):
-        col.markdown(f'<div class="day-header">{day}</div>', unsafe_allow_html=True)
+def render_calendar_interactive(apply_date):
+    if 'selected_dates' not in st.session_state:
+        st.session_state.selected_dates = set()
+    if 'rerun_trigger' not in st.session_state:
+        st.session_state.rerun_trigger = False
 
-    # 달력 데이터 준비
-    cal = calendar.monthcalendar(year, month)
-    today = datetime.now().date()
+    selected_dates = st.session_state.selected_dates
+    current_date = current_datetime.date()
+    start_date_for_calendar = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
+    end_date_for_calendar = apply_date
+    months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
-    for week in cal:
-        cols = st.columns(7)
-        for day_idx, day in enumerate(week):
-            with cols[day_idx]:
-                if day == 0:  # 빈 날짜
-                    st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
-                    continue
-                date = datetime(year, month, day).date()
-                # 자격 확인 더미 로직 (예: 특정 날짜는 비활성화)
-                is_disabled = date < today  # 과거 날짜 비활성화
-                # 클래스 설정
-                classes = []
-                if date == selected_date:
-                    classes.append("selected-day")
-                if date == today:
-                    classes.append("current-day")
-                if is_disabled:
-                    classes.append("disabled-day")
-                class_str = " ".join(classes)
-                # 숫자 표시
-                st.markdown(
-                    f'<div class="calendar-day-container">'
-                    f'<div class="calendar-day-box {class_str}">'
-                    f'<div class="selection-mark"></div>'
-                    f'{day}</div></div>',
-                    unsafe_allow_html=True
-                )
-                # 선택 버튼 (숫자 라벨 포함)
-                st.button(
-                    f"{day}",
-                    key=f"day_{year}_{month}_{day}",
-                    on_click=select_date,
-                    args=(date,),
-                    disabled=is_disabled,
-                    help=f"Select {day}"
-                )
+    with st.container():
+        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
+        for year, month in months_to_display:
+            st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
+            cal = calendar.monthcalendar(year, month)
+            days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-# 날짜 선택 콜백
-def select_date(date):
-    st.session_state.selected_date = date
+            cols = st.columns(7, gap="small")
+            for i, day_name in enumerate(days_of_week_korean):
+                with cols[i]:
+                    color = "red" if i == 0 or i == 6 else "#000000"
+                    st.markdown(
+                        f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
+                        unsafe_allow_html=True
+                    )
 
-# 근로자 자격 확인 더미 함수
-def check_eligibility(date):
-    # 예: 특정 날짜에 따라 자격 여부 결정
-    if date.weekday() in [5, 6]:  # 주말은 자격 없음
-        return "주말 근무 불가"
-    return "근무 가능"
+            for week in cal:
+                cols = st.columns(7, gap="small")
+                for i, day in enumerate(week):
+                    with cols[i]:
+                        if day == 0:
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                            continue
+                        date_obj = date(year, month, day)
+                        if date_obj > apply_date:
+                            st.markdown(
+                                f'<div class="calendar-day-container">'
+                                f'<div class="calendar-day-box disabled-day">{day}</div>'
+                                f'<button data-testid="stButton" style="display: none;"></button>'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                            continue
 
-# 메인 앱
-def main():
-    load_css()
-    st.title("일별 근로자 자격 확인")
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        class_name = "calendar-day-box"
+                        if is_selected:
+                            class_name += " selected-day"
+                        if is_current:
+                            class_name += " current-day"
 
-    # 세션 상태 초기화
-    if "selected_date" not in st.session_state:
-        st.session_state.selected_date = datetime.now().date()
+                        container_key = f"date_{date_obj.isoformat()}"
+                        st.markdown(
+                            f'<div class="calendar-day-container">'
+                            f'<div class="selection-mark"></div>'
+                            f'<div class="{class_name}">{day}</div>'
+                            f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
+                            pass
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # 연도와 월 선택
-    col1, col2 = st.columns(2)
-    with col1:
-        year = st.number_input("연도", min_value=2020, max_value=2030, value=2025)
-    with col2:
-        month = st.number_input("월", min_value=1, max_value=12, value=5)
+    if st.session_state.rerun_trigger:
+        st.session_state.rerun_trigger = False
+        st.rerun()
 
-    # 달력 렌더링
-    render_calendar(year, month, st.session_state.selected_date)
+    if st.session_state.selected_dates:
+        st.markdown("### ✅ 선택된 근무일자")
+        st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
 
-    # 선택된 날짜와 자격 표시
-    selected_date = st.session_state.selected_date
-    st.write(f"선택된 날짜: {selected_date}")
-    eligibility = check_eligibility(selected_date)
-    st.write(f"자격 상태: {eligibility}")
+    return st.session_state.selected_dates
+
+def toggle_date(date_obj):
+    if date_obj in st.session_state.selected_dates:
+        st.session_state.selected_dates.remove(date_obj)
+    else:
+        st.session_state.selected_dates.add(date_obj)
+    st.session_state.rerun_trigger = True
+
+def daily_worker_eligibility_app():
+    st.header("일용근로자 수급자격 요건 모의계산")
+    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
+
+    st.markdown("### 📋 요건 조건")
+    st.markdown("- **조건 1**: 신청일 기준 직전달 1일부터 신청일까지의 근로일 수가 총일수의 1/3 미만이어야 합니다.")
+    st.markdown("- **조건 2 (건설일용근로자)**: 신청일 직전 14일간 근무 사실이 없어야 합니다.")
+    st.markdown("---")
+
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
+    date_range_objects, start_date = get_date_range(apply_date)
+
+    st.markdown("---")
+    st.markdown("#### ✅ 근무일 선택 달력")
+    selected_dates = render_calendar_interactive(apply_date)
+    st.markdown("---")
+
+    total_days = len(date_range_objects)
+    worked_days = len(selected_dates)
+    threshold = total_days / 3
+
+    st.markdown(f"- 총 기간 일수: **{total_days}일**")
+    st.markdown(f"- 기준 (1/3): **{threshold:.1f}일**")
+    st.markdown(f"- 근무일 수: **{worked_days}일**")
+
+    condition1 = worked_days < threshold
+    st.markdown(
+        f'<div class="result-text">'
+        f'<p>{"✅ 조건 1 충족" if condition1 else "❌ 조건 1 불충족"}</p>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    fourteen_days_prior_end = apply_date - timedelta(days=1)
+    fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
+    fourteen_days_prior_range = [d.date() for d in pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)]
+    no_work_14_days = all(day not in selected_dates for day in fourteen_days_prior_range)
+    condition2 = no_work_14_days
+
+    st.markdown(
+        f'<div class="result-text">'
+        f'<p>{"✅ 조건 2 충족" if condition2 else "❌ 조건 2 불충족"}</p>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    if not condition1:
+        st.markdown("### 조건 1을 만족하려면?")
+        for i in range(1, 31):
+            future_date = apply_date + timedelta(days=i)
+            date_range_future_objects, _ = get_date_range(future_date)
+            total_days_future = len(date_range_future_objects)
+            threshold_future = total_days_future / 3
+            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
+            if worked_days_future < threshold_future:
+                st.markdown(f"✅ **{future_date.strftime('%Y-%m-%d')}** 이후 신청 시 조건 1을 만족합니다.")
+                break
+        else:
+            st.markdown("❗ 30일 내 조건 1 만족 불가. 더 미래의 날짜가 필요합니다.")
+
+    if not condition2:
+        st.markdown("### 조건 2를 만족하려면?")
+        last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
+        if last_worked_day:
+            suggested_date = last_worked_day + timedelta(days=15)
+            st.markdown(f"✅ **{suggested_date.strftime('%Y-%m-%d')}** 이후 신청 시 조건 2 만족.")
+        else:
+            st.markdown("이미 최근 14일 근무 없음 → 신청일 조정 불필요.")
+
+    st.subheader("📌 최종 판단")
+    if condition1:
+        st.markdown("✅ 일반일용근로자: 신청 가능")
+    else:
+        st.markdown("❌ 일반일용근로자: 신청 불가")
+
+    if condition1 and condition2:
+        st.markdown("✅ 건설일용근로자: 신청 가능")
+    else:
+        st.markdown("❌ 건설일용근로자: 신청 불가")
 
 if __name__ == "__main__":
-    main()
-    # JavaScript로 화면 너비 업데이트
-    screen_width_script = """
-    <script>
-        function updateScreenWidth() {
-            window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
-        }
-        window.addEventListener('resize', updateScreenWidth);
-        updateScreenWidth();
-    </script>
-    """
-    html(screen_width_script)
-
-    def update_screen_width():
-        if 'screen_width_event' in st.session_state:
-            st.session_state.screen_width = st.session_state.screen_width_event
-
-    st.session_state.screen_width_event = st.experimental_get_query_params().get("screen_width", [1000])[0]
-    update_screen_width()
-
     daily_worker_eligibility_app()
