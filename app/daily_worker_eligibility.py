@@ -2,12 +2,13 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
+from streamlit.components.v1 import html
 
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 6:21 KST)
-current_datetime = datetime(2025, 5, 26, 18, 21)
+# 현재 날짜와 시간 (2025년 5월 26일 오후 7:09 KST)
+current_datetime = datetime(2025, 5, 26, 19, 9)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 def get_date_range(apply_date):
@@ -33,70 +34,70 @@ def render_calendar_interactive(apply_date):
 
     # 달력 전용 컨테이너
     with st.container():
-        # 달력을 가운데 정렬하되, 최소 너비를 보장
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
-        # 각 월별 달력 렌더링
         for year, month in months_to_display:
             st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더 생성 (7열 고정)
-            cols = st.columns(7, gap="zero")  # gap을 zero로 설정하여 간격 최소화
-            for i, day_name in enumerate(days_of_week_korean):
-                with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "#000000"
-                    st.markdown(
-                        f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-                        unsafe_allow_html=True
-                    )
+            # 요일 헤더
+            st.markdown(
+                '<div class="calendar-header">'
+                '<div class="day-header" style="color: red;">일</div>'
+                '<div class="day-header">월</div>'
+                '<div class="day-header">화</div>'
+                '<div class="day-header">수</div>'
+                '<div class="day-header">목</div>'
+                '<div class="day-header">금</div>'
+                '<div class="day-header" style="color: red;">토</div>'
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-            # 달력 렌더링 (CSS와 함께 7열 강제)
+            # 달력 본체 (CSS 그리드에 의존)
+            st.markdown('<div class="calendar-container">', unsafe_allow_html=True)
             for week in cal:
-                cols = st.columns(7, gap="zero")  # gap을 zero로 설정
-                for i, day in enumerate(week):
-                    with cols[i]:
-                        if day == 0:
-                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
-                            continue
-                        date_obj = date(year, month, day)
-                        if date_obj > apply_date:
-                            st.markdown(
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'<button data-testid="stButton" style="display: none;"></button>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-
-                        container_key = f"date_{date_obj.isoformat()}"
+                for day in week:
+                    if day == 0:
+                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
                         st.markdown(
                             f'<div class="calendar-day-container">'
-                            f'<div class="selection-mark"></div>'
-                            f'<div class="{class_name}">{day}</div>'
-                            f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
+                            f'<button data-testid="stButton" style="display: none;"></button>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
-                            pass
+                        continue
+
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
+
+                    container_key = f"date_{date_obj.isoformat()}"
+                    st.markdown(
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<div class="{class_name}">{day}</div>'
+                        f'<button data-testid="stButton" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));"></button>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+                    if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=True):
+                        pass
+            st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # rerun_trigger 확인 및 페이지 새로고침
     if st.session_state.rerun_trigger:
         st.session_state.rerun_trigger = False
         st.rerun()
 
-    # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
@@ -117,10 +118,18 @@ def daily_worker_eligibility_app():
     if 'sidebar_visible' not in st.session_state:
         st.session_state.sidebar_visible = True  # PC 라이트 모드에서 기본적으로 표시
 
-    st.header("일용근로자 수급자격 요건 모의계산")
+    # 모바일 감지: JavaScript로 화면 너비 확인
+    screen_width_script = """
+    <script>
+        window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
+    </script>
+    """
+    html(screen_width_script)
+    screen_width = st.session_state.get('screen_width', 1000)  # 기본값: PC로 가정
+    is_mobile = screen_width <= 500
 
-    # 모바일 다크 모드에서 사이드바 토글 버튼 표시
-    if st.get_option("browser.screen_width") <= 500 and (st.get_option("theme.base") == "dark" or st.get_option("theme.base") == "dark"):
+    # 사이드바 토글 버튼 (모바일에서만 표시)
+    if is_mobile:
         toggle_button = st.button("사이드바 토글", key="sidebar_toggle")
         if toggle_button:
             st.session_state.sidebar_visible = not st.session_state.sidebar_visible
@@ -132,6 +141,8 @@ def daily_worker_eligibility_app():
             st.markdown("이 앱은 일용근로자 및 건설일용근로자의 수급자격 요건을 모의계산합니다.")
             st.markdown("- **조건 1**: 신청일이 속한 달의 직전 달 초일부터 신청일까지 근로일 수가 총 일수의 1/3 미만.")
             st.markdown("- **조건 2 (건설일용근로자)**: 신청일 직전 14일간 근무 사실 없음.")
+
+    st.header("일용근로자 수급자격 요건 모의계산")
 
     # 현재 날짜와 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
@@ -235,7 +246,6 @@ def daily_worker_eligibility_app():
             )
 
     st.subheader("📌 최종 판단")
-    # 일반일용근로자: 조건 1만 판단
     if condition1:
         st.markdown(
             f'<div class="result-text">'
@@ -253,7 +263,6 @@ def daily_worker_eligibility_app():
             unsafe_allow_html=True
         )
 
-    # 건설일용근로자: 조건 1과 조건 2 모두 판단
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
@@ -276,4 +285,23 @@ def daily_worker_eligibility_app():
         )
 
 if __name__ == "__main__":
+    # JavaScript로 화면 너비 업데이트
+    screen_width_script = """
+    <script>
+        function updateScreenWidth() {
+            window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
+        }
+        window.addEventListener('resize', updateScreenWidth);
+        updateScreenWidth();
+    </script>
+    """
+    html(screen_width_script)
+
+    def update_screen_width():
+        if 'screen_width_event' in st.session_state:
+            st.session_state.screen_width = st.session_state.screen_width_event
+
+    st.session_state.screen_width_event = st_javascript("window.innerWidth")
+    update_screen_width()
+
     daily_worker_eligibility_app()
