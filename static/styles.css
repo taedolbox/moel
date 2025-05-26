@@ -137,8 +137,8 @@ button[data-testid="stButton"] {
     transform: translate(50%, 50%) !important;
     background: transparent !important; /* 투명 배경 */
     border: 1px dotted #999 !important; /* 디버깅용 회색 점선 테두리 */
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 10 !important;
+    margin: 10 !important;
     cursor: pointer !important;
     opacity: 0.6 !important;
     z-index: 2 !important;
