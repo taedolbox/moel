@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
+@import url('https://fonts.com/css2?family=Nanum+Gothic&display=swap');
 
 /* 전체 페이지 배경 및 텍스트 설정 */
 body, div[data-testid="stAppViewContainer"] {
@@ -114,7 +114,7 @@ button[kind="primary"] {
     justify-content: space-between !important;
     width: 100%; /* 부모에 맞게 100% */
     max-width: 600px; /* PC 기본 max-width */
-    margin: 0 auto; /* 중앙 정렬 */
+    margin: 0 auto !important; /* 중앙 정렬 */
 }
 
 /* 달력 헤더 스타일 */
@@ -138,12 +138,12 @@ button[kind="primary"] {
     gap: 0 !important;
     width: 100%; /* 부모에 맞게 100% */
     max-width: 600px; /* PC 기본 max-width */
-    margin: 0 auto; /* 중앙 정렬 */
+    margin: 0 auto !important; /* 중앙 정렬 */
 }
 
-/* Streamlit columns 스타일 제거 (사용 안 함) - 이 부분은 Python에서 st.columns를 사용하지 않으므로 불필요하지만 혹시 모를 충돌을 위해 유지*/
+/* Streamlit columns 스타일 제거 (사용 안 함) */
 div[data-testid="column"] {
-    /* display: none !important; */ /* st.columns 사용 안 함, 그러나 이 스타일은 다른 st.columns에 영향을 줄 수 있으므로 제거하거나 신중하게 사용 */
+    /* display: none !important; */
 }
 
 .calendar-day-container {
@@ -177,11 +177,10 @@ div[data-testid="column"] {
     z-index: 1 !important;
 }
 
-/* Streamlit 버튼 스타일 제거 - 이제 JavaScript로 클릭 이벤트를 처리하므로 Streamlit 버튼은 사용하지 않습니다. */
+/* Streamlit 버튼 스타일 제거 */
 button[data-testid="stButton"] {
     display: none !important; /* Streamlit 버튼을 완전히 숨김 */
 }
-
 
 /* 다크 모드 스타일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
@@ -212,7 +211,7 @@ button[data-testid="stButton"] {
         width: 600px !important;
     }
     .calendar-day-container {
-        width: calc(600px / 7) !important; /* 각 날짜 컨테이너의 너비 재계산 */
+        width: calc(600px / 7) !important;
         height: 48px !important;
     }
     .calendar-day-box {
@@ -220,7 +219,6 @@ button[data-testid="stButton"] {
         height: 38px !important;
         font-size: 1em !important;
     }
-    /* button[data-testid="stButton"] 스타일은 더 이상 사용하지 않음 */
     .day-header {
         width: calc(600px / 7) !important;
     }
@@ -245,7 +243,7 @@ button[data-testid="stButton"] {
         margin: 0 auto !important; /* 중앙 정렬 */
     }
     .calendar-day-container {
-        width: calc(280px / 7) !important; /* 각 날짜 컨테이너의 너비 재계산 */
+        width: calc(280px / 7) !important;
         height: 44px !important;
         background-color: #f0f0f0 !important;
     }
@@ -254,7 +252,6 @@ button[data-testid="stButton"] {
         height: 34px !important;
         font-size: 0.9em !important;
     }
-    /* button[data-testid="stButton"] 스타일은 더 이상 사용하지 않음 */
     .day-header {
         width: calc(280px / 7) !important;
     }
