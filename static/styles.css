@@ -165,7 +165,7 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 36px !important;
+    width: 44px !important;
     height: 44px !important;
     position: absolute !important;
     top: 50% !important;
