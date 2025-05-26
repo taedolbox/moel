@@ -66,84 +66,113 @@
     padding: 0; /* 기본 패딩을 제거합니다. */
 }
 
-/* 작은 화면(예: 모바일)에서의 반응형 디자인을 위한 미디어 쿼리 */
+/* 미디어 쿼리: 화면 너비가 700px 이하일 때 적용 */
 @media (max-width: 700px) {
-    /* 작은 화면에 맞춰 달력 그리드 열을 조정합니다. */
+    /* 달력 컨테이너의 그리드 템플릿 조정 */
     .calendar-container {
-        grid-template-columns: repeat(7, minmax(30px, 1fr)) !important; /* 7개 열, 최소 30px, 유동적 */
-        max-width: 280px !important; /* 달력 그리드의 최대 너비 */
-        background-color: #e0e0e0 !important; /* 그리드의 연한 회색 배경 */
+        grid-template-columns: repeat(7, 35px) !important; /* 7개 열을 각 35px로 고정 */
+        max-width: 280px !important; /* 달력 컨테이너의 최대 너비 */
+        background-color: #e0e0e0 !important; /* 배경색 변경 */
     }
-    /* 작은 화면에 맞춰 날짜 컨테이너의 크기를 조정합니다. */
+    /* 개별 날짜 컨테이너의 크기 조정 */
     .calendar-day-container {
-        width: 20px; /* 고정 너비 */
-        height: 20px; /* 고정 높이 */
+        width: 35px; /* 너비 조정 */
+        height: 35px; /* 높이 조정 */
     }
-    /* 작은 화면에서 날짜 상자의 크기와 글꼴을 조정합니다. */
+    /* 날짜 상자의 크기와 글꼴 크기 조정 */
     .calendar-day-box {
-        width: 20px; /* 고정 너비 */
-        height: 20px; /* 고정 높이 */
-        font-size: 0.1em; /* 더 작은 글꼴 크기 */
+        width: 35px; /* 너비 조정 */
+        height: 35px; /* 높이 조정 */
+        font-size: 0.8em; /* 글꼴 크기 조정 */
     }
-    /* Streamlit 열을 7개의 열로 강제적으로 한 줄에 표시합니다. */
+    /* Streamlit 컬럼(요일 및 날짜)을 7열로 강제 고정 */
     div[data-testid="column"] {
-        display: flex !important; /* 열에 플렉스박스 표시를 보장합니다. */
-        flex-direction: row !important; /* 열을 가로 방향으로 배열합니다. */
-        /* 간격 및 일부 패딩을 포함하여 7개 열이 들어갈 총 너비를 계산합니다. */
-        width: calc(30px * 7 + 2px * 6 + 10px) !important;
-        margin: 0 auto !important; /* 열 행을 가운데 정렬합니다. */
-        flex-wrap: nowrap !important; /* 열이 다음 줄로 넘어가지 않도록 합니다. */
-        justify-content: center; /* 컨테이너 내에서 열을 가운데 정렬합니다. */
+        flex-basis: calc(100% / 7) !important; /* 각 컬럼이 전체 너비의 1/7을 차지하도록 강제 */
+        max-width: calc(100% / 7) !important; /* 각 컬럼의 최대 너비 설정 */
+        display: flex !important; /* 플렉스박스 사용 */
+        flex-direction: column !important; /* 자식 요소는 세로로 쌓이도록 (버튼 자체의 정렬) */
+        align-items: center !important; /* 컬럼 내 요소 가운데 정렬 */
+        justify-content: center !important; /* 컬럼 내 요소 가운데 정렬 */
+        padding: 2px !important; /* 패딩 추가 */
+        margin: 0 !important; /* 기본 마진 제거 */
+        box-sizing: border-box !important; /* 패딩과 테두리를 너비에 포함 */
     }
 }
 
 /* 선택된 날짜의 스타일 */
-.calendar-day-box.selected-day { /* 이 스타일은 이제 직접적인 CSS 삽입을 통해 버튼에 적용됨 */
-    background-color: #4CAF50 !important; /* 선택된 날짜의 녹색 배경 */
-    color: #ffffff !important; /* 선택된 날짜의 흰색 텍스트 */
-    border: 2px solid #4CAF50 !important; /* 선택된 날짜의 녹색 테두리 */
+.calendar-day-box.selected-day {
+    background-color: #4CAF50 !important; /* 녹색 배경 */
+    color: #ffffff !important; /* 흰색 텍스트 */
+    border: 2px solid #4CAF50 !important; /* 녹색 테두리 */
 }
 
 /* 현재 날짜의 스타일 (선택되지 않은 경우) */
-.calendar-day-box.current-day:not(.selected-day) { /* 이 스타일은 이제 직접적인 CSS 삽입을 통해 버튼에 적용됨 */
-    border: 2px solid blue !important; /* 현재 날짜의 파란색 테두리 */
+.calendar-day-box.current-day:not(.selected-day) {
+    border: 2px solid blue !important; /* 파란색 테두리 */
 }
 
-/* 비활성화된(미래) 날짜의 스타일 */
+/* 비활성화된 날짜의 스타일 */
 .calendar-day-box.disabled-day {
-    border: 1px solid #555; /* 더 진한 회색 테두리 */
-    background-color: #e0e0e0; /* 더 연한 회색 배경 */
-    color: #666 !important; /* 더 진한 회색 텍스트 색상 */
-    cursor: not-allowed; /* 클릭할 수 없음을 나타내는 커서 변경 */
+    border: 1px solid #555; /* 회색 테두리 */
+    background-color: #e0e0e0; /* 연한 회색 배경 */
+    color: #666 !important; /* 어두운 회색 텍스트 */
+    cursor: not-allowed; /* 클릭 불가 커서 */
 }
 
-/* 선택 표시(작은 원)의 스타일 (현재는 버튼의 배경/테두리로 시각적으로 관리됨) */
+/* 선택 표시 (현재 버튼의 배경/테두리로 시각적으로 관리됨) */
 .selection-mark {
-    position: absolute; /* 부모 .calendar-day-container에 상대적으로 위치합니다. */
-    top: 2px; /* 위쪽에서 2px 떨어진 거리 */
-    width: 12px; /* 마크의 너비 */
-    height: 12px; /* 마크의 높이 */
-    border-radius: 50%; /* 마크를 원형으로 만듭니다. */
-    background-color: #4CAF50; /* 녹색 배경 */
-    border: 1px solid #ffffff; /* 흰색 테두리 */
-    display: none; /* 기본적으로 숨김 */
+    position: absolute;
+    top: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    border: 1px solid #ffffff;
+    display: none;
 }
 
-/* 선택된 날짜에 대해 선택 표시를 표시합니다. */
+/* 선택된 날짜에 대해 선택 표시를 표시 */
 .selected-day .selection-mark {
-    display: block; /* 마크를 표시합니다. */
+    display: block;
 }
 
-/* Streamlit 버튼이 달력 상자처럼 보이도록 하는 추가 스타일 */
+/* Streamlit 버튼이 달력 일자 박스처럼 보이도록 하는 추가 스타일 */
 div[data-testid="column"] > button {
-    width: 30px !important; /* 버튼 너비가 calendar-day-box와 일치하도록 합니다. */
-    height: 30px !important; /* 버튼 높이가 calendar-day-box와 일치하도록 합니다. */
-    min-width: 30px !important; /* 모바일 반응성을 위한 최소 너비 */
-    min-height: 30px !important; /* 모바일 반응성을 위한 최소 높이 */
-    border-radius: 50% !important; /* 버튼을 원형으로 만듭니다. */
-    display: flex !important; /* 버튼 내 콘텐츠를 가운데 정렬하기 위해 플렉스박스를 활성화합니다. */
-    align-items: center !important; /* 콘텐츠를 세로로 가운데 정렬합니다. */
-    justify-content: center !important; /* 콘텐츠를 수평으로 가운데 정렬합니다. */
-    padding: 0 !important; /* 기본 버튼 패딩을 제거합니다. */
-    margin: 0 auto !important; /* 버튼을 해당 열 내에서 가운데 정렬합니다. */
+    width: 35px !important; /* 버튼 너비를 35px로 설정하여 모바일 레이아웃에 맞춤 */
+    height: 35px !important; /* 버튼 높이를 35px로 설정 */
+    min-width: 35px !important; /* 최소 너비 보장 */
+    min-height: 35px !important; /* 최소 높이 보장 */
+    border-radius: 50% !important; /* 원형으로 만듦 */
+    display: flex !important; /* 플렉스박스 사용 */
+    align-items: center !important; /* 내용 수직 가운데 정렬 */
+    justify-content: center !important; /* 내용 수평 가운데 정렬 */
+    padding: 0 !important; /* 패딩 제거 */
+    margin: 0 auto !important; /* 컬럼 내에서 버튼 가운데 정렬 */
+    border: 1px solid #333; /* 기본 테두리 */
+    background-color: #ffffff; /* 기본 배경색 */
+    color: #000000; /* 기본 글자색 */
+    font-size: 1.1em; /* 기본 글꼴 크기 */
+}
+
+/* 버튼 호버 시 스타일 */
+div[data-testid="column"] > button:hover {
+    background-color: #e0e0e0 !important; /* 호버 시 배경색 변경 */
+}
+
+/* 선택된 버튼 호버 시 스타일 */
+div[data-testid="column"] > button.selected-day:hover {
+    background-color: #45a049 !important; /* 선택된 버튼 호버 시 더 어두운 녹색 */
+}
+
+/* 현재 날짜 버튼 (선택되지 않은 경우)의 테두리 */
+div[data-testid="column"] > button.current-day:not(.selected-day) {
+    border: 2px solid blue !important;
+}
+
+/* 비활성화된 버튼 스타일 */
+div[data-testid="column"] > button[disabled] {
+    border: 1px solid #555 !important;
+    background-color: #e0e0e0 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
 }
