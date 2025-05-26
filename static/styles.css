@@ -129,8 +129,8 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 44px !important;
-    height: 44px !important;
+    width: 34px !important;
+    height: 34px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -169,8 +169,8 @@ button[data-testid="stButton"]:hover {
         font-size: 1em !important;
     }
     button[data-testid="stButton"] {
-        width: 40px !important;
-        height: 40px !important;
+        width: 38px !important;
+        height: 38px !important;
     }
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
