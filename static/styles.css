@@ -107,48 +107,68 @@ button[kind="primary"] {
     width: 100%;
 }
 
-/* 라이트 모드 - PC */
+/* 달력 헤더 스타일 */
+.calendar-header {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 2px !important;
+    width: 100%;
+    min-width: 280px;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.day-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* 달력 본체 스타일 */
 .calendar-container {
     display: grid !important;
-    grid-template-columns: repeat(7, 40px) !important;
-    gap: 0 !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 2px !important;
     padding: 0 !important;
     margin: 0 auto !important;
     min-width: 280px !important;
     max-width: 280px !important;
-    background-color: #ffffff !important;
+    background-color: #ffffff !important; /* 라이트 모드 */
 }
 
 .calendar-day-container {
     position: relative;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
+    width: 100% !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
     background-color: #ffffff !important;
 }
 
 .calendar-day-box {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #333;
-    background-color: #ffffff;
-    border-radius: 50%;
-    font-size: 1.1em;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #333 !important;
+    background-color: #ffffff !important;
+    border-radius: 50% !important;
+    font-size: 0.9em !important;
     color: #000000 !important;
-    box-sizing: border-box;
-    user-select: none;
-    white-space: nowrap;
-    margin: 0;
-    padding: 0;
+    box-sizing: border-box !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* 다크 모드 - PC */
+/* 다크 모드 - PC 및 모바일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-wrapper h3 {
         background-color: #2e2e2e !important;
@@ -161,124 +181,62 @@ button[kind="primary"] {
         background-color: #2a2a2a !important;
     }
     .calendar-day-box {
-        border: 1px solid #888;
-        background-color: #000000;
+        border: 1px solid #888 !important;
+        background-color: #000000 !important;
         color: #ffffff !important;
     }
 }
 
-/* 라이트 모드 - 모바일 */
-@media (max-width: 500px) and (prefers-color-scheme: light), (max-width: 500px) and [data-theme="light"] {
-    body, div[data-testid="stAppViewContainer"] {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-    }
-    .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
-        color: #000000 !important;
-    }
-    .sidebar .sidebar-content, .sidebar .sidebar-content * {
-        color: #000000 !important;
-    }
+/* 모바일 전용 스타일 */
+@media (max-width: 500px) {
     .calendar-wrapper {
-        width: 100%;
-        min-width: 280px;
-        max-width: 280px;
-        margin: 0 auto;
+        width: 100% !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        margin: 0 auto !important;
     }
     .calendar-container {
         display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important; /* 7열 고정 */
+        grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
-        background-color: #e0e0e0 !important;
+        background-color: #e0e0e0 !important; /* 라이트 모드 */
     }
     .calendar-day-container {
         width: 100% !important;
         height: 40px !important;
-        margin: 0 !important;
         background-color: #e0e0e0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
     .calendar-day-box {
         width: 36px !important;
         height: 36px !important;
         font-size: 0.9em !important;
-        border: 1px solid #333;
-        background-color: #ffffff;
-        color: #000000 !important;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 }
 
-/* 다크 모드 - 모바일 */
 @media (max-width: 500px) and (prefers-color-scheme: dark), (max-width: 500px) and [data-theme="dark"] {
-    body, div[data-testid="stAppViewContainer"] {
-        background-color: #2a2a2a !important;
-        color: #ffffff !important;
-    }
-    .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
-        color: #ffffff !important;
-    }
-    .sidebar .sidebar-content, .sidebar .sidebar-content * {
-        color: #ffffff !important;
-    }
-    .calendar-wrapper {
-        width: 100%;
-        min-width: 280px;
-        max-width: 280px;
-        margin: 0 auto;
-    }
     .calendar-container {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important; /* 7열 고정 */
-        gap: 2px !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
         background-color: #2a2a2a !important;
     }
     .calendar-day-container {
-        width: 100% !important;
-        height: 40px !important;
-        margin: 0 !important;
         background-color: #2a2a2a !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
     .calendar-day-box {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 0.9em !important;
-        border: 1px solid #888;
-        background-color: #000000;
+        border: 1px solid #888 !important;
+        background-color: #000000 !important;
         color: #ffffff !important;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 }
 
 /* 공통 스타일 */
 .calendar-day-box:hover {
-    background-color: #e0e0e0;
-    border-color: #555;
+    background-color: #e0e0e0 !important;
+    border-color: #555 !important;
 }
 
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-day-box:hover {
-        background-color: #333333;
-        border-color: #aaa;
+        background-color: #333333 !important;
+        border-color: #aaa !important;
     }
 }
 
@@ -290,20 +248,20 @@ button[kind="primary"] {
     background-color: #4CAF50 !important;
     color: #ffffff !important;
     border: 2px solid #4CAF50 !important;
-    font-weight: bold;
+    font-weight: bold !important;
 }
 
 .calendar-day-box.disabled-day {
-    border: 1px solid #555;
-    background-color: #e0e0e0;
+    border: 1px solid #555 !important;
+    background-color: #e0e0e0 !important;
     color: #666 !important;
-    cursor: not-allowed;
+    cursor: not-allowed !important;
 }
 
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-day-box.disabled-day {
-        background-color: #2e2e2e;
-        border: 1px solid #444;
+        background-color: #2e2e2e !important;
+        border: 1px solid #444 !important;
         color: #666 !important;
     }
 }
@@ -320,39 +278,32 @@ button[kind="primary"] {
 }
 
 .selected-day .selection-mark {
-    display: block;
+    display: block !important;
 }
 
 button[data-testid="stButton"] {
-    width: 40px !important;
-    height: 40px !important;
+    width: 36px !important;
+    height: 36px !important;
     min-width: 0 !important;
     min-height: 0 !important;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     background: none !important;
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    cursor: pointer;
-    opacity: 0;
-    box-sizing: border-box;
-}
-
-@media (max-width: 500px) {
-    button[data-testid="stButton"] {
-        width: 36px !important;
-        height: 36px !important;
-    }
+    cursor: pointer !important;
+    opacity: 0 !important;
+    box-sizing: border-box !important;
 }
 
 button[data-testid="stButton"]:hover {
-    opacity: 0.1;
+    opacity: 0.1 !important;
 }
 
 /* 폼 버튼 숨김 */
 button[data-testid="stFormSubmitButton"] {
-    display: none;
+    display: none !important;
 }
