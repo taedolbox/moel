@@ -2,33 +2,30 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
-import os # <-- Add this line
+import os # os 모듈 임포트
 
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 3:36 KST) - this is for demonstration
+# 현재 날짜와 시간 (2025년 5월 26일 오후 3:36 KST)
 current_datetime = datetime(2025, 5, 26, 15, 36)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
-# --- Load the external CSS file ---
+# --- 외부 CSS 파일 로드 함수 ---
 def load_css(file_name):
-    # Construct the absolute path to the CSS file
-    # This assumes styles.css is in the same directory as the script calling this function
+    # CSS 파일의 절대 경로를 구성합니다.
+    # 이 함수를 호출하는 스크립트와 styles.css가 같은 디렉토리에 있다고 가정합니다.
     css_path = os.path.join(os.path.dirname(__file__), file_name)
     try:
         with open(css_path) as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     except FileNotFoundError:
-        st.error(f"CSS file not found: {css_path}. Please ensure 'styles.css' is in the correct directory.")
-        # Optionally, you can log the error for debugging
-        # import logging
-        # logging.error(f"CSS file not found: {css_path}")
+        st.error(f"CSS 파일을 찾을 수 없습니다: {css_path}. 'styles.css'가 올바른 디렉토리에 있는지 확인하세요.")
 
-# Load your styles.css
+# styles.css 로드
 load_css('styles.css')
 
-# --- Existing functions ---
+# --- 기존 함수들 ---
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
@@ -53,39 +50,40 @@ def render_calendar_interactive(apply_date):
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
 
         for year, month in months_to_display:
-            # We are not displaying the year/month header explicitly as per your request
+            # 월 이름은 표시하지 않음 (이전 요청에 따라)
             cal = calendar.monthcalendar(year, month)
 
-            # Weekday Headers (re-added as they are part of a standard calendar layout)
+            # 요일 헤더 (일, 월, 화, 수, 목, 금, 토)
             cols = st.columns(7, gap="small")
             for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
                 with cols[i]:
                     color = "red" if i == 0 or i == 6 else "#000000"
+                    # day-header 클래스를 적용하여 CSS 스타일을 받을 수 있도록 함
                     st.markdown(
                         f'<div class="day-header" style="color: {color}; text-align: center; font-weight: bold; margin-bottom: 5px;">{day_name}</div>',
                         unsafe_allow_html=True
                     )
 
-            # 달력 렌더링
+            # 달력 날짜 렌더링
             for week in cal:
-                cols = st.columns(7, gap="small")
+                cols = st.columns(7, gap="small") # 각 주마다 7개의 컬럼 생성
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
-                            # Empty placeholder for days outside the month
+                            # 해당 월에 속하지 않는 날짜는 빈 공간으로 처리
                             st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
                             continue
 
                         date_obj = date(year, month, day)
                         is_selected = date_obj in selected_dates
                         is_current = date_obj == current_date
-                        is_disabled = date_obj > apply_date
+                        is_disabled = date_obj > apply_date # 신청일 이후의 날짜는 비활성화
 
-                        # Create a unique key for each button
+                        # 각 버튼에 고유 키 생성
                         button_key = f"day_button_{year}_{month}_{day}"
 
                         if is_disabled:
-                            # Render disabled days as simple text with disabled styling
+                            # 비활성화된 날짜는 클릭 불가능하게 일반 텍스트로 렌더링
                             st.markdown(
                                 f'<div class="calendar-day-container">'
                                 f'<div class="calendar-day-box disabled-day">{day}</div>'
@@ -93,58 +91,46 @@ def render_calendar_interactive(apply_date):
                                 unsafe_allow_html=True
                             )
                         else:
-                            # Render clickable days
+                            # 활성화된 날짜는 클릭 가능한 버튼으로 렌더링
+                            # 버튼 클릭 시 선택/선택 해제 로직
                             if st.button(str(day), key=button_key, use_container_width=True):
                                 if date_obj in selected_dates:
                                     selected_dates.remove(date_obj)
                                 else:
                                     selected_dates.add(date_obj)
-                                st.session_state.selected_dates = selected_dates # Update session state
-                                st.rerun() # Rerun to update calendar display and button styles
+                                st.session_state.selected_dates = selected_dates # 세션 상태 업데이트
+                                st.rerun() # 변경된 상태를 반영하기 위해 앱 다시 로드
 
-                            # Apply CSS directly to the button via markdown injection for dynamic styling
-                            button_class = "calendar-day-box"
+                            # CSS 클래스 적용을 위한 스타일 주입 (버튼에 직접 적용)
+                            button_classes = "calendar-day-box" # 기본 클래스
                             if is_selected:
-                                button_class += " selected-day"
-                            if is_current and not is_selected: # current-day only if not also selected
-                                button_class += " current-day"
+                                button_classes += " selected-day"
+                            if is_current and not is_selected: # 현재 날짜이면서 선택되지 않은 경우
+                                button_classes += " current-day"
 
-                            # Inject CSS for the specific button
+                            # 버튼에 적용할 CSS 스타일 주입 (동적으로 클래스 추가)
                             st.markdown(
                                 f"""
                                 <style>
-                                    /* Target the specific button element by its key within its column */
+                                    /* 특정 버튼 키를 가진 요소에 스타일 적용 */
                                     div[data-testid="column"] > button[key="{button_key}"] {{
-                                        width: 30px; /* Match calendar-day-box width */
-                                        height: 30px; /* Match calendar-day-box height */
+                                        width: 35px; /* 너비 */
+                                        height: 35px; /* 높이 */
+                                        min-width: 35px; /* 최소 너비 */
+                                        min-height: 35px; /* 최소 높이 */
+                                        border-radius: 50%; /* 원형 */
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
-                                        border-radius: 50%; /* Make it round */
-                                        font-size: 1.1em;
-                                        margin: 0 auto; /* Center the button */
-                                        box-sizing: border-box; /* Include padding/border in size */
-                                        cursor: pointer;
                                         padding: 0;
-                                        line-height: 1; /* Adjust line height to center text vertically */
-                                        border: 1px solid #333; /* Default border */
-                                        background-color: #ffffff; /* Default background */
-                                        color: #000000; /* Default text color */
+                                        margin: 0 auto;
+                                        box-sizing: border-box;
+                                        cursor: pointer;
+                                        /* 동적으로 클래스에 따라 스타일 적용 */
+                                        {'background-color: #4CAF50; color: white; border: 2px solid #4CAF50;' if is_selected else ''}
+                                        {'border: 2px solid blue;' if is_current and not is_selected else ''}
                                     }}
-
-                                    /* Apply selected-day style */
-                                    div[data-testid="column"] > button[key="{button_key}"].selected-day {{
-                                        background-color: #4CAF50 !important;
-                                        color: #ffffff !important;
-                                        border: 2px solid #4CAF50 !important;
-                                    }}
-
-                                    /* Apply current-day style (if not selected) */
-                                    div[data-testid="column"] > button[key="{button_key}"].current-day {{
-                                        border: 2px solid blue !important;
-                                    }}
-                                    
-                                    /* Hover effect for clickable days */
+                                    /* 호버 효과 */
                                     div[data-testid="column"] > button[key="{button_key}"]:hover {{
                                         background-color: {'#45a049' if is_selected else '#e0e0e0'} !important;
                                     }}
@@ -152,10 +138,8 @@ def render_calendar_interactive(apply_date):
                                 """,
                                 unsafe_allow_html=True
                             )
-                            # Re-create the div structure if needed for external CSS, though button itself should be styled
-                            # st.markdown(f'<div class="calendar-day-container"></div>', unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True) # calendar-wrapper 닫기
 
     # 현재 선택된 근무일자 목록 표시
     if st.session_state.selected_dates:
