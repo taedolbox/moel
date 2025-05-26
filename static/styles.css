@@ -72,7 +72,7 @@ div[data-testid="stToolbar"] {
     flex-direction: column; /* 세로 방향으로 요소 정렬 */
     align-items: center; /* 중앙 정렬 */
     width: 100%; /* 너비: 100% */
-    min-width: 300px; /* 최소 너비: 300px */
+    min-width: 280px; /* 최소 너비: 280px */
     max-width: 300px; /* 최대 너비: 300px */
     margin: 0 auto; /* 좌우 여백 자동으로 중앙 정렬 */
 }
@@ -196,48 +196,63 @@ div[data-testid="stToolbar"] {
     }
     .calendar-container {
         display: grid !important; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(40px, 1fr)) !important; /* 7열, 각 열 최소 40px, 비례 분배 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)) !important; /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px !important; /* 셀 간 간격: 2px */
         width: 100% !important; /* 너비: 100% */
-        max-width: 300px !important; /* 최대 너비: 300px */
+        max-width: 280px !important; /* 최대 너비: 280px */
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 auto !important; /* 중앙 정렬 */
         background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
     }
     .calendar-weekdays {
         display: grid; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(40px, 1fr)); /* 7열, 각 열 최소 40px, 비례 분배 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)); /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px; /* 셀 간 간격: 2px */
         width: 100%; /* 너비: 100% */
-        max-width: 300px; /* 최대 너비: 300px */
+        max-width: 280px; /* 최대 너비: 280px */
         margin: 0 auto 5px; /* 하단 여백 5px, 중앙 정렬 */
         background-color: #e0e0e0; /* 배경: 연한 회색 */
     }
     .calendar-weekdays .weekday {
-        height: 30px; /* 높이: 30px */
-        font-size: 0.8em; /* 폰트 크기: 0.8em (모바일에서 작게) */
+        height: 25px; /* 높이: 25px (모바일에서 작게) */
+        font-size: 0.8em; /* 폰트 크기: 0.8em */
         color: #000000; /* 텍스트: 검정색 */
         background-color: #f0f0f0; /* 배경: 연한 회색 */
         border: 1px solid #333; /* 테두리: 1px, 어두운 회색 */
     }
     .calendar-day-container {
-        width: 100%; /* 너비: 부모 컨테이너에 맞춤 */
-        height: 40px; /* 높이: 40px */
+        width: 100%; /* 너비: 그리드 열에 맞춤 */
+        height: 35px; /* 높이: 35px (모바일에서 작게) */
         margin: 0; /* 여백 제거 */
         background-color: #e0e0e0 !important; /* 배경: 연한 회색 */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
     .calendar-day-box {
-        width: 100%; /* 너비: 부모 컨테이너에 맞춤 */
-        height: 40px; /* 높이: 40px */
-        font-size: 0.9em; /* 폰트 크기: 0.9em (모바일에서 작게) */
+        width: 35px; /* 너비: 35px (고정) */
+        height: 35px; /* 높이: 35px */
+        font-size: 0.8em; /* 폰트 크기: 0.8em */
         border: 1px solid #333; /* 테두리: 1px, 어두운 회색 */
         background-color: #ffffff; /* 배경: 흰색 */
         color: #000000 !important; /* 텍스트: 검정색 */
         border-radius: 50%; /* 원형 모서리 */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
     button[data-testid="stButton"] {
-        width: 100% !important; /* 버튼 너비: 부모 컨테이너에 맞춤 */
-        height: 40px ! Theresa: !important; /* 버튼 높이: 40px */
+        width: 35px !important; /* 버튼 너비: 35px (고정) */
+        height: 35px !important; /* 버튼 높이: 35px */
+        min-width: 0 !important; /* 최소 너비: 0 */
+        min-height: 0 !important; /* 최소 높이: 0 */
+        position: absolute; /* 절대 위치 지정 */
+        top: 50%; /* 상단 50% */
+        left: 50%; /* 좌측 50% */
+        transform: translate(-50%, -50%); /* 중앙 정렬 */
+        background: none !important; /* 배경: 투명 */
+        border: none !important; /* 테두리: 없음 */
+        padding: 0 !important; /* 패딩 없음 */
+        margin: 0 !important; /* 여백 없음 */
+        cursor: pointer; /* 커서: 포인터 */
+        opacity: 0; /* 투명도: 0 (보이지 않음) */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
 }
 
@@ -255,48 +270,63 @@ div[data-testid="stToolbar"] {
     }
     .calendar-container {
         display: grid !important; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(40px, 1fr)) !important; /* 7열, 각 열 최소 40px, 비례 분배 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)) !important; /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px !important; /* 셀 간 간격: 2px */
         width: 100% !important; /* 너비: 100% */
-        max-width: 300px !important; /* 최대 너비: 300px */
+        max-width: 280px !important; /* 최대 너비: 280px */
         padding: 0 !important; /* 패딩 없음 */
         margin: 0 auto !important; /* 중앙 정렬 */
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
     }
     .calendar-weekdays {
         display: grid; /* 그리드 레이아웃 사용 */
-        grid-template-columns: repeat(7, minmax(40px, 1fr)); /* 7열, 각 열 최소 40px, 비례 분배 */
+        grid-template-columns: repeat(7, minmax(35px, 1fr)); /* 7열, 각 열 최소 35px, 비례 분배 */
         gap: 2px; /* 셀 간 간격: 2px */
         width: 100%; /* 너비: 100% */
-        max-width: 300px; /* 최대 너비: 300px */
+        max-width: 280px; /* 최대 너비: 280px */
         margin: 0 auto 5px; /* 하단 여백 5px, 중앙 정렬 */
         background-color: #2a2a2a; /* 배경: 짙은 회색 */
     }
     .calendar-weekdays .weekday {
-        height: 30px; /* 높이: 30px */
+        height: 25px; /* 높이: 25px */
         font-size: 0.8em; /* 폰트 크기: 0.8em */
         color: #ffffff; /* 텍스트: 흰색 */
         background-color: #333333; /* 배경: 어두운 회색 */
         border: 1px solid #888; /* 테두리: 1px, 중간 회색 */
     }
     .calendar-day-container {
-        width: 100%; /* 너비: 부모 컨테이너에 맞춤 */
-        height: 40px; /* 높이: 40px */
+        width: 100%; /* 너비: 그리드 열에 맞춤 */
+        height: 35px; /* 높이: 35px */
         margin: 0; /* 여백 제거 */
         background-color: #2a2a2a !important; /* 배경: 짙은 회색 */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
     .calendar-day-box {
-        width: 100%; /* 너비: 부모 컨테이너에 맞춤 */
-        height: 40px; /* 높이: 40px */
-        font-size: 0.9em; /* 폰트 크기: 0.9em */
+        width: 35px; /* 너비: 35px (고정) */
+        height: 35px; /* 높이: 35px */
+        font-size: 0.8em; /* 폰트 크기: 0.8em */
         border: 1px solid #888; /* 테두리: 1px, 중간 회색 */
         background-color: #000000; /* 배경: 검정색 */
         color: #ffffff !important; /* 텍스트: 흰색 */
         border-radius: 50%; /* 원형 모서리 */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
     button[data-testid="stButton"] {
-        width: 100% !important; /* 버튼 너비: 부모 컨테이너에 맞춤 */
-        height: 40px !important; /* 버튼 높이: 40px */
+        width: 35px !important; /* 버튼 너비: 35px (고정) */
+        height: 35px !important; /* 버튼 높이: 35px */
+        min-width: 0 !important; /* 최소 너비: 0 */
+        min-height: 0 !important; /* 최소 높이: 0 */
+        position: absolute; /* 절대 위치 지정 */
+        top: 50%; /* 상단 50% */
+        left: 50%; /* 좌측 50% */
+        transform: translate(-50%, -50%); /* 중앙 정렬 */
+        background: none !important; /* 배경: 투명 */
+        border: none !important; /* 테두리: 없음 */
+        padding: 0 !important; /* 패딩 없음 */
+        margin: 0 !important; /* 여백 없음 */
+        cursor: pointer; /* 커서: 포인터 */
+        opacity: 0; /* 투명도: 0 (보이지 않음) */
+        box-sizing: border-box; /* 테두리와 패딩 포함 */
     }
 }
 
@@ -361,26 +391,7 @@ div[data-testid="stToolbar"] {
     display: block; /* 표시 */
 }
 
-/* Streamlit 버튼: 달력 날짜 클릭 처리 */
-button[data-testid="stButton"] {
-    width: 40px !important; /* 너비: 40px */
-    height: 40px !important; /* 높이: 40px */
-    min-width: 0 !important; /* 최소 너비: 0 */
-    min-height: 0 !important; /* 최소 높이: 0 */
-    position: absolute; /* 절대 위치 지정 */
-    top: 50%; /* 상단 50% */
-    left: 50%; /* 좌측 50% */
-    transform: translate(-50%, -50%); /* 중앙 정렬 */
-    background: none !important; /* 배경: 투명 */
-    border: none !important; /* 테두리: 없음 */
-    padding: 0 !important; /* 패딩 없음 */
-    margin: 0 !important; /* 여백 없음 */
-    cursor: pointer; /* 커서: 포인터 */
-    opacity: 0; /* 투명도: 0 (보이지 않음) */
-    box-sizing: border-box; /* 박스 크기 계산: border-box */
-}
-
-/* 버튼 호버 효과 */
+/* Streamlit 버튼 호버 효과 (공통) */
 button[data-testid="stButton"]:hover {
     opacity: 0.1; /* 호버 시 투명도: 0.1 */
 }
