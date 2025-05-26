@@ -227,7 +227,7 @@ button[data-testid="stButton"]:hover {
     }
     button[data-testid="stButton"] {
         width: 40px !important;
-        height: 48px !important;
+        height: 40px !important;
     }
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
@@ -265,7 +265,7 @@ button[data-testid="stButton"]:hover {
         font-size: 0.9em !important;
     }
     button[data-testid="stButton"] {
-        width: 36px !important;
+        width: 44px !important;
         height: 44px !important;
     }
     div[data-testid="column"] {
