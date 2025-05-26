@@ -92,8 +92,6 @@ button[kind="primary"] {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    min-width: 280px;
-    max-width: 280px;
     margin: 0 auto;
 }
 
@@ -113,8 +111,6 @@ button[kind="primary"] {
     grid-template-columns: repeat(7, 1fr) !important;
     gap: 2px !important;
     width: 100%;
-    min-width: 280px;
-    max-width: 280px;
     margin: 0 auto;
 }
 
@@ -134,8 +130,7 @@ button[kind="primary"] {
     gap: 2px !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    min-width: 280px !important;
-    max-width: 280px !important;
+    width: 100% !important;
     background-color: #ffffff !important; /* 라이트 모드 */
 }
 
@@ -169,29 +164,30 @@ button[kind="primary"] {
     z-index: 1;
 }
 
-.calendar-day-button {
+/* Streamlit 버튼 스타일 */
+div[data-testid="stButton"] button {
     width: 36px !important;
     height: 36px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    background: none !important;
+    background: transparent !important;
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
     opacity: 0 !important;
-    z-index: 2;
+    z-index: 2 !important;
 }
 
-.calendar-day-button:hover {
-    opacity: 0.1 !important;
+div[data-testid="stButton"] button:hover {
+    opacity: 0.2 !important;
     background: #e0e0e0 !important;
 }
 
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-button:hover {
+    div[data-testid="stButton"] button:hover {
         background: #333333 !important;
     }
 }
@@ -215,7 +211,35 @@ button[kind="primary"] {
     }
 }
 
-/* 모바일 전용 스타일 */
+/* PC 스타일 */
+@media (min-width: 501px) {
+    .calendar-wrapper {
+        min-width: 600px !important;
+        max-width: 600px !important;
+    }
+    .calendar-container {
+        min-width: 600px !important;
+        max-width: 600px !important;
+    }
+    .calendar-header {
+        min-width: 600px !important;
+        max-width: 600px !important;
+    }
+    .calendar-day-container {
+        height: 48px !important;
+    }
+    .calendar-day-box {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1em !important;
+    }
+    div[data-testid="stButton"] button {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* 모바일 스타일 */
 @media (max-width: 500px) {
     .calendar-wrapper {
         width: 100% !important;
@@ -224,10 +248,15 @@ button[kind="primary"] {
         margin: 0 auto !important;
     }
     .calendar-container {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 2px !important;
+        width: 100% !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
         background-color: #e0e0e0 !important; /* 라이트 모드 */
+    }
+    .calendar-header {
+        width: 100% !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
     }
     .calendar-day-container {
         width: 100% !important;
@@ -239,7 +268,7 @@ button[kind="primary"] {
         height: 36px !important;
         font-size: 0.9em !important;
     }
-    .calendar-day-button {
+    div[data-testid="stButton"] button {
         width: 36px !important;
         height: 36px !important;
     }
