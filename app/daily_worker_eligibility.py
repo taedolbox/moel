@@ -3,17 +3,16 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 from streamlit.components.v1 import html
-import json # json 모듈 추가
 
 # 달력의 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:43 KST)
-current_datetime = datetime(2025, 5, 26, 20, 43)
+# 현재 날짜 및 시간 (2025년 5월 26일 오후 8:36 KST)
+current_datetime = datetime(2025, 5, 26, 20, 36)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')
 
 # CSS 로드
-st.markdown('<link rel="stylesheet" href="static/styles.css">', unsafe_allow_html=True)
+st.markdown('<link rel="stylesheet" href="/static/styles.css">', unsafe_allow_html=True)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지."""
@@ -29,6 +28,8 @@ def render_calendar_interactive(apply_date):
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
+    if 'rerun_trigger' not in st.session_state:
+        st.session_state.rerun_trigger = False
 
     selected_dates = st.session_state.selected_dates
     current_date = current_datetime.date()
@@ -38,121 +39,67 @@ def render_calendar_interactive(apply_date):
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
-    # Streamlit HTML 컴포넌트에 넘길 최종 HTML 문자열을 만듭니다.
-    final_calendar_html = '<div class="calendar-wrapper">'
-    for year, month in months_to_display:
-        final_calendar_html += f'<h3>{year}년 {month}월</h3>'
-        cal = calendar.monthcalendar(year, month)
-        days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
+    # 달력 컨테이너
+    with st.container():
+        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
+        for year, month in months_to_display:
+            st.markdown(f'<h3>{year}년 {month}월</h3>', unsafe_allow_html=True)
+            cal = calendar.monthcalendar(year, month)
+            days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-        header_html_part = '<div class="header-wrapper">'
-        for i, day_name in enumerate(days_of_week):
-            color = "red" if i == 0 else "#000000"
-            header_html_part += f'<div class="day-header" style="color: {color};">{day_name}</div>'
-        header_html_part += '</div>'
-        final_calendar_html += header_html_part
-
-        calendar_grid_part = '<div class="calendar-grid">'
-        for week in cal:
-            for day in week:
-                if day == 0:
-                    calendar_grid_part += '<div class="calendar-day-container"></div>'
-                    continue
-                date_obj = date(year, month, day)
-                date_iso = date_obj.isoformat()
-
-                if date_obj > apply_date:
-                    calendar_grid_part += (
-                        f'<div class="calendar-day-container">'
-                        f'<div class="calendar-day-box disabled-day">{day}</div>'
-                        '</div>'
+            # 요일 헤더
+            st.markdown('<div class="header-wrapper">', unsafe_allow_html=True)
+            cols = st.columns(7, gap="small")
+            for i, day_name in enumerate(days_of_week):
+                with cols[i]:
+                    color = "red" if i == 0 else "#000000"
+                    st.markdown(
+                        f'<div class="day-header" style="color: {color};">{day_name}</div>',
+                        unsafe_allow_html=True
                     )
-                    continue
+            st.markdown('</div>', unsafe_allow_html=True)
 
-                is_selected = date_obj in selected_dates
-                is_current = date_obj == current_date
-                class_name = "calendar-day-box"
-                if is_selected:
-                    class_name += " selected-day"
-                if is_current:
-                    class_name += " current-day"
+            # 달력 본체
+            for week in cal:
+                cols = st.columns(7, gap="small")
+                for i, day in enumerate(week):
+                    with cols[i]:
+                        if day == 0:
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                            continue
+                        date_obj = date(year, month, day)
+                        if date_obj > apply_date:
+                            st.markdown(
+                                f'<div class="calendar-day-container">'
+                                f'<div class="calendar-day-box disabled-day">{day}</div>'
+                                '</div>',
+                                unsafe_allow_html=True
+                            )
+                            continue
 
-                # JavaScript 함수 호출을 `onclick`에 직접 바인딩
-                # 이 함수는 클릭된 날짜를 Streamlit 컴포넌트로 전달합니다.
-                calendar_grid_part += (
-                    f'<div class="calendar-day-container">'
-                    f'<div class="selection-mark"></div>'
-                    f'<div class="{class_name}" data-date="{date_iso}" onclick="dateClicked(\'{date_iso}\');">{day}</div>'
-                    f'</div>'
-                )
-        calendar_grid_part += '</div>'
-        final_calendar_html += calendar_grid_part
-    final_calendar_html += '</div>'
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        class_name = "calendar-day-box"
+                        if is_selected:
+                            class_name += " selected-day"
+                        if is_current:
+                            class_name += " current-day"
 
-    # Streamlit HTML 컴포넌트에 JavaScript 함수와 HTML을 함께 삽입
-    # 이 컴포넌트의 반환값(value)을 사용하여 Python 상태를 업데이트합니다.
-    # Streamlit Component API를 사용하여 값 전달.
-    # Streamlit.setComponentValue는 웹에서 Streamlit 앱과 통신할 때 사용됩니다.
-    js_and_html = f"""
-    <script>
-        // Streamlit 프레임워크가 로드될 때까지 기다립니다.
-        function setStreamlitComponentValue(value) {{
-            if (window.parent && window.parent.Streamlit) {{
-                window.parent.Streamlit.setComponentValue(value);
-            }} else {{
-                // Streamlit이 아직 로드되지 않은 경우 재시도 (보안 상 권장되지 않음)
-                // console.warn("Streamlit API not ready, retrying...");
-                // setTimeout(() => setStreamlitComponentValue(value), 100);
-            }}
-        }}
+                        st.markdown(
+                            f'<div class="calendar-day-container">'
+                            f'<div class="selection-mark"></div>'
+                            f'<div class="{class_name}">{day}</div>'
+                            '</div>',
+                            unsafe_allow_html=True
+                        )
+                        # 선택 버튼
+                        st.button("", key=f"date_{date_obj.isoformat()}", on_click=toggle_date, args=(date_obj,))
 
-        function dateClicked(dateString) {{
-            // 현재 선택된 날짜 배열 가져오기 (초기 로드 시 Streamlit에서 받은 값)
-            // St.html 컴포넌트의 'value'는 마지막으로 설정된 값입니다.
-            // 여기서는 JS 내부에서 상태를 관리하고, 최종 상태를 Streamlit에 넘겨줍니다.
-            // 현재의 'selected_dates'는 Streamlit이 컴포넌트를 렌더링할 때 넘겨준 값입니다.
-            let currentSelectedDates = {json.dumps(list(sorted(list(selected_dates))))};
+            st.markdown('</div>', unsafe_allow_html=True)
 
-            const dateIndex = currentSelectedDates.indexOf(dateString);
-            if (dateIndex > -1) {{
-                currentSelectedDates.splice(dateIndex, 1); // 제거
-            }} else {{
-                currentSelectedDates.push(dateString); // 추가
-            }}
-            
-            // 변경된 날짜 목록을 Streamlit에 전달
-            setStreamlitComponentValue(currentSelectedDates);
-        }}
-
-        // Streamlit 컴포넌트가 마운트될 때 현재 선택된 날짜를 다시 Streamlit에 전달하여 초기화
-        document.addEventListener('DOMContentLoaded', function() {{
-            setStreamlitComponentValue({json.dumps(list(sorted(list(selected_dates))))});
-        }});
-    </script>
-    {final_calendar_html}
-    """
-    
-    # st.html 컴포넌트를 사용하여 달력 렌더링 및 클릭 이벤트 처리
-    # `key`는 컴포넌트의 상태를 식별하는 데 사용됩니다.
-    # `default`는 초기 값입니다.
-    # `returned_value`는 JavaScript에서 `Streamlit.setComponentValue()`를 호출했을 때 전달되는 값입니다.
-    clicked_dates_list = html(
-        js_and_html, 
-        height=500, # 달력 높이 조절
-        scrolling=True, 
-        key="calendar_interaction_component",
-        default=list(sorted(list(selected_dates))) # 초기값을 JSON 배열 문자열로 전달
-    )
-
-    # JavaScript에서 클릭된 날짜 목록이 반환되면 st.session_state 업데이트
-    if clicked_dates_list is not None:
-        try:
-            # clicked_dates_list는 이미 Python 리스트 형태여야 합니다.
-            st.session_state.selected_dates = set(date.fromisoformat(d) for d in clicked_dates_list)
-        except (json.JSONDecodeError, ValueError) as e:
-            st.error(f"Error parsing clicked dates from JS component: {e}")
-            # 에러 발생 시 기존 상태 유지 또는 기본값으로 설정
-            pass 
+    if st.session_state.rerun_trigger:
+        st.session_state.rerun_trigger = False
+        st.rerun()
 
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -160,44 +107,39 @@ def render_calendar_interactive(apply_date):
 
     return st.session_state.selected_dates
 
+def toggle_date(date_obj):
+    """날짜 선택 토글 및 세션 상태 업데이트."""
+    if date_obj in st.session_state.selected_dates:
+        st.session_state.selected_dates.remove(date_obj)
+    else:
+        st.session_state.selected_dates.add(date_obj)
+    st.session_state.rerun_trigger = True
+
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱."""
     # 사이드바 토글 상태 초기화
     if 'sidebar_visible' not in st.session_state:
-        st.session_state.sidebar_visible = True # PC 라이트 기본
+        st.session_state.sidebar_visible = True  # PC 라이트 기본
 
     # 모바일 감지: JavaScript로 화면 너비 확인
-    # st.query_params를 사용하여 화면 너비 정보를 가져옴
     screen_width_script = """
     <script>
         function updateScreenWidth() {
-            const currentWidth = window.innerWidth;
-            const currentUrl = new URL(window.location.href);
-            if (currentUrl.searchParams.get('screen_width') !== String(currentWidth)) {
-                currentUrl.searchParams.set('screen_width', currentWidth);
-                window.history.replaceState({}, '', currentUrl); // URL 변경
-                window.parent.document.dispatchEvent(new Event('streamlit:force_rerun')); // Streamlit 강제 rerun 트리거
-            }
+            window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
         }
         window.addEventListener('resize', updateScreenWidth);
-        updateScreenWidth(); // 초기 로드 시에도 실행
+        updateScreenWidth();
     </script>
     """
     html(screen_width_script)
-    
-    # st.query_params에서 screen_width를 읽어와 업데이트
-    # st.query_params는 딕셔너리처럼 동작하며, 값이 없을 경우 KeyError 발생할 수 있으므로 get() 사용
-    screen_width = int(st.query_params.get('screen_width', 1000)) 
-    st.session_state.screen_width = screen_width
-    is_mobile = st.session_state.screen_width <= 500
+    screen_width = st.session_state.get('screen_width', 1000)  # 기본값: PC
+    is_mobile = screen_width <= 500
 
     # 사이드바 토글 버튼 (모바일에서만 표시)
     if is_mobile:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            toggle_button = st.button("사이드바 토글", key="sidebar_toggle")
-            if toggle_button:
-                st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+        toggle_button = st.button("사이드바 토글", key="sidebar_toggle")
+        if toggle_button:
+            st.session_state.sidebar_visible = not st.session_state.sidebar_visible
 
     # 사이드바 렌더링
     if st.session_state.sidebar_visible:
@@ -226,10 +168,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
     st.markdown("#### ✅ 근무일 선택 달력")
-    
-    # render_calendar_interactive 호출
     selected_dates = render_calendar_interactive(apply_date)
-    
     st.markdown("---")
 
     # 조건 1 계산 및 표시
@@ -353,4 +292,23 @@ def daily_worker_eligibility_app():
         )
 
 if __name__ == "__main__":
+    # JavaScript로 화면 너비 업데이트
+    screen_width_script = """
+    <script>
+        function updateScreenWidth() {
+            window.parent.window.dispatchEvent(new CustomEvent('screen_width_event', { detail: window.innerWidth }));
+        }
+        window.addEventListener('resize', updateScreenWidth);
+        updateScreenWidth();
+    </script>
+    """
+    html(screen_width_script)
+
+    def update_screen_width():
+        if 'screen_width_event' in st.session_state:
+            st.session_state.screen_width = st.session_state.screen_width_event
+
+    st.session_state.screen_width_event = st.experimental_get_query_params().get("screen_width", [1000])[0]
+    update_screen_width()
+
     daily_worker_eligibility_app()
