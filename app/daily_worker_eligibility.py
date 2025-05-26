@@ -3,20 +3,29 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 
-# 달력의 시작 요일을 일요일로 설정
+# Set the first day of the week to Sunday
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오후 3:36 KST)
+# Current date and time (2025년 5월 26일 오후 3:36 KST) - this is for demonstration
 current_datetime = datetime(2025, 5, 26, 15, 36)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
+# --- Load the external CSS file ---
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# Load your styles.css
+load_css('styles.css')
+
+# --- Existing functions ---
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌더링합니다. 요일 제거, CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -32,20 +41,20 @@ def render_calendar_interactive(apply_date):
     # 달력 전용 컨테이너
     with st.container():
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
+
         for year, month in months_to_display:
-            # Removed the year and month display here
-            # st.markdown(f"<h3>{year}년 {month}월</h3>", unsafe_allow_html=True) 
+            # We are not displaying the year/month header explicitly as per your request
             cal = calendar.monthcalendar(year, month)
 
-            # 요일 헤더 (unchanged, still commented out as per previous request)
-            # cols = st.columns(7, gap="small")
-            # for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
-            #    with cols[i]:
-            #          color = "red" if i == 0 or i == 6 else "#000000"
-            #          st.markdown(
-            #              f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-            #              unsafe_allow_html=True
-            #          )
+            # Weekday Headers (re-added as they are part of a standard calendar layout)
+            cols = st.columns(7, gap="small")
+            for i, day_name in enumerate(["일", "월", "화", "수", "목", "금", "토"]):
+                with cols[i]:
+                    color = "red" if i == 0 or i == 6 else "#000000"
+                    st.markdown(
+                        f'<div class="day-header" style="color: {color}; text-align: center; font-weight: bold; margin-bottom: 5px;">{day_name}</div>',
+                        unsafe_allow_html=True
+                    )
 
             # 달력 렌더링
             for week in cal:
@@ -53,64 +62,88 @@ def render_calendar_interactive(apply_date):
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
+                            # Empty placeholder for days outside the month
                             st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
                             continue
-                        date_obj = date(year, month, day)
 
-                        # Disable dates after the apply_date
-                        if date_obj > apply_date:
+                        date_obj = date(year, month, day)
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        is_disabled = date_obj > apply_date
+
+                        # Create a unique key for each button
+                        button_key = f"day_button_{year}_{month}_{day}"
+
+                        if is_disabled:
+                            # Render disabled days as simple text with disabled styling
                             st.markdown(
                                 f'<div class="calendar-day-container">'
                                 f'<div class="calendar-day-box disabled-day">{day}</div>'
                                 f'</div>',
                                 unsafe_allow_html=True
                             )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        
-                        # Use st.button to make days clickable
-                        button_key = f"day_{year}_{month}_{day}"
-                        if st.button(str(day), key=button_key, use_container_width=True):
-                            if date_obj in selected_dates:
-                                selected_dates.remove(date_obj)
-                            else:
-                                selected_dates.add(date_obj)
-                            st.session_state.selected_dates = selected_dates # Update session state
-                            st.experimental_rerun() # Rerun to update the calendar display
-
-                        # Apply CSS using markdown to style the buttons
-                        button_style = ""
-                        if is_selected:
-                            button_style += "background-color: #4CAF50; color: white;"
                         else:
-                            button_style += "background-color: #f0f2f6; color: black;"
-                        
-                        if is_current:
-                            button_style += "border: 2px solid blue;"
+                            # Render clickable days
+                            if st.button(str(day), key=button_key, use_container_width=True):
+                                if date_obj in selected_dates:
+                                    selected_dates.remove(date_obj)
+                                else:
+                                    selected_dates.add(date_obj)
+                                st.session_state.selected_dates = selected_dates # Update session state
+                                st.rerun() # Rerun to update calendar display and button styles
 
-                        st.markdown(
-                            f"""
-                            <style>
-                                div[data-testid="column"] > button[key="{button_key}"] {{
-                                    {button_style}
-                                    border-radius: 5px;
-                                    padding: 10px 0;
-                                    text-align: center;
-                                    text-decoration: none;
-                                    display: inline-block;
-                                    font-size: 16px;
-                                    margin: 2px;
-                                    cursor: pointer;
-                                }}
-                                div[data-testid="column"] > button[key="{button_key}"]:hover {{
-                                    background-color: {'#45a049' if is_selected else '#e0e0e0'};
-                                }}
-                            </style>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                            # Apply CSS directly to the button via markdown injection for dynamic styling
+                            button_class = "calendar-day-box"
+                            if is_selected:
+                                button_class += " selected-day"
+                            if is_current and not is_selected: # current-day only if not also selected
+                                button_class += " current-day"
+
+                            # Inject CSS for the specific button
+                            st.markdown(
+                                f"""
+                                <style>
+                                    /* Target the specific button element by its key within its column */
+                                    div[data-testid="column"] > button[key="{button_key}"] {{
+                                        width: 30px; /* Match calendar-day-box width */
+                                        height: 30px; /* Match calendar-day-box height */
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        border-radius: 50%; /* Make it round */
+                                        font-size: 1.1em;
+                                        margin: 0 auto; /* Center the button */
+                                        box-sizing: border-box; /* Include padding/border in size */
+                                        cursor: pointer;
+                                        padding: 0;
+                                        line-height: 1; /* Adjust line height to center text vertically */
+                                        border: 1px solid #333; /* Default border */
+                                        background-color: #ffffff; /* Default background */
+                                        color: #000000; /* Default text color */
+                                    }}
+
+                                    /* Apply selected-day style */
+                                    div[data-testid="column"] > button[key="{button_key}"].selected-day {{
+                                        background-color: #4CAF50 !important;
+                                        color: #ffffff !important;
+                                        border: 2px solid #4CAF50 !important;
+                                    }}
+
+                                    /* Apply current-day style (if not selected) */
+                                    div[data-testid="column"] > button[key="{button_key}"].current-day {{
+                                        border: 2px solid blue !important;
+                                    }}
+                                    
+                                    /* Hover effect for clickable days */
+                                    div[data-testid="column"] > button[key="{button_key}"]:hover {{
+                                        background-color: {'#45a049' if is_selected else '#e0e0e0'} !important;
+                                    }}
+                                </style>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                            # Re-create the div structure if needed for external CSS, though button itself should be styled
+                            # st.markdown(f'<div class="calendar-day-container"></div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
