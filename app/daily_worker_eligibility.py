@@ -1,8 +1,6 @@
 import streamlit as st
-import pandas as pd
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import calendar
-from streamlit.components.v1 import html
 
 # CSS 파일 로드
 def load_css():
