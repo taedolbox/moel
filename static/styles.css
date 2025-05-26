@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-/* 전체 페이지 배경 및 텍스트 설정 */
+/* 전체 페이지 배경 및 텍스트 */
 body, div[data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
 
-/* Streamlit 컴포넌트 텍스트 색상 */
+/* Streamlit 컴포넌트 텍스트 */
 .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
     color: #000000 !important;
 }
 
-/* 사이드바 텍스트 색상 */
+/* 사이드바 텍스트 */
 .sidebar .sidebar-content, .sidebar .sidebar-content * {
     color: #000000 !important;
 }
 
-/* 다크 모드 전체 설정 */
+/* 다크 모드 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important;
@@ -69,7 +69,7 @@ div[data-testid="stToolbar"] {
     display: none !important;
 }
 
-/* 사이드바 토글 버튼 스타일 */
+/* 사이드바 토글 버튼 */
 button[kind="primary"] {
     background-color: #4CAF50 !important;
     color: white !important;
@@ -86,7 +86,7 @@ button[kind="primary"] {
     }
 }
 
-/* 달력 전용 스타일 */
+/* 달력 스타일 */
 .calendar-wrapper {
     display: flex;
     flex-direction: column;
@@ -105,7 +105,7 @@ button[kind="primary"] {
     width: 100%;
 }
 
-/* 달력 헤더 스타일 */
+/* 달력 헤더 */
 .day-header {
     display: flex;
     align-items: center;
@@ -115,7 +115,7 @@ button[kind="primary"] {
     font-weight: bold;
 }
 
-/* Streamlit columns 스타일 오버라이드 */
+/* Streamlit columns 오버라이드 */
 div[data-testid="column"] {
     display: flex !important;
     justify-content: center !important;
@@ -135,7 +135,7 @@ div[data-testid="column"] {
     box-sizing: border-box !important;
 }
 
-/* 숫자 원 스타일 */
+/* 숫자 원 */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -155,7 +155,7 @@ div[data-testid="column"] {
     z-index: 1 !important;
 }
 
-/* Streamlit 버튼 스타일 */
+/* Streamlit 버튼 */
 button[data-testid="stButton"] {
     width: 40px !important;
     height: 44px !important;
@@ -164,7 +164,7 @@ button[data-testid="stButton"] {
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     background: transparent !important;
-    border: 1px dotted #999 !important; /* 디버깅용 테두리 */
+    border: 1px dotted #999 !important; /* 디버깅용 */
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
@@ -183,7 +183,7 @@ button[data-testid="stButton"]:hover {
     }
 }
 
-/* 다크 모드 스타일 */
+/* 다크 모드 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-wrapper h3 {
         background-color: #333333 !important;
