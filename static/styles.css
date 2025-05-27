@@ -144,7 +144,7 @@ button[kind="primary"] {
     flex: 1 !important;
 }
 
-/* 달력 날짜 원 */
+/* 달력 날짜 버튼 */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -162,9 +162,10 @@ button[kind="primary"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
+    cursor: pointer !important;
 }
 
-/* Streamlit 버튼 스타일 */
+/* Streamlit 버튼 스타일 (보이지 않도록 설정) */
 button[data-testid="stButton"] {
     width: 34px !important;
     height: 34px !important;
@@ -177,7 +178,7 @@ button[data-testid="stButton"] {
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    opacity: 0.6 !important;
+    opacity: 0 !important; /* 보이지 않게 설정 */
     z-index: 2 !important;
     box-sizing: border-box !important;
 }
@@ -319,10 +320,18 @@ button[data-testid="stButton"]:hover {
 
 /* 선택된 날짜 스타일 */
 .calendar-day-box.selected-day {
-    background-color: #4CAF50 !important;
-    color: #ffffff !important;
-    border: 2px solid #4CAF50 !important;
+    background-color: transparent !important;
+    color: #000000 !important;
+    border: 2px solid #ff0000 !important;
     font-weight: bold !important;
+}
+
+/* 다크 모드에서 선택된 날짜 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box.selected-day {
+        color: #ffffff !important;
+        border: 2px solid #ff0000 !important;
+    }
 }
 
 /* 비활성화된 날짜 스타일 */
@@ -350,7 +359,7 @@ button[data-testid="stButton"]:hover {
     width: 8px !important;
     height: 8px !important;
     border-radius: 50% !important;
-    background-color: #4CAF50 !important;
+    background-color: #ff0000 !important;
     border: 1px solid #ffffff !important;
     display: none !important;
     z-index: 0 !important;
