@@ -1,5 +1,4 @@
 # daily_worker_eligibility.py
-
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
@@ -8,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 1:22 KST)
-current_datetime = datetime(2025, 5, 27, 13, 22)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 1:28 KST)
+current_datetime = datetime(2025, 5, 27, 13, 28)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -81,19 +80,33 @@ def render_calendar_interactive(apply_date):
                         st.markdown(
                             f'<div class="calendar-day-container">'
                             f'<div class="selection-mark"></div>'
-                            f'<div class="{class_name}">{day}</div>'
+                            f'<div class="{class_name}" id="{container_key}">{day}</div>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        # 버튼을 겹치게 배치
+                        # 버튼을 숨기고 JavaScript로 클릭 처리
                         st.markdown(
-                            f'<div class="button-overlay">'
-                            f'<button class="hidden-button" key="{container_key}"></button>'
-                            f'</div>',
+                            f'<button class="hidden-button" key="{container_key}" style="display: none;"></button>',
                             unsafe_allow_html=True
                         )
                         if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=False):
                             pass
+
+                        # JavaScript로 calendar-day-box 클릭 시 버튼 클릭 트리거
+                        st.markdown(
+                            f"""
+                            <script>
+                            document.getElementById('{container_key}').addEventListener('click', function(e) {{
+                                e.preventDefault();
+                                const button = document.querySelector('button[key="{container_key}"]');
+                                if (button) {{
+                                    button.click();
+                                }}
+                            }});
+                            </script>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
         st.markdown('</div>', unsafe_allow_html=True)
 
