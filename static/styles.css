@@ -166,7 +166,6 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
 .calendar-day-empty {
     width: 100%;
     height: 48px; /* PC 기준 */
-    /* background-color: #f8f8f8; /* 선택적으로 배경색 추가 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -285,15 +284,13 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
     }
 }
 
-/* 오늘 날짜 스타일 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].current-day > div {
+/* 오늘 날짜 스타일 (data-current="true" 속성을 가진 버튼) */
+button[data-testid="base-button-secondary"][data-current="true"] > div {
     border: 2px solid #0000ff !important; /* Blue border for current day */
 }
 
-
-/* 선택된 날짜 스타일 (클릭 시 파란색 테두리) */
-/* 이 클래스는 Python 코드에서 st.markdown으로 동적으로 삽입되어야 합니다. */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].selected-day > div {
+/* 선택된 날짜 스타일 (data-selected="true" 속성을 가진 버튼) */
+button[data-testid="base-button-secondary"][data-selected="true"] > div {
     border: 2px solid #0000ff !important; /* Blue border for selected day */
     background-color: transparent !important; /* Maintain original background or transparent */
     color: #000000 !important;
@@ -302,14 +299,14 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
 
 /* 다크 모드에서 선택된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].selected-day > div {
+    button[data-testid="base-button-secondary"][data-selected="true"] > div {
         color: #ffffff !important;
         border: 2px solid #0000ff !important; /* Blue border for selected day in dark mode */
     }
 }
 
-/* 비활성화된 날짜 스타일 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
+/* 비활성화된 날짜 스타일 (disabled 속성을 가진 버튼) */
+button[data-testid="base-button-secondary"][disabled] > div {
     border: 1px solid #aaaaaa !important; /* Lighter border for disabled */
     background-color: #e0e0e0 !important; /* Lighter background for disabled */
     color: #999999 !important; /* Faded text for disabled */
@@ -319,7 +316,7 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
+    button[data-testid="base-button-secondary"][disabled] > div {
         background-color: #3a3a3a !important; /* Darker background for disabled in dark mode */
         border: 1px solid #555 !important;
         color: #666 !important;
