@@ -168,11 +168,12 @@ button[kind="primary"] {
     cursor: pointer !important;
 }
 
-/* 체크박스와 라벨 순서 변경을 위한 스타일 */
-.calendar-day-container input[type="checkbox"] {
+/* 체크박스 숨기기 */
+.hidden-checkbox {
     display: none !important;
 }
 
+/* 체크박스와 라벨 순서 변경을 위한 스타일 */
 .calendar-day-container label.calendar-day-box {
     position: relative !important;
 }
