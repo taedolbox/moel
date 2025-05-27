@@ -67,7 +67,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     z-index: 6000 !important;
     pointer-events: auto !important;
     touch-action: manipulation !important;
-    padding: 10px !important; /* 터치 영역 확대 */
+    padding: 10px !important;
 }
 
 /* 호버 및 터치 시 체크박스 범위에 녹색 점 표시 */
@@ -83,11 +83,18 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     top: 20px; /* 체크박스 범위 중앙 (0 + 40px/2) */
     z-index: 7000;
     opacity: 1;
+    animation: fadeOut 1s forwards;
+}
+
+/* 페이드 아웃 애니메이션 */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* 선택된 날짜 (빨간 테두리) */
 .day.selected {
-    border: 2px solid #ff4444;
+    border: 2px solid #ff4444 !important;
     font-weight: bold;
 }
 
@@ -101,6 +108,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     z-index: 6500 !important;
     opacity: 0; /* 투명하게, 클릭 가능 */
     pointer-events: auto !important;
+    cursor: pointer;
 }
 
 .stCheckbox > div > div {
@@ -133,7 +141,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         line-height: 40px !important;
         font-size: 1em;
         margin: 2px auto !important;
-        padding: 15px !important; /* 모바일 터치 영역 확대 */
+        padding: 15px !important;
         touch-action: manipulation !important;
     }
     .day:not(.disabled):hover::after,
@@ -141,21 +149,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         left: -10px;
         top: 20px;
     }
-    .day-header {
-        padding: 5px 2px;
-        width: auto;
-        height: auto;
-        min-width: auto !important;
-        min-height: auto !important;
-        aspect-ratio: unset !important;
-        line-height: normal;
-        border: none;
-        border-radius: 0;
-        background-color: transparent;
-        justify-content: center;
-    }
     .stCheckbox {
-        width: 48px !important; /* 모바일 터치 영역 확대 */
+        width: 48px !important;
         height: 48px !important;
         left: -24px;
         top: -4px;
@@ -198,7 +193,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         color: #888;
     }
     .day.selected {
-        border-color: #ff6666;
+        border-color: #ff6666 !important;
     }
     .day.current {
         border-color: #6666ff;
