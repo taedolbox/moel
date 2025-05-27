@@ -12,69 +12,9 @@ KST = pytz.timezone('Asia/Seoul')
 current_datetime = datetime.now(KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
-# 스타일시트 및 JavaScript 로드
+# 스타일시트 로드
 with open("static/styles.css") as f:
-    css = f.read()
-
-click_handler_js = """
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const days = document.querySelectorAll('.day:not(.disabled)');
-    days.forEach(day => {
-        // 클릭 및 터치 이벤트 처리
-        ['click', 'touchstart'].forEach(eventType => {
-            day.addEventListener(eventType, function(e) {
-                e.preventDefault();
-                const dateStr = this.getAttribute('data-date');
-                const rect = this.getBoundingClientRect();
-                let x, y;
-                
-                // 터치 이벤트 처리
-                if (e.type === 'touchstart' && e.touches && e.touches[0]) {
-                    x = e.touches[0].clientX - rect.left;
-                    y = e.touches[0].clientY - rect.top;
-                } else {
-                    x = e.clientX - rect.left;
-                    y = e.clientY - rect.top;
-                }
-
-                // 체크박스 범위(-20px, 40x40px)에 녹색 점 표시
-                const checkboxArea = {
-                    x: -20,
-                    y: 0,
-                    width: 40,
-                    height: 40
-                };
-                const dot = document.createElement('div');
-                dot.className = 'click-dot';
-                dot.style.left = `${checkboxArea.x + checkboxArea.width / 2}px`;
-                dot.style.top = `${checkboxArea.y + checkboxArea.height / 2}px`;
-                this.appendChild(dot);
-
-                // 1초 후 점 제거
-                setTimeout(() => {
-                    dot.remove();
-                }, 1000);
-
-                // 체크박스 범위 내 클릭인지 확인
-                if (x >= checkboxArea.x && x <= checkboxArea.x + checkboxArea.width &&
-                    y >= checkboxArea.y && y <= checkboxArea.y + checkboxArea.height) {
-                    // Streamlit에 날짜 전달
-                    fetch('/_stcore/streamlit_event', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'select_date', date: dateStr })
-                    });
-                }
-            });
-        });
-    });
-});
-</script>
-"""
-
-# CSS와 JavaScript 삽입
-st.markdown(f"<style>{css}</style>{click_handler_js}", unsafe_allow_html=True)
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def render_calendar(apply_date):
     if 'selected_dates' not in st.session_state:
@@ -123,25 +63,19 @@ def render_calendar(apply_date):
                             class_name += " disabled"
 
                         with st.container():
-                            st.markdown(
-                                f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
-                                unsafe_allow_html=True
-                            )
-
-    # JavaScript에서 받은 클릭 이벤트 처리
-    if st._is_running_with_streamlit:
-        # Streamlit의 내부 API를 통해 이벤트 처리 (실제 환경에서 테스트 필요)
-        if "select_date" in st.session_state:
-            date_str = st.session_state.get("select_date", None)
-            if date_str:
-                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-                if date_obj in selected_dates:
-                    selected_dates.discard(date_obj)
-                else:
-                    selected_dates.add(date_obj)
-                st.session_state.selected_dates = selected_dates
-                del st.session_state.select_date
-                st.rerun()
+                            if is_disabled:
+                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                            else:
+                                checkbox_key = f"date_{date_obj}"
+                                checkbox_value = st.checkbox("", key=checkbox_key, value=is_selected, label_visibility="hidden")
+                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                                if checkbox_value != is_selected:
+                                    if checkbox_value:
+                                        selected_dates.add(date_obj)
+                                    else:
+                                        selected_dates.discard(date_obj)
+                                    st.session_state.selected_dates = selected_dates
+                                    st.rerun()
 
     # 선택된 근무일자 표시
     if selected_dates:
@@ -167,7 +101,7 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}")
-    st.markdown("**안내**: 날짜의 좌측 영역(녹색 점)을 클릭해 선택하세요. 선택된 날짜는 빨간 테두리로 표시됩니다.")
+    st.markdown("**안내**: 날짜의 좌측 영역을 클릭해 선택하세요. 클릭 시 녹색 점이 나타나며, 선택된 날짜는 빨간 테두리로 표시됩니다.")
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date())
     render_calendar(apply_date)
 
