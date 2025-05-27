@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
+import os
 
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
@@ -127,9 +128,16 @@ def toggle_date(date_obj):
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
     # CSS 로드
-    with open("style.css", "r") as f:
-        css = f.read()
-    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    css_path = "style.css"
+    try:
+        if os.path.exists(css_path):
+            with open(css_path, "r", encoding="utf-8") as f:
+                css = f.read()
+            st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+        else:
+            st.error(f"CSS 파일을 찾을 수 없습니다: {css_path}")
+    except Exception as e:
+        st.error(f"CSS 파일 로드 중 오류 발생: {str(e)}")
 
     st.header("일용근로자 수급자격 요건 모의계산")
 
