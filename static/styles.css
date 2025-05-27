@@ -68,7 +68,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     pointer-events: auto !important;
 }
 
-/* 클릭 위치에 녹색 점 */
+/* 체크박스 범위에 녹색 점 */
 .click-dot {
     position: absolute;
     width: 8px;
