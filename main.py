@@ -1,5 +1,4 @@
 # main.py
-
 import streamlit as st
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
@@ -45,7 +44,6 @@ def main():
 
         # Filter menus based on search query
         filtered_menus = {}
-        selected_sub_menu = None
         if search_query:
             search_query = search_query.lower()
             for main_menu, sub_menus in menus.items():
@@ -56,65 +54,51 @@ def main():
                 ]
                 if filtered_sub_menus or search_query in main_menu.lower():
                     filtered_menus[main_menu] = filtered_sub_menus
-                for sub in sub_menus:
-                    if search_query in sub.lower() or any(search_query in q.lower() for q in all_questions.get(sub, [])):
-                        selected_sub_menu = sub
-                        st.session_state.selected_menu = main_menu
-                        break
-                if selected_sub_menu:
-                    break
         else:
             filtered_menus = menus
 
-        # Main menu selection
-        menu = None
+        # Main menu selection with default value
+        menu = st.selectbox(
+            "📌 메뉴를 선택하세요",
+            list(filtered_menus.keys()),
+            key="main_menu",
+            index=0 if filtered_menus else None
+        )
+
+        # Sub menu selection with default value
         sub_menu = None
-        if filtered_menus:
-            menu = st.selectbox("📌 메뉴를 선택하세요", list(filtered_menus.keys()), key="main_menu")
-            if filtered_menus.get(menu):
-                sub_menu = st.radio("📋 하위 메뉴", filtered_menus[menu], key="sub_menu")
-            else:
-                st.warning("검색 결과에 해당하는 하위 메뉴가 없습니다.")
-        else:
+        if menu and filtered_menus.get(menu):
+            sub_menu = st.radio(
+                "📋 하위 메뉴",
+                filtered_menus[menu],
+                key="sub_menu",
+                index=0
+            )
+        elif not filtered_menus:
             st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
 
     st.markdown("---")
 
     # Call functions based on menu selection
-    if menu is not None and sub_menu is not None:
-        if menu == "수급자격" and sub_menu:
+    if menu and sub_menu:
+        if menu == "수급자격":
             if sub_menu == "임금 체불 판단":
                 wage_delay_app()
             elif sub_menu == "원거리 발령 판단":
                 remote_assignment_app()
-        elif menu == "실업인정" and sub_menu:
+        elif menu == "실업인정":
             if sub_menu == "실업인정":
                 unemployment_recognition_app()
-        elif menu == "취업촉진수당" and sub_menu:
+        elif menu == "취업촉진수당":
             if sub_menu == "조기재취업수당":
                 early_reemployment_app()
-        elif menu == "실업급여 신청가능 시점" and sub_menu:
+        elif menu == "실업급여 신청가능 시점":
             if sub_menu == "실업급여 신청 가능 시점":
                 st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
             elif sub_menu == "일용직(건설일용포함)":
                 daily_worker_eligibility_app()
     else:
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
-
-    # Auto-call function based on search query
-    if search_query and selected_sub_menu is not None:
-        if selected_sub_menu == "임금 체불 판단":
-            wage_delay_app()
-        elif selected_sub_menu == "원거리 발령 판단":
-            remote_assignment_app()
-        elif selected_sub_menu == "실업인정":
-            unemployment_recognition_app()
-        elif selected_sub_menu == "조기재취업수당":
-            early_reemployment_app()
-        elif selected_sub_menu == "실업급여 신청 가능 시점":
-            st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
-        elif selected_sub_menu == "일용직(건설일용포함)":
-            daily_worker_eligibility_app()
 
     st.markdown("---")
     st.caption("ⓒ 2025 실업급여 도우미는 도움을 드리기 위한 목적입니다. 실제 가능 여부는 고용센터의 판단을 기준으로 합니다.")
