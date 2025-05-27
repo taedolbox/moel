@@ -147,7 +147,7 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* 달력 날짜 원 (클릭 가능하도록 설정) */
+/* 달력 날짜 원 (장식용) */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -165,15 +165,23 @@ button[kind="primary"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
-    cursor: pointer !important;
 }
 
-/* st.checkbox 스타일 조정 */
+/* 체크박스 스타일 조정 */
 div[data-testid="stCheckbox"] {
     position: absolute !important;
     left: 5px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 체크박스 라벨 스타일 */
+div[data-testid="stCheckbox"] label {
+    margin-left: 5px !important;
+    font-size: 0.9em !important;
+    color: #000000 !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -188,6 +196,9 @@ div[data-testid="stCheckbox"] {
     .calendar-day-box {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+    div[data-testid="stCheckbox"] label {
         color: #ffffff !important;
     }
 }
@@ -215,6 +226,9 @@ div[data-testid="stCheckbox"] {
     .day-header {
         width: calc(600px / 7) !important;
     }
+    div[data-testid="stCheckbox"] label {
+        font-size: 1em !important;
+    }
 }
 
 /* 모바일 화면 스타일 (최대 너비 500px) */
@@ -235,7 +249,6 @@ div[data-testid="stCheckbox"] {
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
-.pipeline
         height: calc(280px / 7) !important;
         background-color: #f0f0f0 !important;
     }
@@ -280,7 +293,7 @@ div[data-testid="stCheckbox"] {
     border: 2px solid #0000ff !important;
 }
 
-/* 선택된 날짜 스타일 (st.checkbox 체크 여부에 따라 동적으로 적용) */
+/* 선택된 날짜 스타일 (st.checkbox 체크 시 동기화) */
 .calendar-day-box.selected-day {
     background-color: transparent !important;
     color: #000000 !important;
