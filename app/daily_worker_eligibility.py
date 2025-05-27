@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 1:49 KST)
-current_datetime = datetime(2025, 5, 27, 13, 49)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 2:54 KST)
+current_datetime = datetime(2025, 5, 27, 14, 54)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -46,7 +46,7 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링
+            # 달력 렌더링 (st.checkbox 사용)
             for week in cal:
                 week_html = '<div class="calendar-grid">'
                 for i, day in enumerate(week):
@@ -71,30 +71,31 @@ def render_calendar_interactive(apply_date):
                         class_name += " current-day"
 
                     container_key = f"date_{date_obj.isoformat()}"
-                    # 체크박스를 사용해 상태 관리
-                    week_html += (
-                        f'<div class="calendar-day-container">'
-                        f'<div class="selection-mark"></div>'
-                        f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
-                        f'<label for="{container_key}" class="{class_name}">{day}</label>'
-                        f'</div>'
+                    # 체크박스를 직접 렌더링
+                    checked = st.checkbox(
+                        "", value=is_selected, key=container_key, label_visibility="hidden"
                     )
-
-                    # 체크박스 상태에 따라 세션 상태 업데이트
-                    if container_key in st.session_state:
-                        if st.session_state[container_key]:
+                    if checked != is_selected:
+                        if checked:
                             selected_dates.add(date_obj)
                         else:
                             selected_dates.discard(date_obj)
                         st.session_state.selected_dates = selected_dates
-                        del st.session_state[container_key]
                         st.rerun()
+
+                    week_html += (
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<label class="{class_name}">{day}</label>'
+                        f'</div>'
+                    )
 
                 week_html += '</div>'
                 st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # 선택된 근무일자 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
@@ -127,12 +128,12 @@ def daily_worker_eligibility_app():
 
     # 조건 1 계산 및 표시
     total_days = len(date_range_objects)
-    worked_days = len(selected_dates)
+    worked_days = len(selected_dates)  # 선택된 날짜 수 계산
     threshold = total_days / 3
 
     st.markdown(f"- 총 기간 일수: **{total_days}일**")
     st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
+    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")  # 카운트 표시
 
     condition1 = worked_days < threshold
     st.markdown(
