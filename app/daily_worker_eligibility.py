@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 10:03 KST)
-current_datetime = datetime(2025, 5, 27, 22, 3)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 5:59 KST)
+current_datetime = datetime(2025, 5, 27, 17, 59)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -46,49 +46,59 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링 (각 주를 Streamlit columns로 구성)
+            # 달력 렌더링
             for week in cal:
-                cols = st.columns(7) # 7개의 컬럼 생성 (요일)
-                for i, day_val in enumerate(week):
-                    with cols[i]:
-                        if day_val == 0:
-                            # 비어있는 날짜 칸
-                            st.markdown('<div class="calendar-day-empty"></div>', unsafe_allow_html=True)
-                            continue
-
-                        date_obj = date(year, month, day_val)
-                        
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        is_disabled = date_obj > apply_date # 신청일 이후는 비활성화
-
-                        # Streamlit 버튼의 key는 반드시 유일해야 합니다.
-                        # 여기에 `_selected` 또는 `_current`와 같은 접미사를 추가하여 CSS에서 선택할 수 있도록 힌트를 줍니다.
-                        # `_selected`는 선택된 날짜에, `_current`는 오늘 날짜에 적용됩니다.
-                        key_suffix = ""
-                        if is_selected:
-                            key_suffix += "_selected"
-                        if is_current:
-                            # 선택된 날짜이면서 오늘 날짜인 경우, 선택된 스타일이 우선 적용되도록 합니다.
-                            # CSS에서 `_selected`와 `_current`를 모두 포함하는 경우를 처리할 것입니다.
-                            key_suffix += "_current"
-                        button_key = f"date_button_{date_obj.isoformat()}{key_suffix}"
-
-                        # Streamlit 버튼 생성
-                        clicked = st.button(
-                            label=str(day_val), # 레이블은 숫자만 간단하게
-                            key=button_key,
-                            disabled=is_disabled,
+                week_html = '<div class="calendar-grid">'
+                for i, day in enumerate(week):
+                    if day == 0:
+                        week_html += '<div class="calendar-day-container"></div>'
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
+                        week_html += (
+                            f'<div class="calendar-day-container">'
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
+                            f'</div>'
                         )
-                        
-                        # 버튼이 클릭되었을 때 세션 상태 업데이트
-                        if clicked and not is_disabled:
-                            if date_obj in selected_dates:
-                                selected_dates.discard(date_obj)
-                            else:
-                                selected_dates.add(date_obj)
-                            st.session_state.selected_dates = selected_dates
-                            st.rerun()
+                        continue
+
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
+
+                    container_key = f"date_{date_obj.isoformat()}"
+                    # st.checkbox로 상태 관리 (숫자 옆에 표시)
+                    checked = st.checkbox(
+                        str(day),  # label을 문자열로 변환
+                        key=container_key,
+                        value=is_selected,
+                        label_visibility="visible"  # 라벨을 숫자로 표시
+                    )
+
+                    # 체크박스 상태에 따라 selected_dates 즉시 업데이트
+                    if checked and date_obj not in selected_dates:
+                        selected_dates.add(date_obj)
+                        st.session_state.selected_dates = selected_dates
+                        st.rerun()  # 상태 변화 후 UI 갱신
+                    elif not checked and date_obj in selected_dates:
+                        selected_dates.discard(date_obj)
+                        st.session_state.selected_dates = selected_dates
+                        st.rerun()  # 상태 변화 후 UI 갱신
+
+                    # 숫자와 선택 표시 렌der링
+                    week_html += (
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<div class="{class_name}">{day}</div>'
+                        f'</div>'
+                    )
+
+                week_html += '</div>'
+                st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
