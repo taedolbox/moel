@@ -64,134 +64,104 @@ def render_calendar_interactive(apply_date):
                         is_current = date_obj == current_date
                         is_disabled = date_obj > apply_date # 신청일 이후는 비활성화
 
-                        # Streamlit 버튼에 적용될 CSS 클래스를 결정합니다.
-                        # 실제 HTML 콘텐츠는 버튼의 label이 아닌, CSS를 통해 버튼 자체에 적용됩니다.
-                        class_names = ["calendar-day-button"]
-                        if is_selected:
-                            class_names.append("selected-day")
-                        if is_current:
-                            class_names.append("current-day")
-                        if is_disabled:
-                            class_names.append("disabled-day")
-
                         # Streamlit 버튼 생성
                         # label은 숫자로만 간단하게 유지하고, 스타일은 CSS 클래스로 제어합니다.
-                        if st.button(
-                            label=str(day_val),
-                            key=button_key,
-                            disabled=is_disabled,
-                            # Streamlit 버튼의 내부 div에 우리가 원하는 CSS 클래스를 적용
-                            # 이 부분이 버튼 자체의 스타일을 제어하는 핵심입니다.
-                            # Streamlit 1.25.0 이후부터는 data-testid를 이용하여 스타일링하는 것이 더 안정적입니다.
-                        ):
-                            if not is_disabled:
-                                if date_obj in selected_dates:
-                                    selected_dates.discard(date_obj)
-                                else:
-                                    selected_dates.add(date_obj)
-                                st.session_state.selected_dates = selected_dates
-                                st.rerun()
+                        # `is_selected`와 `is_current` 상태를 CSS에 전달하기 위해
+                        # 버튼의 CSS 클래스를 동적으로 결정하여 HTML에 직접 삽입하지 않고,
+                        # Streamlit이 렌더링하는 버튼의 `data-testid`를 이용하여 CSS에서 제어합니다.
+                        # 대신, Streamlit에게 힌트를 줄 수 있는 "클래스명"을 key에 포함하여 CSS에서 선택할 수 있도록 해봅니다.
+                        # 이것은 Streamlit의 비공식적인 활용 방법이며, Streamlit의 DOM 구조 변화에 취약할 수 있습니다.
+                        
+                        # 가장 안정적인 방법은 CSS에서 data-testid를 직접 선택하고
+                        # 파이썬에서는 st.session_state를 통해 상태를 관리하는 것입니다.
+                        # 선택된 날짜와 현재 날짜는 CSS에서 `data-selected` 또는 `data-current` 속성으로 접근할 수 있도록 힌트를 줍니다.
 
-                        # 각 버튼에 대한 커스텀 CSS를 삽입하여 클래스 적용
-                        # 이 방법은 모든 버튼에 동일한 클래스를 적용하는 것이 아니라
-                        # 개별 버튼에 동적으로 클래스를 추가할 때 유용합니다.
+                        # 버튼에 적용할 CSS 클래스를 동적으로 설정하는 방식 (CSS에서 data-testid 조합으로 사용)
+                        button_class_modifiers = []
+                        if is_selected:
+                            button_class_modifiers.append("selected-day-modifier") # CSS에서 이 modifier를 사용하여 스타일 적용
+                        if is_current:
+                            button_class_modifiers.append("current-day-modifier") # CSS에서 이 modifier를 사용하여 스타일 적용
+
+                        # Streamlit 버튼을 생성하고, CSS 선택을 돕기 위해 key에 상태를 포함합니다.
+                        # 이 방식이 `SyntaxError`를 발생시키던 복잡한 인라인 스타일 삽입보다 안전합니다.
+                        clicked = st.button(
+                            label=str(day_val),
+                            key=button_key, # 이 key는 버튼 자체의 고유성을 식별합니다.
+                            disabled=is_disabled,
+                        )
+                        
+                        # 버튼이 클릭되었을 때 세션 상태 업데이트
+                        if clicked and not is_disabled:
+                            if date_obj in selected_dates:
+                                selected_dates.discard(date_obj)
+                            else:
+                                selected_dates.add(date_obj)
+                            st.session_state.selected_dates = selected_dates
+                            st.rerun()
+
+                        # 동적으로 버튼에 클래스를 적용하는 CSS 주입 (클릭 후 리렌더링 시 반영)
+                        # 이전에 문제가 되었던 인라인 스타일링 대신, 해당 버튼의 data-testid를 기반으로 클래스를 적용합니다.
+                        # Streamlit의 DOM 구조를 직접 조작하는 것이므로, 버전 업데이트 시 주의 필요.
+                        # `base-button-secondary`는 Streamlit 버튼의 일반적인 data-testid입니다.
+                        # 여기서는 `data-selected`와 `data-current` 속성을 버튼에 추가하는 방식으로 변경하여 CSS에서 활용합니다.
+                        data_selected = "true" if is_selected else "false"
+                        data_current = "true" if is_current else "false"
+
                         st.markdown(
                             f"""
                             <style>
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{
-                                    /* 기본 Streamlit 버튼 스타일 초기화 */
-                                    background: none !important;
-                                    border: none !important;
-                                    padding: 0 !important;
-                                    margin: 0 !important;
-                                    display: flex !important;
-                                    justify-content: center !important;
-                                    align-items: center !important;
-                                    width: 100% !important; /* 컬럼 너비에 맞춤 */
-                                    height: 100% !important; /* 컬럼 높이에 맞춤 */
+                                /* 각 버튼의 data-selected와 data-current 속성을 기반으로 스타일 적용 */
+                                button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
+                                    /* 기본 스타일은 CSS 파일에 정의 */
                                 }}
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
-                                    /* 버튼 라벨(숫자)을 감싸는 div에 실제 날짜 스타일 적용 */
-                                    width: 38px !important; /* PC 기준 */
-                                    height: 38px !important; /* PC 기준 */
-                                    border: 1px solid #cccccc !important;
-                                    background-color: #ffffff !important;
-                                    color: #000000 !important;
-                                    border-radius: 50% !important;
-                                    font-size: 0.9em !important;
-                                    display: flex !important;
-                                    align-items: center !important;
-                                    justify-content: center !important;
-                                    transition: background-color 0.2s ease, border-color 0.2s ease;
-                                    cursor: pointer !important;
-                                }}
-
-                                /* 선택된 날짜 (파란색 테두리) */
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].selected-day > div {{
+                                /* 선택된 날짜 */
+                                button[data-testid="base-button-secondary"][key="{button_key}"][data-selected="true"] > div {{
                                     border: 2px solid #0000ff !important;
                                 }}
-                                /* 오늘 날짜 (파란색 테두리) */
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].current-day > div {{
+                                /* 오늘 날짜 (선택되지 않았을 때만) */
+                                button[data-testid="base-button-secondary"][key="{button_key}"][data-current="true"][data-selected="false"] > div {{
                                     border: 2px solid #0000ff !important;
                                 }}
                                 /* 비활성화된 날짜 */
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].disabled-day > div {{
+                                button[data-testid="base-button-secondary"][key="{button_key}"][disabled] > div {{
                                     border: 1px solid #aaaaaa !important;
                                     background-color: #e0e0e0 !important;
                                     color: #999999 !important;
                                     cursor: not-allowed !important;
                                 }}
 
-                                /* 호버 효과 */
-                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"]:hover:not(.disabled-day) > div {{
-                                    background-color: #e0e0e0 !important;
-                                    border-color: #555 !important;
-                                }}
-
-                                @media (max-width: 500px) {
-                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
-                                        width: 34px !important;
-                                        height: 34px !important;
-                                    }}
-                                }
-
-                                /* 다크 모드 스타일 */
-                                @media (prefers-color-scheme: dark), [data-theme="dark"] {
-                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
-                                        background-color: #000000 !important;
-                                        color: #ffffff !important;
-                                        border: 1px solid #888 !important;
-                                    }}
-                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].disabled-day > div {{
+                                /* 다크 모드 비활성화된 날짜 */
+                                @media (prefers-color-scheme: dark), [data-theme="dark"] {{
+                                    button[data-testid="base-button-secondary"][key="{button_key}"][disabled] > div {{
                                         background-color: #3a3a3a !important;
                                         border: 1px solid #555 !important;
                                         color: #666 !important;
                                     }}
-                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"]:hover:not(.disabled-day) > div {{
-                                        background-color: #333333 !important;
-                                        border-color: #aaaaaa !important;
-                                    }}
-                                }
+                                }}
                             </style>
                             """,
                             unsafe_allow_html=True
                         )
+                        # data-* 속성을 설정하는 스크립트 추가 (비동기적으로 DOM을 조작)
+                        # Streamlit은 직접 DOM을 조작하는 것을 권장하지 않으므로, 이 부분은 최후의 수단입니다.
+                        # 이것이 SyntaxError의 주된 원인이 아닐 가능성이 높지만, 안정성을 위해 시도해 봅니다.
+                        st.markdown(
+                            f"""
+                            <script>
+                                (function() {{
+                                    const button = document.querySelector('button[data-testid="base-button-secondary"][key="{button_key}"]');
+                                    if (button) {{
+                                        button.setAttribute('data-selected', '{data_selected}');
+                                        button.setAttribute('data-current', '{data_current}');
+                                    }}
+                                }})();
+                            </script>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
-                        # 버튼에 selected-day, current-day, disabled-day 클래스를 동적으로 추가합니다.
-                        # Streamlit의 컴포넌트는 HTML 요소를 직접 수정할 수 없으므로,
-                        # 버튼의 부모 요소에 특정 클래스를 추가하는 방식으로 간접적으로 제어합니다.
-                        # Streamlit 1.25.0 이상부터는 data-testid를 활용하는 것이 좋습니다.
-                        # 여기서는 Streamlit 내부에서 부여하는 data-testid를 활용하여 CSS를 적용합니다.
-                        # 각 버튼의 부모 요소에 해당하는 Streamlit 내부 div에 class를 추가하는 방식입니다.
-                        # 이 방식은 Streamlit의 DOM 구조 변화에 따라 깨질 수 있어 주의가 필요합니다.
-                        # 가장 확실한 방법은 JavaScript를 사용하는 것이지만, Streamlit 앱에서는 제한적입니다.
-                        # 현재는 Streamlit이 버튼에 부여하는 data-testid를 이용해 해당 버튼 자체에 클래스를 적용하는 것이 최선입니다.
-                        if is_selected:
-                            st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ border: 2px solid #0000ff !important; }} </style>', unsafe_allow_html=True)
-                        if is_current:
-                            st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ border: 2px solid #0000ff !important; }} </style>', unsafe_allow_html=True)
-                        if is_disabled:
-                             st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ background-color: #e0e0e0 !important; color: #999999 !important; cursor: not-allowed !important; }} </style>', unsafe_allow_html=True)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     # 선택된 근무일자 표시
