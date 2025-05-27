@@ -25,65 +25,57 @@ def render_calendar(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
-    with st.form(key="calendar_form"):
-        for year, month in months:
-            st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
-            cal = calendar.monthcalendar(year, month)
-            days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
+    for year, month in months:
+        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
+        cal = calendar.monthcalendar(year, month)
+        days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더
+        # 요일 헤더
+        with st.container():
+            cols = st.columns(7, gap="small")
+            for i, day in enumerate(days_of_week):
+                with cols[i]:
+                    class_name = "day-header"
+                    if i == 0 or i == 6:
+                        class_name += " weekend"
+                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+
+        # 날짜 렌더링
+        for week in cal:
             with st.container():
                 cols = st.columns(7, gap="small")
-                for i, day in enumerate(days_of_week):
+                for i, day in enumerate(week):
                     with cols[i]:
-                        class_name = "day-header"
-                        if i == 0 or i == 6:
-                            class_name += " weekend"
-                        st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                        if day == 0:
+                            st.empty()
+                            continue
+                        date_obj = date(year, month, day)
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        is_disabled = date_obj > apply_date
 
-            # 날짜 렌더링
-            for week in cal:
-                with st.container():
-                    cols = st.columns(7, gap="small")
-                    for i, day in enumerate(week):
-                        with cols[i]:
-                            if day == 0:
-                                st.empty()
-                                continue
-                            date_obj = date(year, month, day)
-                            is_selected = date_obj in selected_dates
-                            is_current = date_obj == current_date
-                            is_disabled = date_obj > apply_date
+                        class_name = "day"
+                        if is_selected:
+                            class_name += " selected"
+                        if is_current:
+                            class_name += " current"
+                        if is_disabled:
+                            class_name += " disabled"
 
-                            class_name = "day"
-                            if is_selected:
-                                class_name += " selected"
-                            if is_current:
-                                class_name += " current"
+                        with st.container():
                             if is_disabled:
-                                class_name += " disabled"
-
-                            with st.container():
-                                if is_disabled:
-                                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                                else:
-                                    checkbox_key = f"date_{date_obj}"
-                                    st.markdown(
-                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
-                                        unsafe_allow_html=True
-                                    )
-                                    checkbox_value = st.checkbox(
-                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
-                                    )
-                                    if checkbox_value != is_selected:
-                                        if checkbox_value:
-                                            selected_dates.add(date_obj)
-                                        else:
-                                            selected_dates.discard(date_obj)
-                                        st.session_state.selected_dates = selected_dates
-
-        # 폼 제출 버튼 (렌더링 최적화)
-        st.form_submit_button("선택 완료", on_click=lambda: None)
+                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                            else:
+                                checkbox_key = f"date_{date_obj}"
+                                checkbox_value = st.checkbox("", key=checkbox_key, value=is_selected, label_visibility="hidden")
+                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                                if checkbox_value != is_selected:
+                                    if checkbox_value:
+                                        selected_dates.add(date_obj)
+                                    else:
+                                        selected_dates.discard(date_obj)
+                                    st.session_state.selected_dates = selected_dates
+                                    st.rerun()
 
     # 선택된 근무일자 표시
     if selected_dates:
@@ -109,7 +101,7 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}")
-    st.markdown("**안내**: 날짜의 좌측 영역(녹색 점)을 클릭해 선택하세요. 선택된 날짜는 빨간 테두리로 표시됩니다.")
+    st.markdown("**안내**: 날짜의 좌측 영역을 클릭해 선택하세요. 클릭 시 녹색 점이 나타나며, 선택된 날짜는 빨간 테두리로 표시됩니다.")
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date())
     render_calendar(apply_date)
 
