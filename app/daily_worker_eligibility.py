@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 8:32 KST)
-current_datetime = datetime(2025, 5, 27, 20, 32)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:38 KST)
+current_datetime = datetime(2025, 5, 27, 20, 38)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -30,6 +30,21 @@ def render_calendar_interactive(apply_date):
     end_date_for_calendar = apply_date
     months_to_display = sorted(list(set((d.year, d.month) for d in pd.date_range(start=start_date_for_calendar, end=end_date_for_calendar))))
 
+    # JavaScript로 클릭 이벤트 처리
+    script = """
+    <script>
+    function toggleDate(dateStr) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'selected_date';
+        hiddenInput.value = dateStr;
+        document.body.appendChild(hiddenInput);
+        hiddenInput.form.submit();
+    }
+    </script>
+    """
+    st.components.v1.html(script, height=0)
+
     # 달력 전용 컨테이너
     with st.container():
         st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
@@ -47,14 +62,14 @@ def render_calendar_interactive(apply_date):
             st.markdown(header_html, unsafe_allow_html=True)
 
             # 달력 날짜 렌더링
-            st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
+            calendar_html = '<div class="calendar-grid">'
             for week in cal:
                 for i, day in enumerate(week):
                     if day == 0:
-                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                        calendar_html += '<div class="calendar-day-container"></div>'
                         continue
                     date_obj = date(year, month, day)
-                    container_key = f"date_{date_obj.isoformat()}"
+                    date_str = date_obj.isoformat()
 
                     # 상태 설정
                     is_selected = date_obj in selected_dates
@@ -71,27 +86,29 @@ def render_calendar_interactive(apply_date):
                         class_name += " disabled-day"
 
                     # 날짜와 클릭 이벤트 렌더링
-                    day_html = (
+                    onclick = f"toggleDate('{date_str}')" if not is_disabled else ""
+                    calendar_html += (
                         f'<div class="calendar-day-container {class_name}">'
-                        f'<div class="calendar-day-content">{day}</div>'
+                        f'<div class="calendar-day-content" onclick="{onclick}">{day}</div>'
                         f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
                         f'</div>'
                     )
-                    st.markdown(day_html, unsafe_allow_html=True)
-
-                    # 클릭 이벤트 처리
-                    if not is_disabled:
-                        if st.button("", key=container_key, use_container_width=True):
-                            if date_obj in selected_dates:
-                                selected_dates.discard(date_obj)
-                            else:
-                                selected_dates.add(date_obj)
-                            st.session_state.selected_dates = selected_dates
-                            st.rerun()
-
-            st.markdown('</div>', unsafe_allow_html=True)
+            calendar_html += '</div>'
+            st.markdown(calendar_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
+
+    # 클릭 이벤트 처리
+    if "selected_date" in st.query_params:
+        date_str = st.query_params["selected_date"]
+        date_obj = date.fromisoformat(date_str)
+        if date_obj in selected_dates:
+            selected_dates.discard(date_obj)
+        else:
+            selected_dates.add(date_obj)
+        st.session_state.selected_dates = selected_dates
+        st.query_params.clear()
+        st.rerun()
 
     # 선택된 근무일자 표시
     if st.session_state.selected_dates:
