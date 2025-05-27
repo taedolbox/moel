@@ -7,7 +7,7 @@ import calendar
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # 현재 날짜와 시간
-current_datetime = datetime(2025, 5, 27, 22, 55)
+current_datetime = datetime(2025, 5, 27, 22, 59)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드
@@ -60,23 +60,25 @@ def render_calendar(apply_date):
                         if is_disabled:
                             class_name += " disabled"
 
-                        # 체크박스와 날짜 렌더링
                         with st.container():
                             if is_disabled:
                                 st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
                             else:
                                 checkbox_key = f"date_{date_obj}"
                                 checkbox_value = st.checkbox("", key=checkbox_key, value=is_selected, label_visibility="hidden")
+                                if 'last_selected' not in st.session_state:
+                                    st.session_state.last_selected = None
                                 if checkbox_value != is_selected:
                                     if checkbox_value:
                                         selected_dates.add(date_obj)
                                     else:
                                         selected_dates.discard(date_obj)
                                     st.session_state.selected_dates = selected_dates
-                                    # st.rerun() 제거: 상태만 업데이트하고 UI는 자동 갱신
+                                    st.session_state.last_selected = date_obj
+                                    st.experimental_rerun()  # 더 효율적인 재렌더링
                             st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
-    # 선택된 근무일자 표시 (직접 렌더링)
+    # 선택된 근무일자 표시
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.write(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
