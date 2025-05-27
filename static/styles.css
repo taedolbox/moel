@@ -102,7 +102,7 @@ div[data-testid="stHorizontalBlock"] {
 /* 데스크탑에서 달력 왼쪽 정렬 */
 @media (min-width: 768px) {
     div[data-testid="stHorizontalBlock"] {
-        max-width: 272px !important; /* 달력 전체 너비 약 40px 축소 */
+        max-width: 372px !important; /* 달력 전체 너비 약 40px 축소 */
         margin: 0 0 0 0 !important; /* 왼쪽 정렬 */
         justify-content: flex-start !important; /* 왼쪽 정렬 */
     }
