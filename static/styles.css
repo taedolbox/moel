@@ -2,7 +2,7 @@
 div[data-testid="stHorizontalBlock"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important;
+    gap: 1px !important; /* 데스크톱 간격 축소 */
     width: 100% !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important; /* 왼쪽 정렬 */
@@ -44,9 +44,9 @@ div[data-testid="stHorizontalBlock"] {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    width: 38px !important; /* .day보다 약간 크게 설정하여 클릭 감도 개선 */
-    height: 38px !important; /* .day보다 약간 크게 설정하여 클릭 감도 개선 */
-    margin: -1px 0 0 -1px !important; /* .day와 정확히 겹치도록 조정 */
+    width: 36px !important; /* .day와 정확히 동일한 크기 */
+    height: 36px !important; /* .day와 정확히 동일한 크기 */
+    margin: 0 !important; /* 마진 제거로 원 숫자에 밀착 */
     padding: 0 !important;
     background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인을 위해 반투명 파란색 */
     cursor: pointer !important;
@@ -60,8 +60,8 @@ div[data-testid="stHorizontalBlock"] {
 
 /* 체크박스 내부 요소 스타일 */
 .stCheckbox > div > div {
-    width: 38px !important; /* .stCheckbox와 동일한 크기 */
-    height: 38px !important; /* .stCheckbox와 동일한 크기 */
+    width: 36px !important; /* .day와 정확히 동일한 크기 */
+    height: 36px !important; /* .day와 정확히 동일한 크기 */
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
@@ -73,7 +73,7 @@ div[data-testid="stHorizontalBlock"] {
     div[data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
-        gap: 2px !important;
+        gap: 2px !important; /* 모바일 간격 유지 */
         justify-content: flex-start !important; /* 왼쪽 이동 */
         margin-left: 0; /* 왼쪽 이동 제거, 중앙 정렬 보완 */
     }
