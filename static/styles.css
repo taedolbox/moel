@@ -115,6 +115,15 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
+/* 달력 날짜 그리드 */
+.calendar-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: 100% !important;
+    gap: 0 !important;
+    box-sizing: border-box !important;
+}
+
 /* 요일 헤더 스타일 */
 .day-header {
     display: flex !important;
@@ -127,56 +136,54 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* Streamlit Column 내부의 버튼 스타일링 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] {
-    /* Streamlit 기본 버튼 스타일 제거 */
-    background: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important; /* 컬럼 너비에 맞춤 */
-    height: 100% !important; /* 컬럼 높이에 맞춤 */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-/* 버튼의 텍스트(숫자)를 감싸는 div에 스타일 적용 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
-    width: 38px !important; /* PC 기준 */
-    height: 38px !important; /* PC 기준 */
-    border: 1px solid #cccccc !important;
+/* 달력 날짜 컨테이너 */
+.calendar-day-container {
+    position: relative !important;
     background-color: #ffffff !important;
-    color: #000000 !important;
-    border-radius: 50% !important; /* 원형 */
-    font-size: 0.9em !important;
+    height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+}
+
+/* 달력 날짜 원 */
+.calendar-day-box {
+    width: 34px !important;
+    height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 50% !important;
+    font-size: 0.9em !important;
+    box-sizing: border-box !important;
     user-select: none !important;
     white-space: nowrap !important;
-    cursor: pointer !important;
-    z-index: 2 !important;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 1 !important;
+    cursor: pointer !important; /* 클릭 가능 여부 명확화 */
 }
 
-/* 달력 빈 칸 스타일 */
-.calendar-day-empty {
-    width: 100%;
-    height: 48px; /* PC 기준 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-}
-@media (max-width: 500px) {
-    .calendar-day-empty {
-        height: calc(280px / 7) !important; /* 모바일 기준 */
-    }
+/* 체크박스 스타일 조정 */
+div[data-testid="stCheckbox"] {
+    position: absolute !important;
+    left: 5px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
+/* 체크박스 라벨 스타일 */
+div[data-testid="stCheckbox"] label {
+    margin-left: 5px !important;
+    font-size: 0.9em !important;
+    color: #000000 !important;
+}
 
 /* 다크 모드에서 달력 스타일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
@@ -184,9 +191,15 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
         background-color: #333333 !important;
         color: #ffffff !important;
     }
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
+    .calendar-day-container {
+        background-color: #2a2a2a !important;
+    }
+    .calendar-day-box {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+    div[data-testid="stCheckbox"] label {
         color: #ffffff !important;
     }
 }
@@ -197,27 +210,25 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
         min-width: 600px !important;
         max-width: 600px !important;
     }
-    .header-grid {
+    .header-grid, .calendar-grid {
         width: 600px !important;
         max-width: 600px !important;
         min-width: 600px !important;
     }
-    /* Streamlit columns for calendar grid */
-    div[data-testid^="stVerticalBlock"] > div > div[data-testid^="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0 !important;
-        width: 100% !important;
+    .calendar-day-container {
+        width: calc(600px / 7) !important;
+        height: 48px !important;
     }
-    div[data-testid^="stVerticalBlock"] > div > div[data-testid^="stHorizontalBlock"] > div {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 0 !important;
-        min-height: 48px !important; /* Maintain height for each day container */
+    .calendar-day-box {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1em !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
+    }
+    div[data-testid="stCheckbox"] label {
+        font-size: 1em !important;
     }
 }
 
@@ -229,7 +240,7 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
         max-width: 280px !important;
         margin: 0 auto !important;
     }
-    .header-grid {
+    .header-grid, .calendar-grid {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
@@ -237,21 +248,12 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 0 !important;
     }
-    /* Streamlit columns for calendar grid */
-    div[data-testid^="stVerticalBlock"] > div > div[data-testid^="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0 !important;
-        width: 100% !important;
+    .calendar-day-container {
+        width: calc(280px / 7) !important;
+        height: calc(280px / 7) !important;
+        background-color: #f0f0f0 !important;
     }
-    div[data-testid^="stVerticalBlock"] > div > div[data-testid^="stHorizontalBlock"] > div {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 0 !important;
-        min-height: calc(280px / 7) !important; /* Maintain height for each day container */
-    }
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
+    .calendar-day-box {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
@@ -263,63 +265,89 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
 
 /* 모바일 다크 모드 스타일 */
 @media (max-width: 500px) and (prefers-color-scheme: dark), (max-width: 500px) and [data-theme="dark"] {
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
-        background-color: #000000 !important;
+    .calendar-day-container {
+        background-color: #2a2a2a !important;
+    }
+    .calendar-day-box {
         border: 1px solid #888 !important;
+        background-color: #000000 !important;
         color: #ffffff !important;
     }
 }
 
 /* 날짜 박스 호버 효과 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]:hover:not([disabled]) > div {
+.calendar-day-box:hover {
     background-color: #e0e0e0 !important;
     border-color: #555 !important;
 }
 
 /* 다크 모드에서 날짜 박스 호버 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]:hover:not([disabled]) > div {
+    .calendar-day-box:hover {
         background-color: #333333 !important;
         border-color: #aaaaaa !important;
     }
 }
 
-/* 1. 선택된 날짜 (selected)는 빨간색 테두리를 만든다. */
-div[data-testid^="stColumn"] > div > button[key*="_selected"] > div {
-    border: 2px solid red !important; /* 빨간색 테두리 */
+/* 오늘 날짜 스타일 */
+.calendar-day-box.current-day:not(.selected-day) {
+    border: 2px solid #0000ff !important;
 }
 
-/* 2. 원 안에 숫자가 있을 것 (기본 스타일이 원형과 숫자 포함) */
-/* 이미 `div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div` 에서
-   `border-radius: 50% !important;`로 원형을 만들고,
-   `label=str(day_val)`로 숫자가 표시되도록 설정되어 있습니다.
-   추가적인 CSS는 필요하지 않습니다.
-*/
-
-/* 오늘 날짜 스타일 (선택되지 않았을 때만 파란색 테두리) */
-div[data-testid^="stColumn"] > div > button[key*="_current"]:not([key*="_selected"]) > div {
-    border: 2px solid #0000ff !important; /* 파란색 테두리 */
+/* 선택된 날짜 스타일 (st.checkbox 체크 시 동기화) */
+.calendar-day-box.selected-day {
+    background-color: transparent !important;
+    color: #000000 !important;
+    border: 2px solid #ff0000 !important;
+    font-weight: bold !important;
 }
 
+/* 다크 모드에서 선택된 날짜 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box.selected-day {
+        color: #ffffff !important;
+        border: 2px solid #ff0000 !important;
+    }
+}
 
 /* 비활성화된 날짜 스타일 */
-div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
-    border: 1px solid #aaaaaa !important;
-    background-color: #e0e0e0 !important;
-    color: #999999 !important;
+.calendar-day-box.disabled-day {
+    border: 1px solid #555 !important;
+    background-color: #cccccc !important;
+    color: #666 !important;
     cursor: not-allowed !important;
 }
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
-        background-color: #3a3a3a !important;
-        border: 1px solid #555 !important;
+    .calendar-day-box.disabled-day {
+        background-color: #333333 !important;
+        border: 1px solid #444 !important;
         color: #666 !important;
     }
 }
 
-/* Remove selection mark (no longer needed with button-based selection) */
+/* 선택 표시 스타일 (체크 시 동그라미) */
 .selection-mark {
+    position: absolute !important;
+    top: 4px !important;
+    left: 4px !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background-color: #ff0000 !important; /* 빨간색 동그라미 */
+    border: 1px solid #ffffff !important;
     display: none !important;
+    z-index: 0 !important;
+    transition: display 0.1s ease; /* 부드러운 전환 */
+}
+
+/* 선택된 날짜에 선택 표시 */
+.selected-day .selection-mark {
+    display: block !important;
+}
+
+/* 호버 시 원 제거 (의도치 않은 원 표시 방지) */
+.calendar-day-box:hover .selection-mark {
+    display: none !important; /* 호버 시 동그라미 제거 */
 }
