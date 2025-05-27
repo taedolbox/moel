@@ -42,11 +42,10 @@ div[data-testid="stHorizontalBlock"] {
 /* 체크박스 스타일 */
 .stCheckbox {
     position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important; /* 체크박스를 정확히 중앙에 위치 */
-    width: 36px !important; /* .day와 동일한 크기 */
-    height: 36px !important; /* .day와 동일한 크기 */
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important; /* .day와 동일한 크기 */
+    height: 100% !important; /* .day와 동일한 크기 */
     margin: 0 !important;
     padding: 0 !important;
     background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인을 위해 반투명 파란색 */
@@ -61,12 +60,11 @@ div[data-testid="stHorizontalBlock"] {
 
 /* 체크박스 내부 요소 스타일 */
 .stCheckbox > div > div {
-    width: 36px !important;
-    height: 36px !important;
+    width: 100% !important; /* .day와 동일한 크기 */
+    height: 100% !important; /* .day와 동일한 크기 */
     position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important; /* 정확한 중앙 위치 */
+    top: 0 !important;
+    left: 0 !important;
     background-color: rgba(255, 165, 0, 0.3); /* 내부 요소 확인을 위해 반투명 주황색 */
 }
 
@@ -86,8 +84,8 @@ div[data-testid="stHorizontalBlock"] {
         font-size: 1em;
     }
     .stCheckbox > div > div {
-        width: 40px !important;
-        height: 40px !important;
+        width: 100% !important;
+        height: 100% !important;
     }
     .day-header {
         padding: 5px 2px; /* 모바일 간격 조정 */
