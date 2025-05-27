@@ -67,24 +67,21 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     z-index: 6000 !important;
     pointer-events: auto !important;
     touch-action: auto !important;
+    padding: 10px; /* 모바일 터치 영역 확대 */
 }
 
-/* 체크박스 범위에 녹색 점 */
-.click-dot {
+/* 호버 시 체크박스 범위에 녹색 점 표시 */
+.day:not(.disabled):hover::after {
+    content: '';
     position: absolute;
     width: 8px;
     height: 8px;
     background-color: #00ff00;
     border-radius: 50%;
+    left: -10px; /* 체크박스 범위 중앙 (-20px + 40px/2) */
+    top: 20px; /* 체크박스 범위 중앙 (0 + 40px/2) */
     z-index: 7000;
     opacity: 1;
-    animation: fadeOut 1s forwards;
-}
-
-/* 페이드 아웃 애니메이션 */
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
 }
 
 /* 선택된 날짜 (빨간 테두리) */
@@ -128,7 +125,12 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         line-height: 40px !important;
         font-size: 1em;
         margin: 2px auto !important;
+        padding: 12px !important; /* 모바일 터치 영역 확대 */
         touch-action: auto !important;
+    }
+    .day:not(.disabled):hover::after {
+        left: -10px;
+        top: 20px;
     }
     .day-header {
         padding: 5px 2px;
