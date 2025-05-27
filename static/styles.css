@@ -42,10 +42,11 @@ div[data-testid="stHorizontalBlock"] {
 /* 체크박스 스타일 */
 .stCheckbox {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important; /* .day의 전체 너비 */
-    height: 100% !important; /* .day의 전체 높이 */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important; /* 체크박스를 정확히 중앙에 위치 */
+    width: 36px !important; /* .day와 동일한 크기 */
+    height: 36px !important; /* .day와 동일한 크기 */
     margin: 0 !important;
     padding: 0 !important;
     opacity: 0 !important;
