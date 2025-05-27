@@ -85,6 +85,17 @@ button[kind="primary"] {
     }
 }
 
+/* 버튼 스타일 조정 (투명하게 만들기) */
+button {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    cursor: pointer !important;
+}
+
 /* 달력 컨테이너 스타일 */
 .calendar-wrapper {
     display: flex !important;
@@ -288,7 +299,7 @@ button[kind="primary"] {
 }
 
 /* 비활성화된 날짜 스타일 */
-.calendar-day-content.disabled-day {
+.calendar-day-container.disabled-day .calendar-day-content {
     border: 1px solid #555 !important;
     background-color: #cccccc !important;
     color: #666 !important;
@@ -298,7 +309,7 @@ button[kind="primary"] {
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-content.disabled-day {
+    .calendar-day-container.disabled-day .calendar-day-content {
         background-color: #333333 !important;
         border: 1px solid #444 !important;
         color: #666 !important;
