@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 7:15 KST)
-current_datetime = datetime(2025, 5, 27, 19, 15)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 10:03 KST)
+current_datetime = datetime(2025, 5, 27, 22, 3)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -64,11 +64,13 @@ def render_calendar_interactive(apply_date):
 
                         # Streamlit 버튼의 key는 반드시 유일해야 합니다.
                         # 여기에 `_selected` 또는 `_current`와 같은 접미사를 추가하여 CSS에서 선택할 수 있도록 힌트를 줍니다.
-                        # Streamlit 1.25.0 이후부터는 data-testid를 이용한 CSS 선택이 더 안정적입니다.
+                        # `_selected`는 선택된 날짜에, `_current`는 오늘 날짜에 적용됩니다.
                         key_suffix = ""
                         if is_selected:
                             key_suffix += "_selected"
                         if is_current:
+                            # 선택된 날짜이면서 오늘 날짜인 경우, 선택된 스타일이 우선 적용되도록 합니다.
+                            # CSS에서 `_selected`와 `_current`를 모두 포함하는 경우를 처리할 것입니다.
                             key_suffix += "_current"
                         button_key = f"date_button_{date_obj.isoformat()}{key_suffix}"
 
