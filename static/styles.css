@@ -153,8 +153,8 @@ div[data-testid="stCheckbox"] {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 34px !important;
-    height: 34px !important;
+    width: 100% !important;
+    height: 100% !important;
     z-index: 1 !important;
 }
 
@@ -330,7 +330,7 @@ div[data-testid="stCheckbox"] label.disabled-day {
     left: 4px !important;
     width: 8px !important;
     height: 8px !important;
-    border-radius: 50% !important;
+    border-radius: 50 !important;
     background-color: #ff0000 !important; /* 빨간색 동그라미 */
     border: 1px solid #ffffff !important;
     z-index: 0 !important;
