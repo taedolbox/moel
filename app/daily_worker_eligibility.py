@@ -7,10 +7,10 @@ import calendar
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # 현재 날짜와 시간
-current_datetime = datetime(2025, 5, 27, 22, 45)
+current_datetime = datetime(2025, 5, 27, 22, 47)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
-# 스타일시트 로드 (한 번만 로드하면 됨, main.py에서도 가능)
+# 스타일시트 로드
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -38,7 +38,7 @@ def render_calendar(apply_date):
                         class_name += " weekend"
                     st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
-        # 날짜 렌더링
+        # 날짜 렌더링 (클릭 반응 개선)
         for week in cal:
             with st.container():
                 cols = st.columns(7, gap="small")
@@ -63,11 +63,15 @@ def render_calendar(apply_date):
                         if is_disabled:
                             st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
                         else:
-                            if st.checkbox("", key=f"date_{date_obj}", value=is_selected, label_visibility="hidden"):
-                                selected_dates.add(date_obj)
-                            else:
-                                selected_dates.discard(date_obj)
-                            st.session_state.selected_dates = selected_dates
+                            checkbox_key = f"date_{date_obj}"
+                            checkbox_value = st.checkbox("", key=checkbox_key, value=is_selected, label_visibility="hidden")
+                            if checkbox_value != is_selected:
+                                if checkbox_value:
+                                    selected_dates.add(date_obj)
+                                else:
+                                    selected_dates.discard(date_obj)
+                                st.session_state.selected_dates = selected_dates
+                                st.rerun()  # 상태 변경 후 즉시 재렌더링
                             st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
     if selected_dates:
