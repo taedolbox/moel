@@ -1,4 +1,4 @@
-/* 구글 폰트 Nanum Gothic 가져오기 */
+/* 기존 CSS 유지 */
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
 /* 전체 페이지와 Streamlit 메인 컨테이너 스타일 */
@@ -74,6 +74,7 @@ button[kind="primary"] {
     padding: 8px 16px;
     font-size: 14px;
     margin: 10px;
+    cursor: pointer !important; /* 클릭 가능성 보장 */
 }
 
 /* 라이트 모드에서 토글 버튼 */
