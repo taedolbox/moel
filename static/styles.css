@@ -104,6 +104,22 @@ button[kind="primary"] {
     width: 100%;
 }
 
+/* 요일 헤더 그리드 */
+.header-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: 100% !important;
+    gap: 0 !important;
+}
+
+/* 달력 날짜 그리드 */
+.calendar-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: 100% !important;
+    gap: 0 !important;
+}
+
 /* 요일 헤더 스타일 */
 .day-header {
     display: flex;
@@ -113,18 +129,6 @@ button[kind="primary"] {
     font-size: 1em;
     font-weight: bold;
     text-align: center;
-}
-
-/* Streamlit 컬럼 스타일 오버라이드 */
-div[data-testid="column"] {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    flex: 1 !important;
-    min-width: 0 !important;
 }
 
 /* 달력 날짜 컨테이너 */
@@ -159,20 +163,17 @@ div[data-testid="column"] {
     cursor: pointer !important;
 }
 
-/* Streamlit 버튼 숨기기 */
-button.hidden-button {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    opacity: 0 !important;
-    z-index: 2 !important;
+/* 체크박스 숨기기 */
+input[type="checkbox"] {
+    display: none !important;
+}
+
+/* 체크박스 선택 시 테두리 색상 변경 */
+input[type="checkbox"]:checked + .calendar-day-box,
+input[type="checkbox"]:checked + .calendar-day-box.selected-day {
+    border: 2px solid #ff0000 !important;
+    background-color: transparent !important;
+    font-weight: bold !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -189,6 +190,11 @@ button.hidden-button {
         background-color: #000000 !important;
         color: #ffffff !important;
     }
+    input[type="checkbox"]:checked + .calendar-day-box,
+    input[type="checkbox"]:checked + .calendar-day-box.selected-day {
+        color: #ffffff !important;
+        border: 2px solid #ff0000 !important;
+    }
 }
 
 /* PC 화면 스타일 (최소 너비 501px) */
@@ -196,6 +202,9 @@ button.hidden-button {
     .calendar-wrapper {
         min-width: 600px !important;
         max-width: 600px !important;
+    }
+    .header-grid, .calendar-grid {
+        width: 600px !important;
     }
     .calendar-day-container {
         width: calc(600px / 7) !important;
@@ -205,17 +214,6 @@ button.hidden-button {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
-    }
-    button.hidden-button {
-        width: 38px !important;
-        height: 38px !important;
-    }
-    div[data-testid="column"] {
-        width: calc(600px / 7) !important;
-        max-width: calc(600px / 7) !important;
-        min-width: calc(600px / 7) !important;
-        margin: 0 !important;
-        padding: 0 !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
@@ -229,8 +227,12 @@ button.hidden-button {
         min-width: 280px !important;
         max-width: 280px !important;
         margin: 0 auto !important;
-        display: flex !important;
-        flex-direction: column !important;
+    }
+    .header-grid, .calendar-grid {
+        width: 280px !important;
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 0 !important;
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
@@ -241,22 +243,6 @@ button.hidden-button {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
-    }
-    button.hidden-button {
-        width: 34px !important;
-        height: 34px !important;
-    }
-    div[data-testid="column"] {
-        width: calc(280px / 7) !important;
-        max-width: calc(280px / 7) !important;
-        min-width: calc(280px / 7) !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        flex: 1 !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
     }
     .day-header {
         width: calc(280px / 7) !important;
