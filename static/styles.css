@@ -127,31 +127,33 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* Streamlit Button 내부의 div에 스타일 적용 */
-div.stButton > button {
-    padding: 0 !important; /* Remove default button padding */
-    border: none !important; /* Remove default button border */
-    background: none !important; /* Remove default button background */
+/* Streamlit Column 내부의 버튼 스타일링 */
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] {
+    /* Streamlit 기본 버튼 스타일 제거 */
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
     margin: 0 !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    width: 100% !important; /* Ensure the button takes full width of its column */
-    height: 100% !important; /* Ensure the button takes full height of its column */
+    width: 100% !important; /* 컬럼 너비에 맞춤 */
+    height: 100% !important; /* 컬럼 높이에 맞춤 */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* 달력 날짜 컨텐츠 스타일 (버튼 안에 들어가는 div) */
-.calendar-day-content {
-    width: 34px !important;
-    height: 34px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* 버튼의 텍스트(숫자)를 감싸는 div에 스타일 적용 */
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
+    width: 38px !important; /* PC 기준 */
+    height: 38px !important; /* PC 기준 */
     border: 1px solid #cccccc !important;
     background-color: #ffffff !important;
     color: #000000 !important;
     border-radius: 50% !important;
     font-size: 0.9em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     box-sizing: border-box !important;
     user-select: none !important;
     white-space: nowrap !important;
@@ -160,13 +162,30 @@ div.stButton > button {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
+/* 달력 빈 칸 스타일 */
+.calendar-day-empty {
+    width: 100%;
+    height: 48px; /* PC 기준 */
+    /* background-color: #f8f8f8; /* 선택적으로 배경색 추가 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+@media (max-width: 500px) {
+    .calendar-day-empty {
+        height: calc(280px / 7) !important; /* 모바일 기준 */
+    }
+}
+
+
 /* 다크 모드에서 달력 스타일 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .calendar-wrapper h3 {
         background-color: #333333 !important;
         color: #ffffff !important;
     }
-    .calendar-day-content {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
         color: #ffffff !important;
@@ -197,11 +216,6 @@ div.stButton > button {
         align-items: center !important;
         padding: 0 !important;
         min-height: 48px !important; /* Maintain height for each day container */
-    }
-    .calendar-day-content {
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 1em !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
@@ -238,7 +252,7 @@ div.stButton > button {
         padding: 0 !important;
         min-height: calc(280px / 7) !important; /* Maintain height for each day container */
     }
-    .calendar-day-content {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
@@ -250,7 +264,7 @@ div.stButton > button {
 
 /* 모바일 다크 모드 스타일 */
 @media (max-width: 500px) and (prefers-color-scheme: dark), (max-width: 500px) and [data-theme="dark"] {
-    .calendar-day-content {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div {
         background-color: #000000 !important;
         border: 1px solid #888 !important;
         color: #ffffff !important;
@@ -258,26 +272,28 @@ div.stButton > button {
 }
 
 /* 날짜 박스 호버 효과 */
-.calendar-day-content:hover {
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]:hover:not([disabled]) > div {
     background-color: #e0e0e0 !important;
     border-color: #555 !important;
 }
 
 /* 다크 모드에서 날짜 박스 호버 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-content:hover {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]:hover:not([disabled]) > div {
         background-color: #333333 !important;
         border-color: #aaaaaa !important;
     }
 }
 
 /* 오늘 날짜 스타일 */
-.calendar-day-content.current-day {
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].current-day > div {
     border: 2px solid #0000ff !important; /* Blue border for current day */
 }
 
+
 /* 선택된 날짜 스타일 (클릭 시 파란색 테두리) */
-.calendar-day-content.selected-day {
+/* 이 클래스는 Python 코드에서 st.markdown으로 동적으로 삽입되어야 합니다. */
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].selected-day > div {
     border: 2px solid #0000ff !important; /* Blue border for selected day */
     background-color: transparent !important; /* Maintain original background or transparent */
     color: #000000 !important;
@@ -286,14 +302,14 @@ div.stButton > button {
 
 /* 다크 모드에서 선택된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-content.selected-day {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"].selected-day > div {
         color: #ffffff !important;
         border: 2px solid #0000ff !important; /* Blue border for selected day in dark mode */
     }
 }
 
 /* 비활성화된 날짜 스타일 */
-.calendar-day-content.disabled-day {
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
     border: 1px solid #aaaaaa !important; /* Lighter border for disabled */
     background-color: #e0e0e0 !important; /* Lighter background for disabled */
     color: #999999 !important; /* Faded text for disabled */
@@ -303,7 +319,7 @@ div.stButton > button {
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-content.disabled-day {
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
         background-color: #3a3a3a !important; /* Darker background for disabled in dark mode */
         border: 1px solid #555 !important;
         color: #666 !important;
