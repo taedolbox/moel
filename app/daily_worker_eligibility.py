@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, date
 import calendar
 import pytz
+import streamlit.components.v1 as components
 
 # 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
@@ -16,6 +17,49 @@ current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+# JavaScript로 클릭 이벤트 처리
+click_handler_js = """
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const days = document.querySelectorAll('.day:not(.disabled)');
+    days.forEach(day => {
+        day.addEventListener('click', function(e) {
+            const dateStr = this.getAttribute('data-date');
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 녹색 점 생성
+            const dot = document.createElement('div');
+            dot.className = 'click-dot';
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+            this.appendChild(dot);
+            
+            // 1초 후 점 제거
+            setTimeout(() => {
+                dot.remove();
+            }, 1000);
+            
+            // Streamlit에 선택된 날짜 전달
+            window.parent.postMessage({
+                type: 'select_date',
+                date: dateStr
+            }, '*');
+        });
+    });
+});
+
+// Streamlit 메시지 수신
+window.addEventListener('message', function(e) {
+    if (e.data.type === 'select_date') {
+        // Streamlit에서 처리
+        // 이 부분은 Streamlit이 메시지를 받아 처리
+    }
+});
+</script>
+"""
+
 def render_calendar(apply_date):
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -24,6 +68,9 @@ def render_calendar(apply_date):
     current_date = current_datetime.date()
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
+
+    # JavaScript 컴포넌트 삽입
+    components.html(click_handler_js, height=0)
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
@@ -63,17 +110,23 @@ def render_calendar(apply_date):
                             class_name += " disabled"
 
                         with st.container():
-                            if is_disabled:
-                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                            else:
-                                if st.button(f"{day}", key=f"day_{date_obj}", help=f"날짜 {day} 선택"):
-                                    if is_selected:
-                                        selected_dates.discard(date_obj)
-                                    else:
-                                        selected_dates.add(date_obj)
-                                    st.session_state.selected_dates = selected_dates
-                                    st.rerun()  # 즉시 UI 갱신
-                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                            st.markdown(
+                                f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                unsafe_allow_html=True
+                            )
+
+    # JavaScript에서 받은 클릭 이벤트 처리
+    if "selected_date" in st.session_state:
+        date_str = st.session_state.get("selected_date", None)
+        if date_str:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+            if date_obj in selected_dates:
+                selected_dates.discard(date_obj)
+            else:
+                selected_dates.add(date_obj)
+            st.session_state.selected_dates = selected_dates
+            del st.session_state.selected_date  # 상태 초기화
+            st.rerun()
 
     # 선택된 근무일자 표시
     if selected_dates:
@@ -85,7 +138,7 @@ def render_calendar(apply_date):
     threshold = total_days / 3  # 18.7일
     worked_days = len(selected_dates)
     condition_1 = worked_days < threshold
-    condition_2 = True  # 조건 2는 예시로 항상 충족
+    condition_2 = True
     st.markdown("### 근로자 신청 가능 여부")
     st.markdown(f"**총 기간 일수**: {total_days}일")
     st.markdown(f"**기준 (1/3)**: {threshold:.1f}일")
@@ -99,10 +152,9 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}")
-    st.markdown("**안내**: 날짜를 클릭해 선택하세요. 선택된 날짜는 녹색 점으로 표시됩니다.")
+    st.markdown("**안내**: 날짜를 클릭해 선택하세요. 선택된 위치는 녹색 점으로 표시됩니다.")
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date())
     render_calendar(apply_date)
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-
