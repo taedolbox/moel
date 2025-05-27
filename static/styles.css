@@ -1,4 +1,4 @@
-/* 기존 CSS 유지 */
+/* 구글 폰트 Nanum Gothic 가져오기 */
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
 /* 전체 페이지와 Streamlit 메인 컨테이너 스타일 */
@@ -269,6 +269,7 @@ button[kind="primary"] {
         max-width: 280px !important;
         margin: 0 auto !important;
         padding: 0 !important;
+        display: block !important; /* 강제로 표시 */
     }
 }
 
