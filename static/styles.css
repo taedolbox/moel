@@ -6,18 +6,18 @@ div[data-testid="stHorizontalBlock"] {
     gap: 2px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    justify-content: center !important; /* 중앙 정렬 보완 */
+    justify-content: flex-start !important; /* 왼쪽 정렬 */
 }
 
 /* 요일 헤더 스타일 */
 .day-header {
-    text-align: center;
+    text-align: left; /* 왼쪽 정렬 */
     font-weight: bold;
     margin: 0;
     padding: 5px 0;
     color: #333;
     display: flex;
-    justify-content: center; /* 요일 중앙 정렬 */
+    justify-content: flex-start; /* 모바일에서 왼쪽 이동 */
 }
 
 .day-header.weekend {
@@ -26,7 +26,7 @@ div[data-testid="stHorizontalBlock"] {
 
 /* 날짜 스타일 */
 .day {
-    text-align: center;
+    text-align: left; /* 왼쪽 정렬 */
     width: 36px;
     height: 36px;
     line-height: 36px;
@@ -39,8 +39,8 @@ div[data-testid="stHorizontalBlock"] {
     transition: background-color 0.2s;
     position: relative;
     display: flex;
-    justify-content: center;
-    align-items: center; /* 숫자 중앙 정렬 */
+    justify-content: flex-start; /* 숫자 왼쪽 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
 }
 
 /* 체크박스 스타일 */
@@ -69,13 +69,14 @@ div[data-testid="stHorizontalBlock"] {
     left: 0 !important;
 }
 
-/* 모바일에서도 7열 유지, 크기 증가 및 정렬 조정 */
+/* 모바일에서도 7열 유지, 크기 증가 및 왼쪽 이동 조정 */
 @media (max-width: 767px) {
     div[data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
-        justify-content: center !important; /* 모바일도 중앙 정렬 */
+        justify-content: flex-start !important; /* 왼쪽 이동 */
+        margin-left: 5px; /* 약간 왼쪽으로 이동 */
     }
     .day, .stCheckbox {
         width: 40px !important;
@@ -88,13 +89,22 @@ div[data-testid="stHorizontalBlock"] {
         height: 40px !important;
     }
     .day-header {
-        padding: 5px 2px; /* 모바일에서 간격 조정 */
+        padding: 5px 2px; /* 모바일 간격 조정 */
+        justify-content: flex-start; /* 왼쪽 정렬 */
     }
 }
 
-/* 전체 텍스트 중앙 정렬 (필요 시 조정) */
-.stMarkdown, .stText {
-    text-align: center !important;
+/* 데스크탑에서 달력 크기 본문에 맞춤 */
+@media (min-width: 768px) {
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 600px !important; /* 본문 최대 폭 설정 (조정 가능) */
+        margin: 0 auto !important; /* 중앙 정렬 후 본문에 맞춤 */
+    }
+}
+
+/* 모든 텍스트 왼쪽 정렬 */
+.stMarkdown, .stText, .stHeader {
+    text-align: left !important;
 }
 
 /* 다크 모드 지원 */
