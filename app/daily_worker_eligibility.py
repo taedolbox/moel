@@ -7,9 +7,9 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오전 6:29 KST)
-current_datetime = datetime(2025, 5, 26, 6, 29)
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
+# 현재 날짜와 시간 (2025년 5월 27일 오후 12:44 KST)
+current_datetime = datetime(2025, 5, 27, 12, 44)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
