@@ -123,6 +123,8 @@ div[data-testid="column"] {
     padding: 0 !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    flex: 1 !important;
+    min-width: 0 !important;
 }
 
 /* 달력 날짜 컨테이너 */
@@ -136,7 +138,7 @@ div[data-testid="column"] {
     box-sizing: border-box !important;
 }
 
-/* 달력 날짜 원 */
+/* 달력 날짜 원 (클릭 가능하도록 설정) */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -154,23 +156,14 @@ div[data-testid="column"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
+    cursor: pointer !important;
 }
 
-/* 버튼 오버레이 (st.button을 날짜 원과 겹치게 배치) */
-.button-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2 !important;
-}
-
-/* Streamlit 버튼 스타일 */
+/* Streamlit 버튼 숨기기 */
 button.hidden-button {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 34px !important;
     height: 34px !important;
     background: transparent !important;
@@ -179,11 +172,7 @@ button.hidden-button {
     margin: 0 !important;
     cursor: pointer !important;
     opacity: 0 !important;
-}
-
-/* 버튼 호버 효과 */
-button.hidden-button:hover {
-    background: transparent !important;
+    z-index: 2 !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -240,6 +229,8 @@ button.hidden-button:hover {
         min-width: 280px !important;
         max-width: 280px !important;
         margin: 0 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
@@ -263,6 +254,9 @@ button.hidden-button:hover {
         padding: 0 !important;
         flex: 1 !important;
         box-sizing: border-box !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
     .day-header {
         width: calc(280px / 7) !important;
