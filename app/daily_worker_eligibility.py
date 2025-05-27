@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 2:16 KST)
-current_datetime = datetime(2025, 5, 27, 14, 16)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 2:40 KST)
+current_datetime = datetime(2025, 5, 27, 14, 40)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -83,19 +83,25 @@ def render_calendar_interactive(apply_date):
                     week_html += '</div>'
                     st.markdown(week_html, unsafe_allow_html=True)
 
-                st.form_submit_button("업데이트")
+                # 폼 제출 버튼
+                submitted = st.form_submit_button("업데이트")
+                if submitted:
+                    st.session_state.form_submitted = True
 
             # 폼 제출 후 상태 업데이트
-            for key in st.session_state:
-                if key.startswith("date_") and key in st.session_state:
-                    date_obj = date.fromisoformat(key.replace("date_", ""))
-                    if st.session_state[key]:
-                        selected_dates.add(date_obj)
-                    else:
-                        selected_dates.discard(date_obj)
-                    st.session_state.selected_dates = selected_dates
-                    del st.session_state[key]
-            st.rerun()
+            if st.session_state.get("form_submitted", False):
+                for key in st.session_state:
+                    if key.startswith("date_") and key in st.session_state:
+                        date_obj = date.fromisoformat(key.replace("date_", ""))
+                        if st.session_state[key]:
+                            selected_dates.add(date_obj)
+                        else:
+                            selected_dates.discard(date_obj)
+                st.session_state.selected_dates = selected_dates
+                st.session_state.form_submitted = False
+                # 상태 확인용 디버깅 메시지
+                st.write("선택된 날짜 (디버깅):", [d.strftime("%Y-%m-%d") for d in sorted(selected_dates)])
+                st.rerun()
 
         st.markdown('</div>', unsafe_allow_html=True)
 
