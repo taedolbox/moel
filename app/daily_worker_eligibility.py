@@ -7,7 +7,7 @@ import calendar
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # 현재 날짜와 시간
-current_datetime = datetime(2025, 5, 27, 23, 22)
+current_datetime = datetime(2025, 5, 27, 23, 29)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드
