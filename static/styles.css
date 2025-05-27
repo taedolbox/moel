@@ -116,7 +116,6 @@ button[kind="primary"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
     font-size: 1em;
     font-weight: bold;
     text-align: center;
@@ -138,7 +137,6 @@ div[data-testid="column"] {
 .calendar-day-container {
     position: relative;
     background-color: #ffffff;
-    height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -147,8 +145,8 @@ div[data-testid="column"] {
 
 /* 달력 날짜 원 */
 .calendar-day-box {
-    width: 34px !important;
-    height: 34px !important;
+    width: 38px !important;
+    height: 38px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -156,7 +154,7 @@ div[data-testid="column"] {
     background-color: #ffffff !important;
     color: #000000 !important;
     border-radius: 50% !important;
-    font-size: 0.9em !important;
+    font-size: 1em !important;
     box-sizing: border-box !important;
     user-select: none !important;
     white-space: nowrap !important;
@@ -167,8 +165,8 @@ div[data-testid="column"] {
 
 /* Streamlit 버튼 스타일 */
 button[data-testid="stButton"] {
-    width: 34px !important;
-    height: 34px !important;
+    width: 38px !important;
+    height: 38px !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -254,7 +252,7 @@ button[data-testid="stButton"]:hover {
 
 /* 모바일 화면 스타일 (최대 너비 500px) */
 @media (max-width: 500px) {
-    .calendar-wrapper.mobile-calendar {
+    .calendar-wrapper {
         width: 280px !important;
         min-width: 280px !important;
         max-width: 280px !important;
