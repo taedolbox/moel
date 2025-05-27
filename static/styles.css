@@ -165,6 +165,7 @@ button[kind="primary"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
+    cursor: default !important; /* 클릭 가능 여부 명확화 */
 }
 
 /* 체크박스 스타일 조정 */
@@ -338,9 +339,15 @@ div[data-testid="stCheckbox"] label {
     border: 1px solid #ffffff !important;
     display: none !important;
     z-index: 0 !important;
+    transition: display 0.1s ease; /* 부드러운 전환 */
 }
 
 /* 선택된 날짜에 선택 표시 */
 .selected-day .selection-mark {
     display: block !important;
+}
+
+/* 호버 시 원 제거 (의도치 않은 원 표시 방지) */
+.calendar-day-box:hover .selection-mark {
+    display: none !important; /* 호버 시 동그라미 제거 */
 }
