@@ -1,24 +1,21 @@
 /* static/styles.css */
-/* 구글 폰트 Nanum Gothic 가져오기 */
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap');
 
-/* 전체 페이지와 Streamlit 메인 컨테이너 스타일 */
+/* Basic Streamlit App Styling */
 body, div[data-testid="stAppViewContainer"] {
     background-color: #ffffff !important;
     color: #000000 !important;
+    font-family: 'Nanum Gothic', sans-serif;
 }
-
-/* Streamlit 컴포넌트 텍스트 색상 */
 .stMarkdown, .stText, .stSuccess, .stWarning, .stError, .stInfo {
     color: #000000 !important;
+    font-family: 'Nanum Gothic', sans-serif;
 }
-
-/* 사이드바 콘텐츠 텍스트 색상 */
 .sidebar .sidebar-content, .sidebar .sidebar-content * {
     color: #000000 !important;
 }
 
-/* 다크 모드 스타일 */
+/* Dark Mode Overrides */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     body, div[data-testid="stAppViewContainer"] {
         background-color: #2a2a2a !important;
@@ -28,46 +25,18 @@ body, div[data-testid="stAppViewContainer"] {
         color: #ffffff !important;
     }
     .sidebar .sidebar-content, .sidebar .sidebar-content * {
+        background-color: #333333 !important;
         color: #ffffff !important;
     }
-}
-
-/* 라디오 버튼 레이블 스타일 */
-.stRadio>label {
-    font-size: 16px;
-    color: #333 !important;
-}
-
-/* 다크 모드에서 라디오 버튼 레이블 */
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
     .stRadio>label {
         color: #ffffff !important;
     }
 }
 
-/* Nanum Gothic 폰트 적용 */
-.stMarkdown, .stSuccess, .stWarning {
-    font-family: 'Nanum Gothic', sans-serif;
-}
-
-/* 사이드바 배경 */
-.sidebar .sidebar-content {
-    background-color: #f8f9fa !important;
-}
-
-/* 다크 모드에서 사이드바 배경 */
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .sidebar .sidebar-content {
-        background-color: #333333 !important;
-    }
-}
-
-/* Streamlit 상단 툴바 숨기기 */
+/* Streamlit specific hides/tweaks */
 div[data-testid="stToolbar"] {
     display: none !important;
 }
-
-/* 사이드바 토글 버튼 스타일 */
 button[kind="primary"] {
     background-color: #4CAF50 !important;
     color: white !important;
@@ -76,8 +45,6 @@ button[kind="primary"] {
     font-size: 14px;
     margin: 10px;
 }
-
-/* 라이트 모드에서 토글 버튼 */
 @media (prefers-color-scheme: light), [data-theme="light"] {
     button[kind="primary"] {
         background-color: #4CAF50 !important;
@@ -85,7 +52,8 @@ button[kind="primary"] {
     }
 }
 
-/* 달력 컨테이너 스타일 */
+/* --- Calendar Specific Styles --- */
+
 .calendar-wrapper {
     display: flex !important;
     flex-direction: column !important;
@@ -93,9 +61,9 @@ button[kind="primary"] {
     width: 100% !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
+    max-width: 600px; /* Max width for larger screens */
 }
 
-/* 달력 제목 스타일 */
 .calendar-wrapper h3 {
     background-color: #f0f0f0 !important;
     color: #000000 !important;
@@ -105,26 +73,23 @@ button[kind="primary"] {
     font-size: 1.5em !important;
     width: 100% !important;
 }
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-wrapper h3 {
+        background-color: #333333 !important;
+        color: #ffffff !important;
+    }
+}
 
-/* 요일 헤더 그리드 */
-.header-grid {
+/* Calendar Grid Container for days of week and days */
+.calendar-grid, .header-grid {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
     width: 100% !important;
-    gap: 0 !important;
+    gap: 0px; /* Reduce gap between cells */
     box-sizing: border-box !important;
 }
 
-/* 달력 날짜 그리드 */
-.calendar-grid {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    width: 100% !important;
-    gap: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* 요일 헤더 스타일 */
+/* Day Header (Sun, Mon, etc.) */
 .day-header {
     display: flex !important;
     align-items: center !important;
@@ -134,164 +99,189 @@ button[kind="primary"] {
     font-weight: bold !important;
     text-align: center !important;
     box-sizing: border-box !important;
+    padding: 2px; /* Small padding to prevent text touching edges */
 }
 
-/* Streamlit 체크박스 컨테이너 (각 날짜 셀) */
-div[data-testid^="stCheckbox"] { /* Targets all stCheckbox elements */
-    /* Ensure checkbox containers align to the grid */
-    display: flex !important; /* Changed from grid to flex for inner alignment */
-    align-items: center !important;
-    justify-content: center !important;
-    height: 44px !important; /* Match your desired cell height */
-    box-sizing: border-box !important;
-    position: relative !important; /* For positioning the selection mark */
-    background-color: #ffffff !important; /* Default background */
-}
-
-/* Streamlit 체크박스 내부의 실제 input 숨기기 */
-div[data-testid^="stCheckbox"] input[type="checkbox"] {
-    display: none !important;
-}
-
-/* Streamlit 체크박스 라벨을 우리의 달력 원 모양으로 스타일링 */
-div[data-testid^="stCheckbox"] label {
-    width: 34px !important;
-    height: 34px !important;
+/* Individual Day Cell Container */
+.calendar-day-container {
+    height: 48px !important; /* Fixed height for consistent rows */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border: 1px solid #ffffff !important; /* Default border */
+    box-sizing: border-box !important;
+    position: relative !important; /* For absolute positioning of inner elements */
+    padding: 2px; /* Small padding to create gap */
     background-color: #ffffff !important; /* Default background */
+}
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-container {
+        background-color: #2a2a2a !important;
+    }
+}
+
+/* The actual clickable circle (visual representation of the day) */
+.calendar-day-box {
+    width: 38px !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #ddd !important; /* Default border */
+    background-color: #f8f8f8 !important; /* Default background */
     color: #000000 !important; /* Default text color */
     border-radius: 50% !important;
-    font-size: 0.9em !important;
-    box-sizing: border-box !important;
-    user-select: none !important;
-    white-space: nowrap !important;
+    font-size: 1em !important;
+    font-weight: normal;
+    cursor: pointer !important;
+    user-select: none !important; /* Prevent text selection on click */
+    z-index: 1; /* Ensure it's above hidden checkbox */
+    transition: background-color 0.2s, border-color 0.2s; /* Smooth transitions */
+}
+
+/* Hide the Streamlit checkbox input and its default label */
+/* Target the stCheckbox container (which st.checkbox generates) */
+div[data-testid^="stCheckbox"] {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0; /* Make it completely transparent */
+    cursor: pointer; /* Keep cursor pointer to indicate clickability */
+    z-index: 2; /* Ensure it's on top to receive clicks */
+    /* Streamlit also adds default padding/margin which we need to counter */
     margin: 0 !important;
     padding: 0 !important;
-    z-index: 1 !important;
-    cursor: pointer !important; /* Indicate clickable */
-    position: relative !important; /* For the selection mark */
+    /* Important: We need to ensure the actual input is hidden, not just its container */
+    display: flex !important; /* Flexbox to make it occupy the whole cell */
+    align-items: center !important; /* Center for full coverage */
+    justify-content: center !important; /* Center for full coverage */
 }
 
-/* 호버 효과 (체크박스 라벨에 적용) */
-div[data-testid^="stCheckbox"] label:hover {
+div[data-testid^="stCheckbox"] input[type="checkbox"] {
+    display: none !important; /* Hide the actual checkbox input */
+}
+
+div[data-testid^="stCheckbox"] label {
+    display: none !important; /* Hide Streamlit's default label text */
+}
+
+/* States for calendar-day-box */
+.calendar-day-box:hover {
     background-color: #e0e0e0 !important;
-    border-color: #555 !important;
+    border-color: #aaa !important;
 }
 
-/* 오늘 날짜 스타일 (체크박스 라벨에 적용) */
-div[data-testid^="stCheckbox"] label[data-current-day="true"]:not([data-selected-day="true"]) {
-    border: 2px solid #0000ff !important;
+.calendar-day-box.current-day:not(.selected-day) {
+    border: 2px solid #0000ff !important; /* Blue border for current day */
 }
 
-/* 선택된 날짜 스타일 (체크박스 라벨에 적용) */
-div[data-testid^="stCheckbox"] label[data-selected-day="true"] {
-    background-color: transparent !important;
+.calendar-day-box.selected-day {
+    background-color: #ffcccc !important; /* Light red for selected */
     color: #000000 !important;
-    border: 2px solid #ff0000 !important;
+    border: 2px solid #ff0000 !important; /* Red border for selected */
     font-weight: bold !important;
 }
 
-/* 비활성화된 날짜 스타일 (체크박스 라벨에 적용) */
-div[data-testid^="stCheckbox"] label[data-disabled-day="true"] {
-    border: 1px solid #555 !important;
+.calendar-day-box.disabled-day {
     background-color: #cccccc !important;
-    color: #666 !important;
+    color: #999999 !important;
+    border: 1px solid #aaa !important;
     cursor: not-allowed !important;
 }
 
-/* 선택 표시 스타일 (체크 시 동그라미) */
-div[data-testid^="stCheckbox"] label .selection-mark {
+/* Dark Mode specific for day boxes */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .calendar-day-box {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 1px solid #555 !important;
+    }
+    .calendar-day-box:hover {
+        background-color: #333333 !important;
+        border-color: #888 !important;
+    }
+    .calendar-day-box.selected-day {
+        background-color: #800000 !important; /* Darker red for selected in dark mode */
+        color: #ffffff !important;
+        border: 2px solid #ff0000 !important;
+    }
+    .calendar-day-box.disabled-day {
+        background-color: #333333 !important;
+        color: #666666 !important;
+        border: 1px solid #444 !important;
+    }
+}
+
+/* Selection Mark (small dot) */
+.selection-mark {
     position: absolute !important;
-    top: 4px !important;
+    top: 4px !important; /* Adjust position relative to the circle */
     left: 4px !important;
     width: 8px !important;
     height: 8px !important;
     border-radius: 50% !important;
-    background-color: #ff0000 !important; /* 빨간색 동그라미 */
+    background-color: #ff0000 !important; /* Red dot */
     border: 1px solid #ffffff !important;
-    display: none !important;
-    z-index: 0 !important;
-    transition: display 0.1s ease; /* 부드러운 전환 */
+    display: none !important; /* Hidden by default */
+    z-index: 2; /* Above the day number */
 }
 
-/* 선택된 날짜에 선택 표시 (체크박스 라벨에 적용) */
-div[data-testid^="stCheckbox"] label[data-selected-day="true"] .selection-mark {
+/* Show selection mark only when selected */
+.calendar-day-box.selected-day .selection-mark {
     display: block !important;
 }
 
-/* 호버 시 원 제거 (의도치 않은 원 표시 방지) */
-div[data-testid^="stCheckbox"] label:hover .selection-mark {
-    display: none !important; /* 호버 시 동그라미 제거 */
-}
-
-/* 다크 모드 스타일 오버라이드 */
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-wrapper h3 {
-        background-color: #333333 !important;
-        color: #ffffff !important;
-    }
-    div[data-testid^="stCheckbox"] {
-        background-color: #2a2a2a !important;
-    }
-    div[data-testid^="stCheckbox"] label {
-        border: 1px solid #888 !important;
-        background-color: #000000 !important;
-        color: #ffffff !important;
-    }
-    div[data-testid^="stCheckbox"] label:hover {
-        background-color: #333333 !important;
-        border-color: #aaaaaa !important;
-    }
-    div[data-testid^="stCheckbox"] label[data-selected-day="true"] {
-        color: #ffffff !important;
-        border: 2px solid #ff0000 !important;
-    }
-    div[data-testid^="stCheckbox"] label[data-disabled-day="true"] {
-        background-color: #333333 !important;
-        border: 1px solid #444 !important;
-        color: #666 !important;
-    }
-}
-
-
-/* PC 화면 스타일 (최소 너비 501px) */
+/* Adjust sizes for larger screens (PC) */
 @media (min-width: 501px) {
-    div[data-testid^="stCheckbox"] {
-        width: calc(600px / 7) !important;
-        height: 48px !important;
+    .calendar-wrapper {
+        width: 600px !important; /* Fixed width for PC */
     }
-    div[data-testid^="stCheckbox"] label {
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 1em !important;
+    .calendar-grid, .header-grid {
+        width: 600px !important; /* Fixed width for PC */
+    }
+    .calendar-day-container {
+        height: 48px !important; /* Consistent height */
+    }
+    .calendar-day-box {
+        width: 40px !important; /* Slightly larger circle */
+        height: 40px !important;
+        font-size: 1.1em !important;
     }
 }
 
-/* 모바일 화면 스타일 (최대 너비 500px) */
+/* Mobile specific adjustments (max-width 500px) */
 @media (max-width: 500px) {
-    div[data-testid^="stCheckbox"] {
-        width: calc(280px / 7) !important;
-        height: calc(280px / 7) !important;
-        background-color: #f0f0f0 !important;
+    .calendar-wrapper {
+        width: 100% !important; /* Full width for mobile */
+        max-width: 320px !important; /* Smaller max-width for very small screens */
+        padding: 0 5px; /* Add some padding to the sides */
     }
-    div[data-testid^="stCheckbox"] label {
-        width: 34px !important;
-        height: 34px !important;
+    .calendar-grid, .header-grid {
+        width: 100% !important;
+    }
+    .calendar-day-container {
+        /* Distribute space evenly, ensuring 7 columns */
+        height: calc(100vw / 7 - 4px); /* Make height responsive to width, subtract padding */
+        min-height: 40px; /* Minimum height for readability */
+        max-height: 50px; /* Maximum height to prevent overstretching */
+    }
+    .calendar-day-box {
+        width: 80%; /* Make circle take 80% of container width */
+        height: 80%; /* Make circle take 80% of container height */
         font-size: 0.9em !important;
+        border-width: 1px !important;
+    }
+    .selection-mark {
+        width: 6px !important;
+        height: 6px !important;
+        top: 3px !important;
+        left: 3px !important;
     }
 }
 
-/* 모바일 다크 모드 스타일 */
-@media (max-width: 500px) and (prefers-color-scheme: dark), (max-width: 500px) and [data-theme="dark"] {
-    div[data-testid^="stCheckbox"] {
-        background-color: #2a2a2a !important;
-    }
-    div[data-testid^="stCheckbox"] label {
-        border: 1px solid #888 !important;
-        background-color: #000000 !important;
-        color: #ffffff !important;
-    }
+/* Ensure Streamlit's default margins/paddings on columns don't break the grid */
+div[data-testid="stColumn"] {
+    padding: 0 !important;
+    margin: 0 !important;
 }
