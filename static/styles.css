@@ -235,7 +235,7 @@ div[data-testid="stCheckbox"] label {
     }
 }
 
-/* 모바일 화면 스타일 (최대 너비 500px) */
+/* 모바일 화면 스타일 (최대 너비 900px) */
 @media (max-width: 500px) {
     .calendar-wrapper {
         width: 280px !important;
