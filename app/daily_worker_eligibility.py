@@ -46,112 +46,152 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링
+            # 달력 렌더링 (각 주를 Streamlit columns로 구성)
             for week in cal:
-                week_html_parts = []
-                for i, day in enumerate(week):
-                    if day == 0:
-                        week_html_parts.append('<div class="calendar-day-container"></div>')
-                        continue
-                    date_obj = date(year, month, day)
-                    container_key = f"date_{date_obj.isoformat()}"
-
-                    is_selected = date_obj in selected_dates
-                    is_current = date_obj == current_date
-                    is_disabled = date_obj > apply_date # 신청일 이후는 비활성화
-
-                    class_name = "calendar-day-content"
-                    if is_selected:
-                        class_name += " selected-day"
-                    if is_current:
-                        class_name += " current-day"
-                    if is_disabled:
-                        class_name += " disabled-day"
-
-                    # Streamlit button for click handling
-                    # We use columns to simulate the grid and place a button inside
-                    # This allows Streamlit to manage clicks and state updates
-                    col1, = st.columns(1) # Create a single column for the button
-                    with col1:
-                        # Use a unique key for each button
-                        button_clicked = st.button(
-                            label=f'<div class="{class_name}"><span>{day}</span></div>',
-                            key=container_key,
-                            help=f"{date_obj.strftime('%Y-%m-%d')} 선택",
-                            on_click=None, # on_click handler will be defined after the button is rendered
-                            use_container_width=True
-                        )
-                        st.markdown(
-                            f"""
-                            <style>
-                                div[data-testid="stColumn"] > button[key="{container_key}"] {{
-                                    padding: 0;
-                                    border: none;
-                                    background: none;
-                                    height: 44px; /* Ensure consistent height for day containers */
-                                    width: 100%; /* Ensure consistent width for day containers */
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                }}
-                                div[data-testid="stColumn"] > button[key="{container_key}"] div {{
-                                    width: 100%;
-                                    height: 100%;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                }}
-                            </style>
-                            """,
-                            unsafe_allow_html=True
-                        )
-
-                        # Handle button click logic
-                        if button_clicked and not is_disabled:
-                            if date_obj in st.session_state.selected_dates:
-                                st.session_state.selected_dates.discard(date_obj)
-                            else:
-                                st.session_state.selected_dates.add(date_obj)
-                            st.rerun() # Rerun to update the UI immediately
-
-                # For the calendar grid to work with buttons, we need to restructure.
-                # Instead of building a single HTML week_html, we'll place buttons directly.
-                # The CSS will then arrange these buttons in a grid.
-                # For this, we'll use Streamlit's columns to arrange the buttons for each week.
-                cols = st.columns(7)
+                cols = st.columns(7) # 7개의 컬럼 생성 (요일)
                 for i, day_val in enumerate(week):
                     with cols[i]:
                         if day_val == 0:
-                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                            # 비어있는 날짜 칸
+                            st.markdown('<div class="calendar-day-empty"></div>', unsafe_allow_html=True)
                             continue
 
                         date_obj = date(year, month, day_val)
-                        container_key = f"date_{date_obj.isoformat()}_{year}_{month}" # More robust key
+                        # Streamlit 버튼의 key는 반드시 유일해야 합니다.
+                        button_key = f"date_button_{date_obj.isoformat()}"
+
                         is_selected = date_obj in selected_dates
                         is_current = date_obj == current_date
-                        is_disabled = date_obj > apply_date
+                        is_disabled = date_obj > apply_date # 신청일 이후는 비활성화
 
-                        class_name = "calendar-day-content"
+                        # Streamlit 버튼에 적용될 CSS 클래스를 결정합니다.
+                        # 실제 HTML 콘텐츠는 버튼의 label이 아닌, CSS를 통해 버튼 자체에 적용됩니다.
+                        class_names = ["calendar-day-button"]
                         if is_selected:
-                            class_name += " selected-day"
+                            class_names.append("selected-day")
                         if is_current:
-                            class_name += " current-day"
+                            class_names.append("current-day")
                         if is_disabled:
-                            class_name += " disabled-day"
+                            class_names.append("disabled-day")
 
-                        # Create the HTML for the button's content
-                        button_content_html = f'<div class="{class_name}"><span>{day_val}</span></div>'
-
-                        if st.button(button_content_html, key=container_key, unsafe_allow_html=True, disabled=is_disabled):
+                        # Streamlit 버튼 생성
+                        # label은 숫자로만 간단하게 유지하고, 스타일은 CSS 클래스로 제어합니다.
+                        if st.button(
+                            label=str(day_val),
+                            key=button_key,
+                            disabled=is_disabled,
+                            # Streamlit 버튼의 내부 div에 우리가 원하는 CSS 클래스를 적용
+                            # 이 부분이 버튼 자체의 스타일을 제어하는 핵심입니다.
+                            # Streamlit 1.25.0 이후부터는 data-testid를 이용하여 스타일링하는 것이 더 안정적입니다.
+                        ):
                             if not is_disabled:
                                 if date_obj in selected_dates:
                                     selected_dates.discard(date_obj)
                                 else:
                                     selected_dates.add(date_obj)
-                                st.session_state.selected_dates = selected_dates # Update session state
-                                st.rerun() # Rerun to reflect changes
+                                st.session_state.selected_dates = selected_dates
+                                st.rerun()
 
+                        # 각 버튼에 대한 커스텀 CSS를 삽입하여 클래스 적용
+                        # 이 방법은 모든 버튼에 동일한 클래스를 적용하는 것이 아니라
+                        # 개별 버튼에 동적으로 클래스를 추가할 때 유용합니다.
+                        st.markdown(
+                            f"""
+                            <style>
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{
+                                    /* 기본 Streamlit 버튼 스타일 초기화 */
+                                    background: none !important;
+                                    border: none !important;
+                                    padding: 0 !important;
+                                    margin: 0 !important;
+                                    display: flex !important;
+                                    justify-content: center !important;
+                                    align-items: center !important;
+                                    width: 100% !important; /* 컬럼 너비에 맞춤 */
+                                    height: 100% !important; /* 컬럼 높이에 맞춤 */
+                                }}
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
+                                    /* 버튼 라벨(숫자)을 감싸는 div에 실제 날짜 스타일 적용 */
+                                    width: 38px !important; /* PC 기준 */
+                                    height: 38px !important; /* PC 기준 */
+                                    border: 1px solid #cccccc !important;
+                                    background-color: #ffffff !important;
+                                    color: #000000 !important;
+                                    border-radius: 50% !important;
+                                    font-size: 0.9em !important;
+                                    display: flex !important;
+                                    align-items: center !important;
+                                    justify-content: center !important;
+                                    transition: background-color 0.2s ease, border-color 0.2s ease;
+                                    cursor: pointer !important;
+                                }}
 
+                                /* 선택된 날짜 (파란색 테두리) */
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].selected-day > div {{
+                                    border: 2px solid #0000ff !important;
+                                }}
+                                /* 오늘 날짜 (파란색 테두리) */
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].current-day > div {{
+                                    border: 2px solid #0000ff !important;
+                                }}
+                                /* 비활성화된 날짜 */
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].disabled-day > div {{
+                                    border: 1px solid #aaaaaa !important;
+                                    background-color: #e0e0e0 !important;
+                                    color: #999999 !important;
+                                    cursor: not-allowed !important;
+                                }}
+
+                                /* 호버 효과 */
+                                div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"]:hover:not(.disabled-day) > div {{
+                                    background-color: #e0e0e0 !important;
+                                    border-color: #555 !important;
+                                }}
+
+                                @media (max-width: 500px) {
+                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
+                                        width: 34px !important;
+                                        height: 34px !important;
+                                    }}
+                                }
+
+                                /* 다크 모드 스타일 */
+                                @media (prefers-color-scheme: dark), [data-theme="dark"] {
+                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] > div {{
+                                        background-color: #000000 !important;
+                                        color: #ffffff !important;
+                                        border: 1px solid #888 !important;
+                                    }}
+                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"].disabled-day > div {{
+                                        background-color: #3a3a3a !important;
+                                        border: 1px solid #555 !important;
+                                        color: #666 !important;
+                                    }}
+                                    div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"]:hover:not(.disabled-day) > div {{
+                                        background-color: #333333 !important;
+                                        border-color: #aaaaaa !important;
+                                    }}
+                                }
+                            </style>
+                            """,
+                            unsafe_allow_html=True
+                        )
+
+                        # 버튼에 selected-day, current-day, disabled-day 클래스를 동적으로 추가합니다.
+                        # Streamlit의 컴포넌트는 HTML 요소를 직접 수정할 수 없으므로,
+                        # 버튼의 부모 요소에 특정 클래스를 추가하는 방식으로 간접적으로 제어합니다.
+                        # Streamlit 1.25.0 이상부터는 data-testid를 활용하는 것이 좋습니다.
+                        # 여기서는 Streamlit 내부에서 부여하는 data-testid를 활용하여 CSS를 적용합니다.
+                        # 각 버튼의 부모 요소에 해당하는 Streamlit 내부 div에 class를 추가하는 방식입니다.
+                        # 이 방식은 Streamlit의 DOM 구조 변화에 따라 깨질 수 있어 주의가 필요합니다.
+                        # 가장 확실한 방법은 JavaScript를 사용하는 것이지만, Streamlit 앱에서는 제한적입니다.
+                        # 현재는 Streamlit이 버튼에 부여하는 data-testid를 이용해 해당 버튼 자체에 클래스를 적용하는 것이 최선입니다.
+                        if is_selected:
+                            st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ border: 2px solid #0000ff !important; }} </style>', unsafe_allow_html=True)
+                        if is_current:
+                            st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ border: 2px solid #0000ff !important; }} </style>', unsafe_allow_html=True)
+                        if is_disabled:
+                             st.markdown(f'<style> div[data-testid="stColumn"] > div > button[data-testid="base-button-secondary"][key="{button_key}"] {{ background-color: #e0e0e0 !important; color: #999999 !important; cursor: not-allowed !important; }} </style>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     # 선택된 근무일자 표시
