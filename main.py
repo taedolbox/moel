@@ -14,7 +14,7 @@ from app.questions import (
 )
 
 def main():
-    st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
+    st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")  # layout을 wide로 변경
 
     # Apply custom CSS
     with open("static/styles.css") as f:
