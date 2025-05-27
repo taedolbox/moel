@@ -118,7 +118,7 @@ def daily_worker_eligibility_app():
     # 선택된 근무일자 표시
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
+        st.markdown(", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
 
     # 조건 1 계산 및 표시
     total_days = len(date_range_objects)
