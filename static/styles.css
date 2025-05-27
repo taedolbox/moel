@@ -71,12 +71,12 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    width: 42px !important; /* .day보다 약간 크게 설정 */
-    height: 42px !important; /* .day보다 약간 크게 설정 */
-    min-width: 42px !important;
-    min-height: 42px !important;
+    width: 40px !important; /* .day와 동일한 크기 */
+    height: 40px !important; /* .day와 동일한 크기 */
+    min-width: 40px !important;
+    min-height: 40px !important;
     aspect-ratio: 1/1 !important; /* 원형 유지 */
-    margin: -1px 0 0 -1px !important; /* 원 숫자와 밀착 */
+    margin: 0 !important; /* 원 숫자와 정확히 겹치도록 */
     padding: 0 !important;
     background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인 */
     cursor: pointer !important;
@@ -90,10 +90,10 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 
 /* 체크박스 내부 요소 스타일 */
 .stCheckbox > div > div {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    min-height: 42px !important;
+    width: 40px !important; /* .stCheckbox와 동일한 크기 */
+    height: 40px !important; /* .stCheckbox와 동일한 크기 */
+    min-width: 40px !important;
+    min-height: 40px !important;
     aspect-ratio: 1/1 !important;
     position: absolute !important;
     top: 0 !important;
