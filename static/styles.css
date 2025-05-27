@@ -261,8 +261,8 @@ button[data-testid="stButton"]:hover {
         flex-wrap: nowrap !important;
     }
     .calendar-day-container {
-        width: calc(280px / 2) !important;
-        height: calc(280px / 2) !important; /* 7줄을 위해 높이 조정 */
+        width: calc(100% / 7) !important;
+        height: calc(100% / 7) !important; /* 7줄을 위해 높이 조정 */
         background-color: #f0f0f0 !important;
         display: flex !important;
         justify-content: center !important;
