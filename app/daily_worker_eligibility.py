@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 8:08 KST)
-current_datetime = datetime(2025, 5, 27, 20, 8)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:13 KST)
+current_datetime = datetime(2025, 5, 27, 20, 13)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -70,31 +70,21 @@ def render_calendar_interactive(apply_date):
                     if is_disabled:
                         class_name += " disabled-day"
 
-                    # 체크박스와 숫자 통합 렌더링
-                    week_html += (
-                        f'<div class="calendar-day-container {class_name}" id="{container_key}">'
-                        f'<label for="checkbox_{container_key}" class="calendar-day-content">'
-                        f'<span>{day}</span>'
-                        f'</label>'
-                        f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
-                        f'</div>'
-                    )
-
-                    # 체크박스 렌더링
-                    st.markdown(
-                        f'<input type="checkbox" id="checkbox_{container_key}" class="hidden-checkbox" '
-                        f'{"checked" if is_selected else ""} {"disabled" if is_disabled else ""}>',
-                        unsafe_allow_html=True
-                    )
-
-                    # 체크박스 상태 관리
-                    checked = st.checkbox(
-                        "",
-                        key=container_key,
-                        value=is_selected,
-                        disabled=is_disabled,
-                        label_visibility="hidden"
-                    )
+                    # 체크박스와 숫자 렌더링
+                    with st.container():
+                        st.markdown(f'<div class="calendar-day-container {class_name}">', unsafe_allow_html=True)
+                        checked = st.checkbox(
+                            str(day),
+                            key=container_key,
+                            value=is_selected,
+                            disabled=is_disabled,
+                            label_visibility="visible"
+                        )
+                        st.markdown(
+                            f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>',
+                            unsafe_allow_html=True
+                        )
+                        st.markdown('</div>', unsafe_allow_html=True)
 
                     # 체크박스 상태에 따라 selected_dates 업데이트
                     if checked and date_obj not in selected_dates and not is_disabled:
