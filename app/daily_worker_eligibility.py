@@ -66,16 +66,22 @@ def render_calendar(apply_date):
                             if is_disabled:
                                 st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
                             else:
-                                checkbox_key = f"date_{date_obj}"
-                                checkbox_value = st.checkbox("", key=checkbox_key, value=is_selected, label_visibility="hidden")
-                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                                if checkbox_value != is_selected:
-                                    if checkbox_value:
-                                        selected_dates.add(date_obj)
-                                    else:
-                                        selected_dates.discard(date_obj)
-                                    st.session_state.selected_dates = selected_dates
-                                    st.rerun()
+                                with st.container():
+                                    checkbox_key = f"date_{date_obj}"
+                                    checkbox_value = st.checkbox(
+                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
+                                    )
+                                    st.markdown(
+                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                        unsafe_allow_html=True
+                                    )
+                                    if checkbox_value != is_selected:
+                                        if checkbox_value:
+                                            selected_dates.add(date_obj)
+                                        else:
+                                            selected_dates.discard(date_obj)
+                                        st.session_state.selected_dates = selected_dates
+                                        st.rerun()
 
     # 선택된 근무일자 표시
     if selected_dates:
@@ -101,7 +107,7 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}")
-    st.markdown("**안내**: 날짜의 좌측 영역을 클릭해 선택하세요. 클릭 시 녹색 점이 나타나며, 선택된 날짜는 빨간 테두리로 표시됩니다.")
+    st.markdown("**안내**: 날짜의 좌측 영역(녹색 점)을 클릭해 선택하세요. 선택된 날짜는 빨간 테두리로 표시됩니다.")
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date())
     render_calendar(apply_date)
 
