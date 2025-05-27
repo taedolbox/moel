@@ -147,7 +147,7 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* 달력 날짜 원 (장식용) */
+/* 달력 날짜 원 */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
@@ -326,7 +326,7 @@ div[data-testid="stCheckbox"] label {
     }
 }
 
-/* 선택 표시 스타일 */
+/* 선택 표시 스타일 (고정 색상으로 설정) */
 .selection-mark {
     position: absolute !important;
     top: 4px !important;
@@ -334,7 +334,7 @@ div[data-testid="stCheckbox"] label {
     width: 8px !important;
     height: 8px !important;
     border-radius: 50% !important;
-    background-color: #ff0000 !important;
+    background-color: #ff0000 !important; /* 고정된 빨간색 */
     border: 1px solid #ffffff !important;
     display: none !important;
     z-index: 0 !important;
