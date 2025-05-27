@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 2:40 KST)
-current_datetime = datetime(2025, 5, 27, 14, 40)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 1:49 KST)
+current_datetime = datetime(2025, 5, 27, 13, 49)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -46,66 +46,55 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링 (폼 사용)
-            with st.form(key=f"calendar_form_{year}_{month}"):
-                for week in cal:
-                    week_html = '<div class="calendar-grid">'
-                    for i, day in enumerate(week):
-                        if day == 0:
-                            week_html += '<div class="calendar-day-container"></div>'
-                            continue
-                        date_obj = date(year, month, day)
-                        if date_obj > apply_date:
-                            week_html += (
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'</div>'
-                            )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-
-                        container_key = f"date_{date_obj.isoformat()}"
+            # 달력 렌더링
+            for week in cal:
+                week_html = '<div class="calendar-grid">'
+                for i, day in enumerate(week):
+                    if day == 0:
+                        week_html += '<div class="calendar-day-container"></div>'
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
                         week_html += (
                             f'<div class="calendar-day-container">'
-                            f'<div class="selection-mark"></div>'
-                            f'<input type="checkbox" id="{container_key}" name="{container_key}" '
-                            f'{"checked" if is_selected else ""}>'
-                            f'<label for="{container_key}" class="{class_name}">{day}</label>'
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
                             f'</div>'
                         )
-                    week_html += '</div>'
-                    st.markdown(week_html, unsafe_allow_html=True)
+                        continue
 
-                # 폼 제출 버튼
-                submitted = st.form_submit_button("업데이트")
-                if submitted:
-                    st.session_state.form_submitted = True
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
 
-            # 폼 제출 후 상태 업데이트
-            if st.session_state.get("form_submitted", False):
-                for key in st.session_state:
-                    if key.startswith("date_") and key in st.session_state:
-                        date_obj = date.fromisoformat(key.replace("date_", ""))
-                        if st.session_state[key]:
+                    container_key = f"date_{date_obj.isoformat()}"
+                    # 체크박스를 사용해 상태 관리
+                    week_html += (
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
+                        f'<label for="{container_key}" class="{class_name}">{day}</label>'
+                        f'</div>'
+                    )
+
+                    # 체크박스 상태에 따라 세션 상태 업데이트
+                    if container_key in st.session_state:
+                        if st.session_state[container_key]:
                             selected_dates.add(date_obj)
                         else:
                             selected_dates.discard(date_obj)
-                st.session_state.selected_dates = selected_dates
-                st.session_state.form_submitted = False
-                # 상태 확인용 디버깅 메시지
-                st.write("선택된 날짜 (디버깅):", [d.strftime("%Y-%m-%d") for d in sorted(selected_dates)])
-                st.rerun()
+                        st.session_state.selected_dates = selected_dates
+                        del st.session_state[container_key]
+                        st.rerun()
+
+                week_html += '</div>'
+                st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 선택된 근무일자 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
@@ -138,12 +127,12 @@ def daily_worker_eligibility_app():
 
     # 조건 1 계산 및 표시
     total_days = len(date_range_objects)
-    worked_days = len(selected_dates)  # 선택된 날짜 수 계산
+    worked_days = len(selected_dates)
     threshold = total_days / 3
 
     st.markdown(f"- 총 기간 일수: **{total_days}일**")
     st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")  # 카운트 표시
+    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
 
     condition1 = worked_days < threshold
     st.markdown(
