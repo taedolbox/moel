@@ -323,7 +323,7 @@ button {
     left: 4px !important;
     width: 8px !important;
     height: 8px !important;
-    border-radius: 50% !important;
+    border-radius: 50 !important;
     background-color: #ff0000 !important; /* 빨간색 동그라미 */
     border: 1px solid #ffffff !important;
     z-index: 0 !important;
