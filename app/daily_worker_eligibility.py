@@ -8,8 +8,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 12:52 KST)
-current_datetime = datetime(2025, 5, 27, 12, 52)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 1:22 KST)
+current_datetime = datetime(2025, 5, 27, 13, 22)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -82,6 +82,12 @@ def render_calendar_interactive(apply_date):
                             f'<div class="calendar-day-container">'
                             f'<div class="selection-mark"></div>'
                             f'<div class="{class_name}">{day}</div>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                        # 버튼을 겹치게 배치
+                        st.markdown(
+                            f'<div class="button-overlay">'
                             f'<button class="hidden-button" key="{container_key}"></button>'
                             f'</div>',
                             unsafe_allow_html=True
