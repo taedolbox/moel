@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 4:45 KST)
-current_datetime = datetime(2025, 5, 27, 16, 45)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 4:56 KST)
+current_datetime = datetime(2025, 5, 27, 16, 56)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -47,58 +47,55 @@ def render_calendar_interactive(apply_date):
             st.markdown(header_html, unsafe_allow_html=True)
 
             # 달력 렌더링
-            with st.form(key=f"calendar_form_{year}_{month}"):
-                for week in cal:
-                    week_html = '<div class="calendar-grid">'
-                    for i, day in enumerate(week):
-                        if day == 0:
-                            week_html += '<div class="calendar-day-container"></div>'
-                            continue
-                        date_obj = date(year, month, day)
-                        if date_obj > apply_date:
-                            week_html += (
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'</div>'
-                            )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-
-                        container_key = f"date_{date_obj.isoformat()}"
-                        # HTML 체크박스 (UI용, 비활성화 해제)
+            for week in cal:
+                week_html = '<div class="calendar-grid">'
+                for i, day in enumerate(week):
+                    if day == 0:
+                        week_html += '<div class="calendar-day-container"></div>'
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
                         week_html += (
-                            f'<div class="calendar-day-container" onclick="document.getElementById(\'{container_key}\').click();">'
-                            f'<div class="selection-mark"></div>'
-                            f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""} class="calendar-checkbox">'
-                            f'<label for="{container_key}" class="{class_name}">{day}</label>'
+                            f'<div class="calendar-day-container">'
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
                             f'</div>'
                         )
-                        # st.checkbox (상태 관리용, 숨김)
-                        st.checkbox("", key=container_key, value=is_selected, label_visibility="collapsed")
+                        continue
 
-                    week_html += '</div>'
-                    st.markdown(week_html, unsafe_allow_html=True)
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
 
-                # 폼 제출 버튼
-                submitted = st.form_submit_button("업데이트")
-                if submitted:
-                    # 폼 제출 후 상태 업데이트 (st.checkbox 기반)
-                    for key in st.session_state:
-                        if key.startswith("date_") and key in st.session_state:
-                            date_obj = date.fromisoformat(key.replace("date_", ""))
-                            if st.session_state[key]:
-                                selected_dates.add(date_obj)
-                            else:
-                                selected_dates.discard(date_obj)
+                    container_key = f"date_{date_obj.isoformat()}"
+                    # st.checkbox로 상태 관리
+                    checked = st.checkbox(
+                        "",
+                        key=container_key,
+                        value=is_selected,
+                        label_visibility="collapsed"
+                    )
+
+                    # 체크박스 상태에 따라 selected_dates 업데이트
+                    if checked:
+                        selected_dates.add(date_obj)
+                    else:
+                        selected_dates.discard(date_obj)
                     st.session_state.selected_dates = selected_dates
-                    st.rerun()
+
+                    # 숫자 렌더링 (클릭 가능하도록)
+                    week_html += (
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<div class="{class_name}" onclick="document.getElementById(\'{container_key}\').click();">{day}</div>'
+                        f'</div>'
+                    )
+
+                week_html += '</div>'
+                st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
