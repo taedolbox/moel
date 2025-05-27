@@ -16,6 +16,13 @@ def get_date_range(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
+# Callback function for date selection
+def toggle_date_selection(date_obj):
+    if date_obj in st.session_state.selected_dates:
+        st.session_state.selected_dates.discard(date_obj)
+    else:
+        st.session_state.selected_dates.add(date_obj)
+
 def render_calendar_interactive(apply_date):
     """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
@@ -54,48 +61,42 @@ def render_calendar_interactive(apply_date):
                         week_html += '<div class="calendar-day-container"></div>'
                         continue
                     date_obj = date(year, month, day)
-                    if date_obj > apply_date:
-                        week_html += (
-                            f'<div class="calendar-day-container">'
-                            f'<div class="calendar-day-box disabled-day">{day}</div>'
-                            f'</div>'
-                        )
-                        continue
 
+                    # Determine classes for the day box
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
+                    is_disabled = date_obj > apply_date # Disable days after apply_date
+
                     class_name = "calendar-day-box"
                     if is_selected:
                         class_name += " selected-day"
                     if is_current:
                         class_name += " current-day"
+                    if is_disabled:
+                        class_name += " disabled-day"
 
-                    container_key = f"date_{date_obj.isoformat()}"
-                    # st.checkbox로 상태 관리 (숫자 옆에 표시)
-                    checked = st.checkbox(
-                        str(day),
-                        key=container_key,
-                        value=is_selected,
-                        label_visibility="visible"
+
+                    # Use a Streamlit button for each day, but make it hidden and styled by CSS
+                    # The button's key ensures unique identification for Streamlit
+                    # The on_click callback triggers the selection logic
+                    st.button(
+                        label=str(day), # Label can be anything, as it's hidden
+                        key=f"calendar_day_button_{date_obj.isoformat()}",
+                        on_click=toggle_date_selection,
+                        args=(date_obj,),
+                        disabled=is_disabled, # Disable the button for future dates
+                        use_container_width=True # This helps with layout but will be overridden by custom CSS
                     )
 
-                    # 체크박스 상태에 따라 selected_dates 업데이트
-                    if checked and date_obj not in selected_dates:
-                        selected_dates.add(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
-                    elif not checked and date_obj in selected_dates:
-                        selected_dates.discard(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
-
-                    # 숫자와 선택 표시 렌더링
+                    # Now, render the HTML for the calendar day box itself
+                    # This HTML div will be styled by our CSS classes
                     week_html += (
                         f'<div class="calendar-day-container">'
-                        f'<div class="selection-mark" style="display: {"block" if date_obj in selected_dates else "none"};"></div>'
                         f'<div class="{class_name}" '
-                        f'onclick="document.getElementById(\'{container_key}\').click()" '
-                        f'style="cursor: pointer;">{day}</div>'
+                        f'onclick="document.querySelector(\'[key=calendar_day_button_{date_obj.isoformat()}]\').click();" ' # Click the hidden Streamlit button
+                        f'style="cursor: {"not-allowed" if is_disabled else "pointer"};">'
+                        f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
+                        f'{day}</div>' # Day number rendered inside the box
                         f'</div>'
                     )
 
