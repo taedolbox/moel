@@ -70,7 +70,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .stCheckbox {
     position: absolute !important;
     top: 0 !important;
-    left: -50px !important; /* 좌측으로 5cm(50px) 이동 */
+    left: -20px !important; /* 좌측으로 5cm(50px) 이동 */
     width: 40px !important; /* .day와 동일한 크기 */
     height: 40px !important; /* .day와 동일한 크기 */
     min-width: 40px !important;
