@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 7:15 KST)
-current_datetime = datetime(2025, 5, 27, 19, 15)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:08 KST)
+current_datetime = datetime(2025, 5, 27, 20, 8)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -17,7 +17,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌der링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -72,21 +72,28 @@ def render_calendar_interactive(apply_date):
 
                     # 체크박스와 숫자 통합 렌더링
                     week_html += (
-                        f'<div class="calendar-day-container {class_name}">'
-                        f'<div class="calendar-day-content">'
+                        f'<div class="calendar-day-container {class_name}" id="{container_key}">'
+                        f'<label for="checkbox_{container_key}" class="calendar-day-content">'
                         f'<span>{day}</span>'
-                        f'</div>'
+                        f'</label>'
                         f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
                         f'</div>'
                     )
 
+                    # 체크박스 렌더링
+                    st.markdown(
+                        f'<input type="checkbox" id="checkbox_{container_key}" class="hidden-checkbox" '
+                        f'{"checked" if is_selected else ""} {"disabled" if is_disabled else ""}>',
+                        unsafe_allow_html=True
+                    )
+
                     # 체크박스 상태 관리
                     checked = st.checkbox(
-                        str(day),
+                        "",
                         key=container_key,
                         value=is_selected,
                         disabled=is_disabled,
-                        label_visibility="hidden"  # 숫자를 별도로 표시하므로 라벨 숨김
+                        label_visibility="hidden"
                     )
 
                     # 체크박스 상태에 따라 selected_dates 업데이트
