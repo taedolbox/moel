@@ -173,7 +173,13 @@ button[kind="primary"] {
     position: relative !important;
 }
 
-/* 체크박스 선택 시 테두리 색상 변경 */
+/* HTML 체크박스 비활성화 및 숨김 */
+.calendar-day-container input[type="checkbox"] {
+    display: none !important; /* 시각적으로 숨기고 */
+    pointer-events: none !important; /* 클릭 비활성화 */
+}
+
+/* 체크박스 선택 시 테두리 색상 변경 (st.checkbox로 관리) */
 .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box,
 .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box.selected-day {
     border: 2px solid #ff0000 !important;
