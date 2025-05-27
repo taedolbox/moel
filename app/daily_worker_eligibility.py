@@ -7,8 +7,8 @@ import os
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 26일 오전 6:29 KST)
-current_datetime = datetime(2025, 5, 26, 6, 29)
+# 현재 날짜와 시간 (2025년 5월 27일 오전 10:28 KST)
+current_datetime = datetime(2025, 5, 27, 10, 28)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -128,14 +128,27 @@ def toggle_date(date_obj):
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
     # CSS 로드
-    css_path = "style.css"
+    css_path = os.path.join(os.path.dirname(__file__), "style.css")
     try:
-        if os.path.exists(css_path):
-            with open(css_path, "r", encoding="utf-8") as f:
-                css = f.read()
-            st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-        else:
-            st.error(f"CSS 파일을 찾을 수 없습니다: {css_path}")
+        with open(css_path, "r", encoding="utf-8") as f:
+            css = f.read()
+        st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.error(f"CSS 파일을 찾을 수 없습니다: {css_path}. 스타일이 적용되지 않을 수 있습니다.")
+        # 기본 스타일 제공
+        default_css = """
+        .calendar-wrapper { width: 100%; margin: 0 auto; }
+        .calendar-day-container { display: flex; align-items: center; justify-content: center; }
+        .calendar-day-box { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        button[data-testid="stButton"] { width: 38px; height: 38px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: transparent; border: none; padding: 0; margin: 0; }
+        @media (max-width: 500px) {
+            .calendar-wrapper { width: 280px; }
+            .calendar-day-container { width: calc(280px / 7); height: calc(280px / 7); }
+            .calendar-day-box { width: 34px; height: 34px; }
+            button[data-testid="stButton"] { width: 34px; height: 34px; }
+        }
+        """
+        st.markdown(f"<style>{default_css}</style>", unsafe_allow_html=True)
     except Exception as e:
         st.error(f"CSS 파일 로드 중 오류 발생: {str(e)}")
 
