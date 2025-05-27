@@ -8,8 +8,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 12:48 KST)
-current_datetime = datetime(2025, 5, 27, 12, 48)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 12:52 KST)
+current_datetime = datetime(2025, 5, 27, 12, 52)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -42,76 +42,53 @@ def render_calendar_interactive(apply_date):
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더 생성 (7열 고정)
-            st.markdown('<div class="header-row">', unsafe_allow_html=True)
+            cols = st.columns(7, gap="small")
             for i, day_name in enumerate(days_of_week_korean):
-                color = "red" if i == 0 or i == 6 else "#000000"
-                st.markdown(
-                    f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-                    unsafe_allow_html=True
-                )
-            st.markdown('</div>', unsafe_allow_html=True)
+                with cols[i]:
+                    color = "red" if i == 0 or i == 6 else "#000000"
+                    st.markdown(
+                        f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
+                        unsafe_allow_html=True
+                    )
 
             # 달력 렌더링
             for week in cal:
-                st.markdown('<div class="calendar-row">', unsafe_allow_html=True)
+                cols = st.columns(7, gap="small")
                 for i, day in enumerate(week):
-                    if day == 0:
-                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
-                        continue
-                    date_obj = date(year, month, day)
-                    if date_obj > apply_date:
+                    with cols[i]:
+                        if day == 0:
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                            continue
+                        date_obj = date(year, month, day)
+                        if date_obj > apply_date:
+                            st.markdown(
+                                f'<div class="calendar-day-container">'
+                                f'<div class="calendar-day-box disabled-day">{day}</div>'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                            continue
+
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        class_name = "calendar-day-box"
+                        if is_selected:
+                            class_name += " selected-day"
+                        if is_current:
+                            class_name += " current-day"
+
+                        container_key = f"date_{date_obj.isoformat()}"
                         st.markdown(
                             f'<div class="calendar-day-container">'
-                            f'<div class="calendar-day-box disabled-day">{day}</div>'
+                            f'<div class="selection-mark"></div>'
+                            f'<div class="{class_name}">{day}</div>'
+                            f'<button class="hidden-button" key="{container_key}"></button>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        continue
+                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=False):
+                            pass
 
-                    is_selected = date_obj in selected_dates
-                    is_current = date_obj == current_date
-                    class_name = "calendar-day-box"
-                    if is_selected:
-                        class_name += " selected-day"
-                    if is_current:
-                        class_name += " current-day"
-
-                    container_key = f"date_{date_obj.isoformat()}"
-                    # Streamlit 버튼 대신 커스텀 버튼으로 상태 변경 처리
-                    st.markdown(
-                        f'<div class="calendar-day-container">'
-                        f'<div class="selection-mark"></div>'
-                        f'<button class="{class_name}" onclick="handleDateClick(\'{date_obj.isoformat()}\')">{day}</button>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-
-                    # JavaScript를 통해 클릭 이벤트 처리
-                    st.markdown(
-                        f"""
-                        <script>
-                        function handleDateClick(dateStr) {{
-                            const date = new Date(dateStr);
-                            const event = new CustomEvent('date-click', {{ detail: dateStr }});
-                            window.dispatchEvent(event);
-                            fetch('/update-date?date=' + dateStr, {{ method: 'POST' }});
-                        }}
-                        window.addEventListener('date-click', function(e) {{
-                            const dateStr = e.detail;
-                            // Streamlit과 연동을 위해 상태 업데이트
-                            window.parent.postMessage({{ type: 'streamlit:set_component_value', key: '{container_key}', value: dateStr }}, '*');
-                        }});
-                        </script>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                    # Streamlit의 상태 업데이트를 위해 세션 상태 변경
-                    if container_key in st.session_state:
-                        toggle_date(date_obj)
-                        del st.session_state[container_key]
-
-                st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.rerun_trigger:
