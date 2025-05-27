@@ -86,12 +86,11 @@ button[kind="primary"] {
 
 /* 달력 컨테이너 스타일 */
 .calendar-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
 }
 
 /* 달력 제목 스타일 */
@@ -105,59 +104,44 @@ button[kind="primary"] {
     width: 100%;
 }
 
-/* 요일 헤더 래퍼 */
-.header-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    justify-content: space-between !important;
-    box-sizing: border-box !important;
-}
-
 /* 요일 헤더 스타일 */
 .day-header {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 30px !important;
-    font-size: 1em !important;
-    font-weight: bold !important;
-    text-align: center !important;
-    flex: 1 !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
 }
 
-/* 달력 행 스타일 */
-.calendar-row {
+/* Streamlit 컬럼 스타일 오버라이드 */
+div[data-testid="column"] {
     display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    justify-content: space-between !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
 }
 
 /* 달력 날짜 컨테이너 */
 .calendar-day-container {
-    position: relative !important;
-    background-color: #ffffff !important;
+    position: relative;
+    background-color: #ffffff;
     height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    flex: 1 !important;
-    min-width: 0 !important;
 }
 
-/* 달력 날짜 버튼 */
+/* 달력 날짜 원 */
 .calendar-day-box {
     width: 34px !important;
     height: 34px !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: center ! ст
     justify-content: center !important;
     border: 1px solid #ffffff !important;
     background-color: #ffffff !important;
@@ -171,6 +155,11 @@ button[kind="primary"] {
     padding: 0 !important;
     z-index: 1 !important;
     cursor: pointer !important;
+}
+
+/* Streamlit 버튼 숨기기 */
+button.hidden-button {
+    display: none !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -195,12 +184,6 @@ button[kind="primary"] {
         min-width: 600px !important;
         max-width: 600px !important;
     }
-    .header-row {
-        width: 600px !important;
-    }
-    .calendar-row {
-        width: 600px !important;
-    }
     .calendar-day-container {
         width: calc(600px / 7) !important;
         height: 48px !important;
@@ -209,6 +192,13 @@ button[kind="primary"] {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
+    }
+    div[data-testid="column"] {
+        width: calc(600px / 7) !important;
+        max-width: calc(600px / 7) !important;
+        min-width: calc(600px / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
@@ -222,38 +212,26 @@ button[kind="primary"] {
         min-width: 280px !important;
         max-width: 280px !important;
         margin: 0 auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-    .header-row {
-        width: 280px !important;
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
-    }
-    .calendar-row {
-        width: 280px !important;
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
         height: calc(280px / 7) !important;
         background-color: #f0f0f0 !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        flex: 1 !important;
     }
     .calendar-day-box {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
     }
+    div[data-testid="column"] {
+        width: calc(280px / 7) !important;
+        max-width: calc(280px / 7) !important;
+        min-width: calc(280px / 7) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
     .day-header {
         width: calc(280px / 7) !important;
-        flex: 1 !important;
     }
 }
 
@@ -285,7 +263,7 @@ button[kind="primary"] {
 
 /* 오늘 날짜 스타일 */
 .calendar-day-box.current-day:not(.selected-day) {
-    border: 2px solid #0000ff !important koş
+    border: 2px solid #0000ff !important;
 }
 
 /* 선택된 날짜 스타일 */
