@@ -6,6 +6,12 @@ div[data-testid="stHorizontalBlock"] {
     width: 100% !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important;
+    margin-left: 0 !important; /* 왼쪽 마진 제거 */
+}
+
+/* 달력 래퍼 */
+.calendar-wrapper {
+    margin: 0 20px; /* 텍스트와 마진 정렬 */
 }
 
 /* stMarkdownContainer 스타일 */
@@ -16,6 +22,7 @@ div[data-testid="stMarkdownContainer"] {
     width: 100% !important;
     height: 100% !important;
     text-align: left !important;
+    margin: 0 20px; /* 텍스트 마진 통일 */
 }
 
 /* 요일과 날짜를 포함하지 않은 stMarkdownContainer */
@@ -117,7 +124,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 
 /* 결과 텍스트 스타일 */
 .result-text {
-    margin: 10px 0;
+    margin: 0 20px; /* 텍스트 마진 통일 */
     padding: 10px;
     border-left: 4px solid #36A2EB;
     background-color: #f9f9f9;
@@ -130,12 +137,16 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
         justify-content: flex-start !important;
-        margin-left: 0;
+        margin-left: 0 !important; /* 왼쪽 마진 제거 */
+    }
+    .calendar-wrapper {
+        margin: 0 10px !important; /* 모바일에서 약간 좁게 */
     }
     div[data-testid="stMarkdownContainer"] {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
+        margin: 0 10px; /* 모바일 텍스트 마진 */
     }
     div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         justify-content: flex-start !important;
@@ -164,6 +175,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         top: -4px;
     }
     .result-text {
+        margin: 0 10px; /* 모바일 텍스트 마진 */
         padding: 8px;
     }
 }
@@ -172,14 +184,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 @media (min-width: 768px) {
     div[data-testid="stHorizontalBlock"] {
         max-width: 600px !important;
-        margin: 0 0 0 0 !important;
-        justify-content: flex-start !important;
+        margin: 0 20px !important; /* 텍스트와 마진 정렬 */
     }
 }
 
 /* 모든 텍스트 왼쪽 정렬 */
 .stMarkdown, .stText, .stHeader {
     text-align: left !important;
+    margin: 0 20px; /* 텍스트 마진 통일 */
 }
 
 /* 다크 모드 지원 */
