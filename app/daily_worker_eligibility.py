@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 8:13 KST)
-current_datetime = datetime(2025, 5, 27, 20, 13)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:21 KST)
+current_datetime = datetime(2025, 5, 27, 20, 21)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -38,7 +38,7 @@ def render_calendar_interactive(apply_date):
             cal = calendar.monthcalendar(year, month)
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더 생성 (7열 고정)
+            # 요일 헤더 생성
             header_html = '<div class="header-grid">'
             for i, day_name in enumerate(days_of_week_korean):
                 color = "red" if i == 0 or i == 6 else "#000000"
@@ -46,12 +46,12 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링
+            # 달력 날짜 렌더링
             for week in cal:
-                week_html = '<div class="calendar-grid">'
+                st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
                 for i, day in enumerate(week):
                     if day == 0:
-                        week_html += '<div class="calendar-day-container"></div>'
+                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
                         continue
                     date_obj = date(year, month, day)
                     container_key = f"date_{date_obj.isoformat()}"
@@ -70,7 +70,7 @@ def render_calendar_interactive(apply_date):
                     if is_disabled:
                         class_name += " disabled-day"
 
-                    # 체크박스와 숫자 렌더링
+                    # 체크박스와 날짜 렌더링
                     with st.container():
                         st.markdown(f'<div class="calendar-day-container {class_name}">', unsafe_allow_html=True)
                         checked = st.checkbox(
@@ -81,7 +81,7 @@ def render_calendar_interactive(apply_date):
                             label_visibility="visible"
                         )
                         st.markdown(
-                            f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>',
+                            f'<div class="selection-mark" style="display: {"block" if checked else "none"};"></div>',
                             unsafe_allow_html=True
                         )
                         st.markdown('</div>', unsafe_allow_html=True)
@@ -90,14 +90,11 @@ def render_calendar_interactive(apply_date):
                     if checked and date_obj not in selected_dates and not is_disabled:
                         selected_dates.add(date_obj)
                         st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
                     elif not checked and date_obj in selected_dates:
                         selected_dates.discard(date_obj)
                         st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
 
-                week_html += '</div>'
-                st.markdown(week_html, unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
