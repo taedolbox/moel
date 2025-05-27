@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 4:05 KST)
-current_datetime = datetime(2025, 5, 27, 16, 5)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 4:09 KST)
+current_datetime = datetime(2025, 5, 27, 16, 9)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -46,7 +46,7 @@ def render_calendar_interactive(apply_date):
             header_html += '</div>'
             st.markdown(header_html, unsafe_allow_html=True)
 
-            # 달력 렌더링
+            # 달력 렌der링
             with st.form(key=f"calendar_form_{year}_{month}"):
                 for week in cal:
                     week_html = '<div class="calendar-grid">'
@@ -72,6 +72,7 @@ def render_calendar_interactive(apply_date):
                             class_name += " current-day"
 
                         container_key = f"date_{date_obj.isoformat()}"
+                        # HTML 체크박스 유지 (디버깅용)
                         week_html += (
                             f'<div class="calendar-day-container">'
                             f'<div class="selection-mark"></div>'
@@ -79,13 +80,16 @@ def render_calendar_interactive(apply_date):
                             f'<label for="{container_key}" class="{class_name}">{day}</label>'
                             f'</div>'
                         )
+                        # st.checkbox 추가 (상태 테스트용)
+                        st.checkbox(f"{date_obj.strftime('%Y-%m-%d')}", key=container_key, value=is_selected)
+
                     week_html += '</div>'
                     st.markdown(week_html, unsafe_allow_html=True)
 
                 # 폼 제출 버튼
                 submitted = st.form_submit_button("업데이트")
                 if submitted:
-                    # 폼 제출 후 상태 업데이트
+                    # 폼 제출 후 상태 업데이트 (st.checkbox 기반)
                     for key in st.session_state:
                         if key.startswith("date_") and key in st.session_state:
                             date_obj = date.fromisoformat(key.replace("date_", ""))
