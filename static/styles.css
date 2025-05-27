@@ -147,16 +147,6 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* 체크박스 스타일 조정 */
-div[data-testid="stCheckbox"] {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
 /* 체크박스 라벨 스타일 (달력 숫자 스타일링) */
 .calendar-checkbox-label {
     width: 34px !important;
@@ -297,7 +287,7 @@ div[data-testid="stCheckbox"] {
 }
 
 /* 비활성화된 날짜 스타일 */
-div[data-testid="stCheckbox"].disabled-day label {
+.calendar-day-box.disabled-day {
     border: 1px solid #555 !important;
     background-color: #cccccc !important;
     color: #666 !important;
@@ -306,7 +296,7 @@ div[data-testid="stCheckbox"].disabled-day label {
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    div[data-testid="stCheckbox"].disabled-day label {
+    .calendar-day-box.disabled-day {
         background-color: #333333 !important;
         border: 1px solid #444 !important;
         color: #666 !important;
