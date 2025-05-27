@@ -237,14 +237,14 @@ button[kind="primary"] {
 @media (max-width: 500px) {
     .calendar-wrapper {
         width: 100% !important;
-        max-width: 280px !important;
+        max-width: 100% !important; /* 최대 너비를 100%로 설정 */
         margin: 0 !important;
         padding: 0 !important;
     }
     .header-grid, .calendar-grid {
         width: 100% !important;
         min-width: 100% !important;
-        max-width: 280px !important;
+        max-width: 100% !important;
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 0 !important;
@@ -263,13 +263,24 @@ button[kind="primary"] {
         width: calc(100% / 7) !important;
     }
 
-    /* 모바일에서 선택된 근무일자 섹션 보장 */
-    div[data-testid="stMarkdownContainer"] {
+    /* 모바일에서 주요 요소의 중앙 정렬 제거 */
+    div[data-testid="stMarkdownContainer"], div[data-testid="stVerticalBlock"] {
         width: 100% !important;
-        max-width: 280px !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-        display: block !important; /* 강제로 표시 */
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 10px !important; /* 좌우 패딩 추가 */
+        display: block !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 제목과 입력 필드 스타일 조정 */
+    h1, h2, h3, .stDateInput {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 10px !important;
+        box-sizing: border-box !important;
+        text-align: left !important; /* 좌측 정렬 */
     }
 }
 
