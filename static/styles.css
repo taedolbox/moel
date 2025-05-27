@@ -78,14 +78,15 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     aspect-ratio: 1/1 !important; /* 원형 유지 */
     margin: 0 !important; /* 원 숫자와 위치 조정 */
     padding: 0 !important;
-    background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인 */
+    /* background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인 */ */
     cursor: pointer !important;
     z-index: 5000 !important;
-    pointer-events: auto !important;
+    pointer-events: auto !important; /* 보이지 않지만 클릭 가능하게 함 */
     box-sizing: border-box !important;
     display: flex;
     justify-content: center; /* 체크박스 중앙 정렬 */
     align-items: center; /* 수직 중앙 정렬 */
+    opacity: 0 !important; /* 보이지 않게 함 */
 }
 
 /* 체크박스 내부 요소 스타일 */
@@ -98,7 +99,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    background-color: rgba(255, 165, 0, 0.3); /* 내부 요소 확인 */
+    /* background-color: rgba(255, 165, 0, 0.3); /* 내부 요소 확인 */ */
+    opacity: 0 !important; /* 보이지 않게 함 */
+    pointer-events: auto !important; /* 보이지 않지만 클릭 가능하게 함 */
 }
 
 /* 모바일에서도 7열 유지, 크기 증가 및 정렬 조정 */
@@ -130,6 +133,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     }
     .stCheckbox {
         left: 0 !important; /* 모바일에서는 이동 없음 */
+        opacity: 0 !important; /* 보이지 않게 함 */
+        pointer-events: auto !important; /* 보이지 않지만 클릭 가능하게 함 */
     }
     .stCheckbox > div > div {
         width: 100% !important;
@@ -137,6 +142,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         min-width: 100% !important;
         min-height: 100% !important;
         aspect-ratio: 1/1 !important;
+        opacity: 0 !important; /* 보이지 않게 함 */
+        pointer-events: auto !important; /* 보이지 않지만 클릭 가능하게 함 */
     }
     .day-header {
         padding: 5px 2px; /* 모바일 간격 조정 */
@@ -213,13 +220,4 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     background-color: #e0e0e0;
     color: #888;
     cursor: not-allowed;
-}
-/* 체크박스 스타일 */
-.stCheckbox {
-    display: none !important; /* 체크박스를 보이지 않게 설정 */
-}
-
-/* 체크박스 내부 요소 스타일 */
-.stCheckbox > div > div {
-    display: none !important; /* 체크박스 선택 영역을 보이지 않게 설정 */
 }
