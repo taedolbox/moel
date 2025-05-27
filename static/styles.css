@@ -86,22 +86,23 @@ button[kind="primary"] {
 
 /* 달력 컨테이너 스타일 */
 .calendar-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin: 0 auto;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
 }
 
 /* 달력 제목 스타일 */
 .calendar-wrapper h3 {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0 !important;
     color: #000000 !important;
-    text-align: center;
-    padding: 8px 0;
-    margin-bottom: 15px;
-    font-size: 1.5em;
-    width: 100%;
+    text-align: center !important;
+    padding: 8px 0 !important;
+    margin-bottom: 15px !important;
+    font-size: 1.5em !important;
+    width: 100% !important;
 }
 
 /* 요일 헤더 그리드 */
@@ -110,6 +111,7 @@ button[kind="primary"] {
     grid-template-columns: repeat(7, 1fr) !important;
     width: 100% !important;
     gap: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* 달력 날짜 그리드 */
@@ -118,23 +120,25 @@ button[kind="primary"] {
     grid-template-columns: repeat(7, 1fr) !important;
     width: 100% !important;
     gap: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* 요일 헤더 스타일 */
 .day-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 30px !important;
+    font-size: 1em !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
 }
 
 /* 달력 날짜 컨테이너 */
 .calendar-day-container {
-    position: relative;
-    background-color: #ffffff;
+    position: relative !important;
+    background-color: #ffffff !important;
     height: 44px !important;
     display: flex !important;
     align-items: center !important;
@@ -163,14 +167,18 @@ button[kind="primary"] {
     cursor: pointer !important;
 }
 
-/* 체크박스 숨기기 */
-input[type="checkbox"] {
+/* 체크박스와 라벨 순서 변경을 위한 스타일 */
+.calendar-day-container input[type="checkbox"] {
     display: none !important;
 }
 
+.calendar-day-container label.calendar-day-box {
+    position: relative !important;
+}
+
 /* 체크박스 선택 시 테두리 색상 변경 */
-input[type="checkbox"]:checked + .calendar-day-box,
-input[type="checkbox"]:checked + .calendar-day-box.selected-day {
+.calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box,
+.calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box.selected-day {
     border: 2px solid #ff0000 !important;
     background-color: transparent !important;
     font-weight: bold !important;
@@ -190,8 +198,8 @@ input[type="checkbox"]:checked + .calendar-day-box.selected-day {
         background-color: #000000 !important;
         color: #ffffff !important;
     }
-    input[type="checkbox"]:checked + .calendar-day-box,
-    input[type="checkbox"]:checked + .calendar-day-box.selected-day {
+    .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box,
+    .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box.selected-day {
         color: #ffffff !important;
         border: 2px solid #ff0000 !important;
     }
@@ -205,6 +213,8 @@ input[type="checkbox"]:checked + .calendar-day-box.selected-day {
     }
     .header-grid, .calendar-grid {
         width: 600px !important;
+        max-width: 600px !important;
+        min-width: 600px !important;
     }
     .calendar-day-container {
         width: calc(600px / 7) !important;
@@ -230,6 +240,8 @@ input[type="checkbox"]:checked + .calendar-day-box.selected-day {
     }
     .header-grid, .calendar-grid {
         width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 0 !important;
@@ -315,7 +327,7 @@ input[type="checkbox"]:checked + .calendar-day-box.selected-day {
 
 /* 선택 표시 스타일 */
 .selection-mark {
-    position: absolute;
+    position: absolute !important;
     top: 4px !important;
     left: 4px !important;
     width: 8px !important;
