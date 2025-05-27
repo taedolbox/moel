@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 5:56 KST)
-current_datetime = datetime(2025, 5, 27, 17, 56)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 5:59 KST)
+current_datetime = datetime(2025, 5, 27, 17, 59)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -17,7 +17,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌der링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -82,13 +82,14 @@ def render_calendar_interactive(apply_date):
                     # 체크박스 상태에 따라 selected_dates 즉시 업데이트
                     if checked and date_obj not in selected_dates:
                         selected_dates.add(date_obj)
-                        st.experimental_rerun()  # 상태 변화 후 UI 갱신
+                        st.session_state.selected_dates = selected_dates
+                        st.rerun()  # 상태 변화 후 UI 갱신
                     elif not checked and date_obj in selected_dates:
                         selected_dates.discard(date_obj)
-                        st.experimental_rerun()  # 상태 변화 후 UI 갱신
-                    st.session_state.selected_dates = selected_dates
+                        st.session_state.selected_dates = selected_dates
+                        st.rerun()  # 상태 변화 후 UI 갱신
 
-                    # 숫자와 선택 표시 렌더링
+                    # 숫자와 선택 표시 렌der링
                     week_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
