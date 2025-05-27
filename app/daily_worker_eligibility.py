@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 1:28 KST)
-current_datetime = datetime(2025, 5, 27, 13, 28)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 1:44 KST)
+current_datetime = datetime(2025, 5, 27, 13, 44)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -21,8 +21,6 @@ def render_calendar_interactive(apply_date):
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
-    if 'rerun_trigger' not in st.session_state:
-        st.session_state.rerun_trigger = False
 
     selected_dates = st.session_state.selected_dates
     current_date = current_datetime.date()
@@ -41,92 +39,68 @@ def render_calendar_interactive(apply_date):
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더 생성 (7열 고정)
-            cols = st.columns(7, gap="small")
+            st.markdown('<div class="header-grid">', unsafe_allow_html=True)
             for i, day_name in enumerate(days_of_week_korean):
-                with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "#000000"
-                    st.markdown(
-                        f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-                        unsafe_allow_html=True
-                    )
+                color = "red" if i == 0 or i == 6 else "#000000"
+                st.markdown(
+                    f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
+                    unsafe_allow_html=True
+                )
+            st.markdown('</div>', unsafe_allow_html=True)
 
             # 달력 렌더링
             for week in cal:
-                cols = st.columns(7, gap="small")
+                st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
                 for i, day in enumerate(week):
-                    with cols[i]:
-                        if day == 0:
-                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
-                            continue
-                        date_obj = date(year, month, day)
-                        if date_obj > apply_date:
-                            st.markdown(
-                                f'<div class="calendar-day-container">'
-                                f'<div class="calendar-day-box disabled-day">{day}</div>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-                            continue
-
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-
-                        container_key = f"date_{date_obj.isoformat()}"
+                    if day == 0:
+                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                        continue
+                    date_obj = date(year, month, day)
+                    if date_obj > apply_date:
                         st.markdown(
                             f'<div class="calendar-day-container">'
-                            f'<div class="selection-mark"></div>'
-                            f'<div class="{class_name}" id="{container_key}">{day}</div>'
+                            f'<div class="calendar-day-box disabled-day">{day}</div>'
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        # 버튼을 숨기고 JavaScript로 클릭 처리
-                        st.markdown(
-                            f'<button class="hidden-button" key="{container_key}" style="display: none;"></button>',
-                            unsafe_allow_html=True
-                        )
-                        if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=False):
-                            pass
+                        continue
 
-                        # JavaScript로 calendar-day-box 클릭 시 버튼 클릭 트리거
-                        st.markdown(
-                            f"""
-                            <script>
-                            document.getElementById('{container_key}').addEventListener('click', function(e) {{
-                                e.preventDefault();
-                                const button = document.querySelector('button[key="{container_key}"]');
-                                if (button) {{
-                                    button.click();
-                                }}
-                            }});
-                            </script>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                    is_selected = date_obj in selected_dates
+                    is_current = date_obj == current_date
+                    class_name = "calendar-day-box"
+                    if is_selected:
+                        class_name += " selected-day"
+                    if is_current:
+                        class_name += " current-day"
+
+                    container_key = f"date_{date_obj.isoformat()}"
+                    # 체크박스를 사용해 상태 관리
+                    st.markdown(
+                        f'<div class="calendar-day-container">'
+                        f'<div class="selection-mark"></div>'
+                        f'<label for="{container_key}" class="{class_name}">{day}</label>'
+                        f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+
+                    # 체크박스 상태에 따라 세션 상태 업데이트
+                    if container_key in st.session_state:
+                        if st.session_state[container_key]:
+                            selected_dates.add(date_obj)
+                        else:
+                            selected_dates.discard(date_obj)
+                        st.session_state.selected_dates = selected_dates
+                        del st.session_state[container_key]
+                        st.rerun()
 
         st.markdown('</div>', unsafe_allow_html=True)
-
-    if st.session_state.rerun_trigger:
-        st.session_state.rerun_trigger = False
-        st.rerun()
 
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
 
     return st.session_state.selected_dates
-
-def toggle_date(date_obj):
-    """날짜를 토글하고 세션 상태를 업데이트합니다."""
-    if date_obj in st.session_state.selected_dates:
-        st.session_state.selected_dates.remove(date_obj)
-    else:
-        st.session_state.selected_dates.add(date_obj)
-    st.session_state.rerun_trigger = True
 
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
