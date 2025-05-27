@@ -368,3 +368,11 @@ button[data-testid="stButton"]:hover {
 .selected-day .selection-mark {
     display: block !important;
 }
+
+button[data-testid="stButton"]:hover {
+    opacity: 0.1;
+}
+
+button[data-testid="stFormSubmitButton"] {
+    display: none;
+}
