@@ -1,4 +1,5 @@
 # daily_worker_eligibility.py
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
@@ -7,8 +8,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 12:44 KST)
-current_datetime = datetime(2025, 5, 27, 12, 44)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 12:48 KST)
+current_datetime = datetime(2025, 5, 27, 12, 48)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -76,15 +77,40 @@ def render_calendar_interactive(apply_date):
                         class_name += " current-day"
 
                     container_key = f"date_{date_obj.isoformat()}"
+                    # Streamlit 버튼 대신 커스텀 버튼으로 상태 변경 처리
                     st.markdown(
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
-                        f'<button class="{class_name}" key="{container_key}" onClick="window.parent.window.dispatchEvent(new Event(\'button_click_{container_key}\'));">{day}</button>'
+                        f'<button class="{class_name}" onclick="handleDateClick(\'{date_obj.isoformat()}\')">{day}</button>'
                         f'</div>',
                         unsafe_allow_html=True
                     )
-                    if st.button("", key=container_key, on_click=toggle_date, args=(date_obj,), use_container_width=False):
-                        pass
+
+                    # JavaScript를 통해 클릭 이벤트 처리
+                    st.markdown(
+                        f"""
+                        <script>
+                        function handleDateClick(dateStr) {{
+                            const date = new Date(dateStr);
+                            const event = new CustomEvent('date-click', {{ detail: dateStr }});
+                            window.dispatchEvent(event);
+                            fetch('/update-date?date=' + dateStr, {{ method: 'POST' }});
+                        }}
+                        window.addEventListener('date-click', function(e) {{
+                            const dateStr = e.detail;
+                            // Streamlit과 연동을 위해 상태 업데이트
+                            window.parent.postMessage({{ type: 'streamlit:set_component_value', key: '{container_key}', value: dateStr }}, '*');
+                        }});
+                        </script>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    # Streamlit의 상태 업데이트를 위해 세션 상태 변경
+                    if container_key in st.session_state:
+                        toggle_date(date_obj)
+                        del st.session_state[container_key]
+
                 st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
