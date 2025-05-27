@@ -214,3 +214,12 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888;
     cursor: not-allowed;
 }
+/* 체크박스 스타일 */
+.stCheckbox {
+    display: none !important; /* 체크박스를 보이지 않게 설정 */
+}
+
+/* 체크박스 내부 요소 스타일 */
+.stCheckbox > div > div {
+    display: none !important; /* 체크박스 선택 영역을 보이지 않게 설정 */
+}
