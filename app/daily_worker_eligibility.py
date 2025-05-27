@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 8:47 KST)
-current_datetime = datetime(2025, 5, 27, 20, 47)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:52 KST)
+current_datetime = datetime(2025, 5, 27, 20, 52)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -17,7 +17,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌der링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -70,14 +70,13 @@ def render_calendar_interactive(apply_date):
                     if is_disabled:
                         class_name += " disabled-day"
 
-                    # 버튼과 날짜 렌더링
-                    day_html = (
+                    # 버튼과 날짜 렌der링
+                    calendar_html += (
                         f'<div class="calendar-day-container {class_name}">'
-                        f'<div class="calendar-day-content">{day}</div>'
-                        f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
+                        f'<div class="calendar-day-content">'
                     )
                     if not is_disabled:
-                        day_html += f'</div><div style="display:none;">{st.button("", key=container_key, use_container_width=True)}</div>'
+                        calendar_html += f'{st.button(str(day), key=container_key, use_container_width=True)}'
                         if 'last_clicked' in st.session_state and st.session_state.last_clicked == container_key:
                             if date_obj in selected_dates:
                                 selected_dates.discard(date_obj)
@@ -87,14 +86,14 @@ def render_calendar_interactive(apply_date):
                             st.session_state.last_clicked = None
                             st.rerun()
                     else:
-                        day_html += '</div>'
-                    calendar_html += day_html
+                        calendar_html += f'{day}'
+                    calendar_html += (
+                        f'</div>'
+                        f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
+                        f'</div>'
+                    )
             calendar_html += '</div>'
             st.markdown(calendar_html, unsafe_allow_html=True)
-
-            # 버튼 클릭 시 상태 업데이트를 위한 임시 변수
-            if st.button("", key=f"trigger_{year}_{month}", use_container_width=False, disabled=True):
-                pass
 
         st.markdown('</div>', unsafe_allow_html=True)
 
