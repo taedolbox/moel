@@ -17,11 +17,8 @@ div[data-testid="stHorizontalBlock"] {
     padding: 5px 0;
     color: #333;
     display: flex;
-    justify-content: flex-start; /* 모바일에서 왼쪽 이동 */
-}
-
-.day-header.weekend {
-    color: #ff4444; /* 일요일, 토요일 빨간색 */
+    justify-content: center; /* 요일 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
 }
 
 /* 날짜 스타일 */
@@ -39,7 +36,7 @@ div[data-testid="stHorizontalBlock"] {
     transition: background-color 0.2s;
     position: relative;
     display: flex;
-    justify-content: flex-start; /* 숫자 왼쪽 정렬 */
+    justify-content: center; /* 숫자 중앙 정렬 */
     align-items: center; /* 수직 중앙 정렬 */
 }
 
@@ -57,6 +54,9 @@ div[data-testid="stHorizontalBlock"] {
     z-index: 5000 !important;
     pointer-events: auto !important;
     box-sizing: border-box !important;
+    display: flex;
+    justify-content: center; /* 체크박스 중앙 정렬 */
+    align-items: center; /* 수직 중앙 정렬 */
 }
 
 /* 체크박스 내부 요소 숨기기 */
@@ -65,18 +65,19 @@ div[data-testid="stHorizontalBlock"] {
     width: 36px !important;
     height: 36px !important;
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important; /* 정확한 중앙 위치 */
 }
 
-/* 모바일에서도 7열 유지, 크기 증가 및 왼쪽 이동 조정 */
+/* 모바일에서도 7열 유지, 크기 증가 및 정렬 조정 */
 @media (max-width: 767px) {
     div[data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
         justify-content: flex-start !important; /* 왼쪽 이동 */
-        margin-left: 5px; /* 약간 왼쪽으로 이동 */
+        margin-left: 0; /* 왼쪽 이동 제거, 중앙 정렬 보완 */
     }
     .day, .stCheckbox {
         width: 40px !important;
@@ -90,15 +91,16 @@ div[data-testid="stHorizontalBlock"] {
     }
     .day-header {
         padding: 5px 2px; /* 모바일 간격 조정 */
-        justify-content: flex-start; /* 왼쪽 정렬 */
+        justify-content: center; /* 요일 중앙 정렬 */
     }
 }
 
-/* 데스크탑에서 달력 크기 본문에 맞춤 */
+/* 데스크탑에서 달력 왼쪽 정렬 */
 @media (min-width: 768px) {
     div[data-testid="stHorizontalBlock"] {
-        max-width: 600px !important; /* 본문 최대 폭 설정 (조정 가능) */
-        margin: 0 auto !important; /* 중앙 정렬 후 본문에 맞춤 */
+        max-width: 100% !important; /* 본문 폭에 맞춤 */
+        margin: 0 0 0 0 !important; /* 왼쪽 정렬 */
+        justify-content: flex-start !important; /* 왼쪽 정렬 */
     }
 }
 
