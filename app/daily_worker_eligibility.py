@@ -17,7 +17,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar_interactive(apply_date):
-    """달력을 렌der링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. CSS는 styles.css에서 로드됩니다."""
     # 초기 세션 상태 설정
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
@@ -48,21 +48,19 @@ def render_calendar_interactive(apply_date):
 
             # 달력 렌더링
             for week in cal:
-                week_html = '<div class="calendar-grid">'
+                week_html_parts = []
                 for i, day in enumerate(week):
                     if day == 0:
-                        week_html += '<div class="calendar-day-container"></div>'
+                        week_html_parts.append('<div class="calendar-day-container"></div>')
                         continue
                     date_obj = date(year, month, day)
                     container_key = f"date_{date_obj.isoformat()}"
 
-                    # 체크박스 상태 설정
                     is_selected = date_obj in selected_dates
                     is_current = date_obj == current_date
-                    is_disabled = date_obj > apply_date
+                    is_disabled = date_obj > apply_date # 신청일 이후는 비활성화
 
-                    # 클래스 이름 설정
-                    class_name = "calendar-day"
+                    class_name = "calendar-day-content"
                     if is_selected:
                         class_name += " selected-day"
                     if is_current:
@@ -70,37 +68,89 @@ def render_calendar_interactive(apply_date):
                     if is_disabled:
                         class_name += " disabled-day"
 
-                    # 체크박스와 숫자 통합 렌더링
-                    week_html += (
-                        f'<div class="calendar-day-container {class_name}">'
-                        f'<div class="calendar-day-content">'
-                        f'<span>{day}</span>'
-                        f'</div>'
-                        f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
-                        f'</div>'
-                    )
+                    # Streamlit button for click handling
+                    # We use columns to simulate the grid and place a button inside
+                    # This allows Streamlit to manage clicks and state updates
+                    col1, = st.columns(1) # Create a single column for the button
+                    with col1:
+                        # Use a unique key for each button
+                        button_clicked = st.button(
+                            label=f'<div class="{class_name}"><span>{day}</span></div>',
+                            key=container_key,
+                            help=f"{date_obj.strftime('%Y-%m-%d')} 선택",
+                            on_click=None, # on_click handler will be defined after the button is rendered
+                            use_container_width=True
+                        )
+                        st.markdown(
+                            f"""
+                            <style>
+                                div[data-testid="stColumn"] > button[key="{container_key}"] {{
+                                    padding: 0;
+                                    border: none;
+                                    background: none;
+                                    height: 44px; /* Ensure consistent height for day containers */
+                                    width: 100%; /* Ensure consistent width for day containers */
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                }}
+                                div[data-testid="stColumn"] > button[key="{container_key}"] div {{
+                                    width: 100%;
+                                    height: 100%;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                }}
+                            </style>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
-                    # 체크박스 상태 관리
-                    checked = st.checkbox(
-                        str(day),
-                        key=container_key,
-                        value=is_selected,
-                        disabled=is_disabled,
-                        label_visibility="hidden"  # 숫자를 별도로 표시하므로 라벨 숨김
-                    )
+                        # Handle button click logic
+                        if button_clicked and not is_disabled:
+                            if date_obj in st.session_state.selected_dates:
+                                st.session_state.selected_dates.discard(date_obj)
+                            else:
+                                st.session_state.selected_dates.add(date_obj)
+                            st.rerun() # Rerun to update the UI immediately
 
-                    # 체크박스 상태에 따라 selected_dates 업데이트
-                    if checked and date_obj not in selected_dates and not is_disabled:
-                        selected_dates.add(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
-                    elif not checked and date_obj in selected_dates:
-                        selected_dates.discard(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 즉시 UI 갱신
+                # For the calendar grid to work with buttons, we need to restructure.
+                # Instead of building a single HTML week_html, we'll place buttons directly.
+                # The CSS will then arrange these buttons in a grid.
+                # For this, we'll use Streamlit's columns to arrange the buttons for each week.
+                cols = st.columns(7)
+                for i, day_val in enumerate(week):
+                    with cols[i]:
+                        if day_val == 0:
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                            continue
 
-                week_html += '</div>'
-                st.markdown(week_html, unsafe_allow_html=True)
+                        date_obj = date(year, month, day_val)
+                        container_key = f"date_{date_obj.isoformat()}_{year}_{month}" # More robust key
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        is_disabled = date_obj > apply_date
+
+                        class_name = "calendar-day-content"
+                        if is_selected:
+                            class_name += " selected-day"
+                        if is_current:
+                            class_name += " current-day"
+                        if is_disabled:
+                            class_name += " disabled-day"
+
+                        # Create the HTML for the button's content
+                        button_content_html = f'<div class="{class_name}"><span>{day_val}</span></div>'
+
+                        if st.button(button_content_html, key=container_key, unsafe_allow_html=True, disabled=is_disabled):
+                            if not is_disabled:
+                                if date_obj in selected_dates:
+                                    selected_dates.discard(date_obj)
+                                else:
+                                    selected_dates.add(date_obj)
+                                st.session_state.selected_dates = selected_dates # Update session state
+                                st.rerun() # Rerun to reflect changes
+
 
         st.markdown('</div>', unsafe_allow_html=True)
 
