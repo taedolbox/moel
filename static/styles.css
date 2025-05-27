@@ -85,19 +85,15 @@ button[kind="primary"] {
     }
 }
 
-/* 버튼 스타일 조정 (투명하게 만들기) */
-button {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+/* 체크박스 스타일 조정 (숨기고 날짜와 겹치게) */
+.stCheckbox {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    opacity: 0 !important;
     cursor: pointer !important;
-    font-size: 0.9em !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
 }
 
 /* 달력 컨테이너 스타일 */
