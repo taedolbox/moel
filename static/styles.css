@@ -149,7 +149,7 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
     border: 1px solid #cccccc !important;
     background-color: #ffffff !important;
     color: #000000 !important;
-    border-radius: 50% !important;
+    border-radius: 50% !important; /* 원형 */
     font-size: 0.9em !important;
     display: flex !important;
     align-items: center !important;
@@ -284,40 +284,36 @@ div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"]
     }
 }
 
-/* 오늘 날짜 스타일 (data-current="true" 속성을 가진 버튼) */
-button[data-testid="base-button-secondary"][data-current="true"] > div {
-    border: 2px solid #0000ff !important; /* Blue border for current day */
+/* 1. 선택된 날짜 (selected)는 빨간색 테두리를 만든다. */
+div[data-testid^="stColumn"] > div > button[key*="_selected"] > div {
+    border: 2px solid red !important; /* 빨간색 테두리 */
 }
 
-/* 선택된 날짜 스타일 (data-selected="true" 속성을 가진 버튼) */
-button[data-testid="base-button-secondary"][data-selected="true"] > div {
-    border: 2px solid #0000ff !important; /* Blue border for selected day */
-    background-color: transparent !important; /* Maintain original background or transparent */
-    color: #000000 !important;
-    font-weight: bold !important;
+/* 2. 원 안에 숫자가 있을 것 (기본 스타일이 원형과 숫자 포함) */
+/* 이미 `div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"] > div` 에서
+   `border-radius: 50% !important;`로 원형을 만들고,
+   `label=str(day_val)`로 숫자가 표시되도록 설정되어 있습니다.
+   추가적인 CSS는 필요하지 않습니다.
+*/
+
+/* 오늘 날짜 스타일 (선택되지 않았을 때만 파란색 테두리) */
+div[data-testid^="stColumn"] > div > button[key*="_current"]:not([key*="_selected"]) > div {
+    border: 2px solid #0000ff !important; /* 파란색 테두리 */
 }
 
-/* 다크 모드에서 선택된 날짜 */
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
-    button[data-testid="base-button-secondary"][data-selected="true"] > div {
-        color: #ffffff !important;
-        border: 2px solid #0000ff !important; /* Blue border for selected day in dark mode */
-    }
-}
 
-/* 비활성화된 날짜 스타일 (disabled 속성을 가진 버튼) */
-button[data-testid="base-button-secondary"][disabled] > div {
-    border: 1px solid #aaaaaa !important; /* Lighter border for disabled */
-    background-color: #e0e0e0 !important; /* Lighter background for disabled */
-    color: #999999 !important; /* Faded text for disabled */
+/* 비활성화된 날짜 스타일 */
+div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
+    border: 1px solid #aaaaaa !important;
+    background-color: #e0e0e0 !important;
+    color: #999999 !important;
     cursor: not-allowed !important;
-    border-radius: 50% !important; /* 원형 유지 */
 }
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    button[data-testid="base-button-secondary"][disabled] > div {
-        background-color: #3a3a3a !important; /* Darker background for disabled in dark mode */
+    div[data-testid^="stColumn"] > div > button[data-testid="base-button-secondary"][disabled] > div {
+        background-color: #3a3a3a !important;
         border: 1px solid #555 !important;
         color: #666 !important;
     }
