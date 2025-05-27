@@ -94,6 +94,10 @@ button {
     width: 100% !important;
     height: 100% !important;
     cursor: pointer !important;
+    font-size: 0.9em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* 달력 컨테이너 스타일 */
@@ -104,6 +108,7 @@ button {
     width: 100% !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
+    padding: 0 !important;
 }
 
 /* 달력 제목 스타일 */
@@ -112,7 +117,7 @@ button {
     color: #000000 !important;
     text-align: center !important;
     padding: 8px 0 !important;
-    margin-bottom: 15px !important;
+    margin: 0 0 5px 0 !important; /* 간격 최소화 */
     font-size: 1.5em !important;
     width: 100% !important;
 }
@@ -124,6 +129,8 @@ button {
     width: 100% !important;
     gap: 0 !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* 달력 날짜 그리드 */
@@ -133,6 +140,8 @@ button {
     width: 100% !important;
     gap: 0 !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* 요일 헤더 스타일 */
@@ -145,6 +154,8 @@ button {
     font-weight: bold !important;
     text-align: center !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* 달력 날짜 컨테이너 */
@@ -156,6 +167,8 @@ button {
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* 달력 숫자 스타일 */
@@ -323,7 +336,7 @@ button {
     left: 4px !important;
     width: 8px !important;
     height: 8px !important;
-    border-radius: 50 !important;
+    border-radius: 50% !important;
     background-color: #ff0000 !important; /* 빨간색 동그라미 */
     border: 1px solid #ffffff !important;
     z-index: 0 !important;
