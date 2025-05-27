@@ -168,28 +168,12 @@ button[kind="primary"] {
     cursor: pointer !important;
 }
 
-/* 체크박스 스타일 */
-.calendar-checkbox {
+/* st.checkbox 스타일 조정 */
+div[data-testid="stCheckbox"] {
     position: absolute !important;
-    top: 50% !important;
     left: 5px !important;
+    top: 50% !important;
     transform: translateY(-50%) !important;
-    opacity: 0 !important; /* 시각적으로 숨기되 클릭 가능 */
-    cursor: pointer !important;
-}
-
-/* 체크박스와 라벨 순서 변경을 위한 스타일 */
-.calendar-day-container label.calendar-day-box {
-    position: relative !important;
-    z-index: 2 !important;
-}
-
-/* 체크박스 선택 시 테두리 색상 변경 */
-.calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box,
-.calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box.selected-day {
-    border: 2px solid #ff0000 !important;
-    background-color: transparent !important;
-    font-weight: bold !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -205,11 +189,6 @@ button[kind="primary"] {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
         color: #ffffff !important;
-    }
-    .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box,
-    .calendar-day-container input[type="checkbox"]:checked + label.calendar-day-box.selected-day {
-        color: #ffffff !important;
-        border: 2px solid #ff0000 !important;
     }
 }
 
@@ -256,6 +235,7 @@ button[kind="primary"] {
     }
     .calendar-day-container {
         width: calc(280px / 7) !important;
+.pipeline
         height: calc(280px / 7) !important;
         background-color: #f0f0f0 !important;
     }
@@ -300,7 +280,7 @@ button[kind="primary"] {
     border: 2px solid #0000ff !important;
 }
 
-/* 선택된 날짜 스타일 */
+/* 선택된 날짜 스타일 (st.checkbox 체크 여부에 따라 동적으로 적용) */
 .calendar-day-box.selected-day {
     background-color: transparent !important;
     color: #000000 !important;
