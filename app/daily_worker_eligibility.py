@@ -7,8 +7,12 @@ import calendar
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # 현재 날짜와 시간
-current_datetime = datetime(2025, 5, 27, 22, 41)
+current_datetime = datetime(2025, 5, 27, 22, 45)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
+
+# 스타일시트 로드 (한 번만 로드하면 됨, main.py에서도 가능)
+with open("static/styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def render_calendar(apply_date):
     if 'selected_dates' not in st.session_state:
@@ -24,16 +28,15 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # 요일 헤더 스타일
+        # 요일 헤더
         with st.container():
             cols = st.columns(7, gap="small")
             for i, day in enumerate(days_of_week):
                 with cols[i]:
-                    color = "red" if i == 0 or i == 6 else "black"
-                    st.markdown(
-                        f'<div style="text-align: center; color: {color}; font-weight: bold; margin: 0; padding: 5px 0;">{day}</div>',
-                        unsafe_allow_html=True
-                    )
+                    class_name = "day-header"
+                    if i == 0 or i == 6:
+                        class_name += " weekend"
+                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
         # 날짜 렌더링
         for week in cal:
@@ -49,34 +52,23 @@ def render_calendar(apply_date):
                         is_current = date_obj == current_date
                         is_disabled = date_obj > apply_date
 
-                        # 스타일 조정
-                        style = (
-                            "text-align: center; width: 36px; height: 36px; line-height: 36px; "
-                            "border: 1px solid #ccc; border-radius: 50%; margin: 2px auto; "
-                            "background-color: #fff; color: #333; cursor: pointer;"
-                            "transition: background-color 0.2s;"
-                        )
+                        class_name = "day"
                         if is_selected:
-                            style += " border: 2px solid #ff4444; font-weight: bold;"
+                            class_name += " selected"
                         if is_current:
-                            style += " border: 2px solid #4444ff;"
+                            class_name += " current"
                         if is_disabled:
-                            style += " background-color: #e0e0e0; color: #888; cursor: not-allowed;"
-
-                        # 호버 스타일 추가
-                        hover_style = " onmouseover=\"this.style.backgroundColor='#f0f0f0'\" onmouseout=\"this.style.backgroundColor='#fff'\""
-                        if is_disabled:
-                            hover_style = ""
+                            class_name += " disabled"
 
                         if is_disabled:
-                            st.markdown(f'<div style="{style}"{hover_style}>{day}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
                         else:
                             if st.checkbox("", key=f"date_{date_obj}", value=is_selected, label_visibility="hidden"):
                                 selected_dates.add(date_obj)
                             else:
                                 selected_dates.discard(date_obj)
                             st.session_state.selected_dates = selected_dates
-                            st.markdown(f'<div style="{style}"{hover_style}>{day}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
