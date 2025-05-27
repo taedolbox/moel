@@ -165,7 +165,7 @@ button[kind="primary"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
-    cursor: default !important; /* 클릭 가능 여부 명확화 */
+    cursor: pointer !important; /* 클릭 가능 여부 명확화 */
 }
 
 /* 체크박스 스타일 조정 */
