@@ -21,7 +21,6 @@ def render_calendar_interactive(apply_date):
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
-    # The actual set of selected dates is stored in st.session_state
     selected_dates = st.session_state.selected_dates
     current_date = current_datetime.date()
 
@@ -48,156 +47,12 @@ def render_calendar_interactive(apply_date):
 
             # 달력 렌더링
             for week in cal:
-                week_html_parts = [] # Use a list to build parts of the week HTML
-                for i, day in enumerate(week):
-                    if day == 0:
-                        week_html_parts.append('<div class="calendar-day-container"></div>')
-                        continue
-
-                    date_obj = date(year, month, day)
-                    is_selected = date_obj in selected_dates
-                    is_current = date_obj == current_date
-                    is_disabled = date_obj > apply_date # Disable days after apply_date
-
-                    # Create a unique key for each checkbox
-                    checkbox_key = f"date_checkbox_{date_obj.isoformat()}"
-
-                    # Use st.empty to create a placeholder for the checkbox
-                    # We will then draw our custom HTML on top of it.
-                    # This ensures the Streamlit checkbox exists in the DOM to manage state,
-                    # but we'll control its appearance and interaction via CSS and JS.
-                    col = st.columns(1)[0] # Create a column to hold the checkbox
-                    with col:
-                        # Streamlit checkbox will be rendered but hidden by CSS
-                        # Its value will reflect st.session_state.selected_dates
-                        checked = st.checkbox(
-                            "", # Empty label to hide the text
-                            key=checkbox_key,
-                            value=is_selected,
-                            disabled=is_disabled,
-                            # When the checkbox changes, we want to update our selected_dates set
-                            on_change=lambda d=date_obj, k=checkbox_key: (
-                                st.session_state.selected_dates.add(d) if st.session_state[k] else st.session_state.selected_dates.discard(d)
-                            ),
-                            label_visibility="hidden" # Ensures Streamlit doesn't render a visible label
-                        )
-                        # After the checkbox is rendered, we add our custom HTML around it.
-                        # The JS `onclick` will simulate a click on the *hidden* Streamlit checkbox.
-                        class_name = "calendar-day-box"
-                        if is_selected:
-                            class_name += " selected-day"
-                        if is_current:
-                            class_name += " current-day"
-                        if is_disabled:
-                            class_name += " disabled-day"
-
-                        # We put the HTML for the calendar day box *inside* the column
-                        # but logically, it overlays or replaces the visual aspect of the checkbox
-                        # The crucial part is the onclick event targeting the *Streamlit checkbox's parent div*
-                        # which is what Streamlit wraps its components in.
-                        # We need to find the specific element corresponding to the Streamlit checkbox.
-                        # Streamlit assigns data-testid="stCheckbox" to its main checkbox container.
-                        # The key we provided is also part of the DOM structure.
-                        # We need to find the div that contains `key={checkbox_key}`.
-
-                        # The cleanest way to trigger the Streamlit checkbox from custom HTML
-                        # is to use a direct click on its underlying input or the label associated with it.
-                        # Since we hid the label, we'll try to find the actual input or a reliably clickable parent.
-                        # Streamlit typically uses data-testid for components. The input itself is inside a label.
-                        # A more robust way: Use JavaScript to find the checkbox by its key.
-                        # The checkbox element's parent `div[data-testid="stCheckbox"]` is what we want to click.
-                        # Its `key` attribute will be present as a data-something attribute, usually `data-st-component-id`.
-                        # However, targeting the element with `data-testid="stCheckbox"` is more reliable,
-                        # and then finding the specific one by its internal `key`.
-
-                        # Let's adjust the click to target the *hidden checkbox container* directly.
-                        # Each Streamlit component receives a unique ID, often embedded in the key.
-                        # We need to target the element that Streamlit uses to render the checkbox.
-                        # Streamlit's checkbox HTML structure makes the main clickable area the div with data-testid="stCheckbox".
-                        # We'll use the 'key' property that Streamlit assigns to the checkbox.
-                        # Streamlit internally converts `key` to a `data-testid` or other attributes.
-                        # The `data-testid` is "stCheckbox", and the key is an *attribute* on one of its internal divs.
-                        # It's safest to find the specific Streamlit checkbox element by its unique key.
-
-                        # To trigger the hidden Streamlit checkbox when our custom div is clicked,
-                        # we need to find the Streamlit-generated checkbox input element.
-                        # Streamlit's `st.checkbox(key=...)` creates an input with a specific `id` that often includes the key.
-                        # Or, we can target the `div[data-testid="stCheckbox"]` which contains it.
-                        # A more reliable way: Streamlit assigns a specific ID to the actual input checkbox.
-                        # This ID looks something like `checkbox-unique_id_based_on_key`.
-                        # Let's target the parent `div[data-testid="stCheckbox"]` and then its internal input.
-                        # A simple way to trigger: find the parent div of the checkbox by its key, then click it.
-                        # Streamlit assigns `data-testid` to the top-level div for its components.
-                        # The specific checkbox will have a `key` attached internally.
-                        # Let's assume Streamlit applies the `key` to the `div[data-testid="stCheckbox"]` or an inner element reliably.
-                        # The `st.checkbox` will be rendered as:
-                        # <div data-testid="stCheckbox" ...>
-                        #   <label ... for="checkbox-some_id">
-                        #     <input type="checkbox" id="checkbox-some_id" ...>
-                        #   </label>
-                        # </div>
-                        # We want to click the `label` or the `input`. The `label` is the easiest target for a user click.
-
-                        # The JavaScript `onclick` needs to find the correct, hidden Streamlit element.
-                        # Streamlit components have a data-testid attribute on their main container div.
-                        # Let's target the specific `div[data-testid="stCheckbox"]` that corresponds to our `checkbox_key`.
-                        # The `key` is often reflected in the `id` of the actual checkbox input, or in a `data-st-component-id` attribute.
-                        # The easiest way is to find the Streamlit-generated `label` element by its `for` attribute (which is the checkbox ID).
-                        # Or, even simpler: just hide the Streamlit-generated checkbox's *input* and *label text*,
-                        # but keep its container `div[data-testid="stCheckbox"]` as the clickable area.
-
-                        # The CSS now hides the Streamlit checkbox input and label text.
-                        # The outer `div[data-testid="stCheckbox"]` is `opacity: 0` and `z-index: 2`,
-                        # making it an invisible click target on top of our custom `calendar-day-box`.
-                        # So, simply ensuring the Streamlit checkbox is rendered is enough.
-                        # We don't need a custom `onclick` on `calendar-day-box` if the transparent checkbox is on top.
-
-                        # To place the `calendar-day-box` within the same Streamlit column,
-                        # we need to ensure their rendering order and positioning.
-                        # The `st.checkbox` already creates a container. We just need to make its visual part invisible
-                        # and let our custom HTML provide the visual and the perceived click area.
-
-                        # Instead of embedding a complex JS click, we rely on the CSS that positions the hidden `stCheckbox` over our custom `calendar-day-box`.
-                        # The `calendar-day-box` itself becomes the visual representation.
-                        # The `st.checkbox` is transparent and receives the actual clicks.
-
-                        # The HTML for the `calendar-day-box` is appended to the `week_html_parts` list.
-                        # The `calendar-day-container` is what the `st.checkbox` is in.
-                        # So, we need to restructure a bit. Each day is a column.
-                        # Inside that column, we place the hidden `st.checkbox`.
-                        # And then we overlay our custom HTML on top of where the checkbox *would* be.
-
-                        # Let's adjust the structure to put the hidden checkbox and the custom HTML in the same "slot"
-                        # to allow the CSS to correctly overlay the transparent checkbox on our custom HTML.
-
-                        # The `st.checkbox` has its own div with `data-testid="stCheckbox"`.
-                        # We will set its opacity to 0 and give it a higher z-index in CSS.
-                        # Then, we'll render our `calendar-day-box` and put it *below* this transparent checkbox
-                        # in the HTML structure, but visually, the checkbox will be "on top" due to z-index.
-                        # This makes the user click the transparent checkbox directly.
-
-                        week_html_parts.append(
-                            f'<div class="calendar-day-container">'
-                            f'  <div class="{class_name}">' # This is our visual element
-                            f'    <div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
-                            f'    {day}' # The day number
-                            f'  </div>'
-                            f'</div>'
-                        )
-                # After the loop for each week, we use st.markdown to render the combined HTML for the row.
-                st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
-                # For each day in the week, we need to render the hidden checkbox and then the custom HTML.
-                # Since Streamlit components (like st.checkbox) generate their own divs, we need to be careful with grid layout.
-                # The best way is to let Streamlit manage the grid of `st.checkbox` components, and then override their styling.
-
-                # Simplified approach: Render the grid using Streamlit's columns, and place the checkbox inside.
-                # Then, use CSS to style the checkbox and its label to look like our calendar day.
                 cols = st.columns(7) # Create 7 columns for each week
                 for j, day in enumerate(week):
                     with cols[j]:
                         if day == 0:
-                            # Render an empty placeholder for days not in the month
-                            st.markdown('<div style="height: 44px;"></div>', unsafe_allow_html=True)
+                            # Empty slot for days not in the month
+                            st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
                             continue
 
                         date_obj = date(year, month, day)
@@ -214,65 +69,81 @@ def render_calendar_interactive(apply_date):
                                 st.session_state.selected_dates.add(d_obj)
                             else:
                                 st.session_state.selected_dates.discard(d_obj)
-                            # st.rerun() # Rerunning here might cause flicker, let's see if Streamlit handles it naturally
+                            # Streamlit will automatically rerun and re-render the components with updated state.
 
-                        # The actual Streamlit checkbox. We control its appearance with CSS.
+                        # The actual Streamlit checkbox.
+                        # The `label` will be the day number.
+                        # Its appearance will be completely controlled by CSS.
                         st.checkbox(
                             label=str(day), # The visible number for the checkbox label
                             key=checkbox_key,
                             value=is_selected,
                             disabled=is_disabled,
                             on_change=update_selection,
-                            # We keep label_visibility="visible" because we rely on it for the number.
-                            # The CSS will make the actual checkbox input and its container invisible.
-                            # The 'label' text (the day number) will be styled by our calendar-day-box.
-                            # We need to adjust CSS to target the Streamlit label correctly.
-                            label_visibility="visible" # Important: keep visible so Streamlit renders the number.
+                            label_visibility="visible" # Keep visible so Streamlit renders the number inside the label
                         )
 
-                        # After the checkbox is rendered, we inject CSS classes using JS to manipulate it.
-                        # This is more robust than trying to manually overlay HTML in Python.
-                        # We will use Streamlit's `st.markdown` with `_js_` to execute JavaScript
-                        # to dynamically add classes to the Streamlit-generated checkbox elements.
-                        js_code = f"""
+                        # Inject custom data attributes into the label for CSS targeting
+                        # Streamlit assigns `data-testid="stCheckbox"` to the outer div.
+                        # The actual label (which contains the number) is inside.
+                        # We need to find the `label` element associated with our checkbox and add attributes to it.
+                        # Using a unique ID for the label or using its association with the checkbox input's ID.
+                        # A more robust way to target the label: Streamlit usually generates an ID for the input, and the label's `for` attribute points to it.
+                        # We can inject a script to find the label element and add custom attributes.
+
+                        # The Streamlit-generated label itself will be styled by our CSS.
+                        # To pass custom state (selected, current, disabled) to CSS, we'll use data attributes.
+                        # Since `st.checkbox` directly renders the label, we can't directly add data attributes in Python.
+                        # We have to rely on CSS selecting based on the checkbox's checked state and then styling its label,
+                        # OR use JS injection to add data attributes after rendering.
+                        # Given Streamlit's rendering cycle, the latter is often more stable for fine-grained control.
+
+                        # Let's add JavaScript to add custom data attributes to the label of the checkbox
+                        # so that our CSS can pick up the `selected-day`, `current-day`, `disabled-day` states.
+                        js_for_styling = f"""
                             <script>
+                                // Find the specific checkbox container by its data-testid and key
                                 const checkboxContainer = document.querySelector('div[data-testid="stCheckbox"][key="{checkbox_key}"]');
                                 if (checkboxContainer) {{
-                                    // Add the base class for styling
-                                    checkboxContainer.classList.add('calendar-day-container');
-                                    // Target the actual label (which contains the input and the number)
                                     const labelElement = checkboxContainer.querySelector('label');
                                     if (labelElement) {{
-                                        labelElement.classList.add('calendar-day-box');
-                                        // Add selected/current/disabled classes based on state
-                                        if ({is_selected}) {{
-                                            labelElement.classList.add('selected-day');
-                                        }} else {{
-                                            labelElement.classList.remove('selected-day');
-                                        }}
-                                        if ({is_current}) {{
-                                            labelElement.classList.add('current-day');
-                                        }} else {{
-                                            labelElement.classList.remove('current-day');
-                                        }}
-                                        if ({is_disabled}) {{
-                                            labelElement.classList.add('disabled-day');
-                                        }} else {{
-                                            labelElement.classList.remove('disabled-day');
-                                        }}
+                                        // Set data attributes for CSS targeting
+                                        labelElement.setAttribute('data-selected-day', {str(is_selected).lower()});
+                                        labelElement.setAttribute('data-current-day', {str(is_current).lower()});
+                                        labelElement.setAttribute('data-disabled-day', {str(is_disabled).lower()});
 
-                                        // Ensure the input itself is hidden
+                                        // Ensure the input element is completely hidden within the label
                                         const inputElement = labelElement.querySelector('input[type="checkbox"]');
                                         if (inputElement) {{
                                             inputElement.style.display = 'none';
+                                        }}
+
+                                        // Manually add the selection mark if it's selected
+                                        if ({is_selected}) {{
+                                            let selectionMark = labelElement.querySelector('.selection-mark');
+                                            if (!selectionMark) {{
+                                                selectionMark = document.createElement('div');
+                                                selectionMark.className = 'selection-mark';
+                                                labelElement.prepend(selectionMark); // Add at the beginning
+                                            }}
+                                            selectionMark.style.display = 'block';
+                                        }} else {{
+                                            let selectionMark = labelElement.querySelector('.selection-mark');
+                                            if (selectionMark) {{
+                                                selectionMark.style.display = 'none';
+                                            }}
                                         }}
                                     }}
                                 }}
                             </script>
                         """
-                        st.markdown(js_code, unsafe_allow_html=True)
+                        st.markdown(js_for_styling, unsafe_allow_html=True)
+                        # We don't need a separate `calendar-day-box` div because the checkbox label itself is styled to be the box.
 
-                st.markdown('</div>', unsafe_allow_html=True) # Close the calendar-grid div
+                # No need for st.markdown('<div class="calendar-grid">') wrapping weeks, as st.columns handles the grid.
+                # The .calendar-grid CSS class is now applied to the parent of the columns if needed for sizing.
+                # However, for 7 columns, Streamlit's default behavior with `st.columns(7)` handles the grid.
+                # We'll remove the explicit `<div class="calendar-grid">` from the Python side to avoid nesting issues.
 
         st.markdown('</div>', unsafe_allow_html=True) # Close calendar-wrapper
 
