@@ -147,8 +147,18 @@ button[kind="primary"] {
     box-sizing: border-box !important;
 }
 
-/* 달력 날짜 원 */
-.calendar-day-box {
+/* 체크박스 스타일 조정 */
+div[data-testid="stCheckbox"] {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 체크박스 라벨 스타일 (달력 숫자 스타일링) */
+.calendar-checkbox-label {
     width: 34px !important;
     height: 34px !important;
     display: flex !important;
@@ -164,25 +174,7 @@ button[kind="primary"] {
     white-space: nowrap !important;
     margin: 0 !important;
     padding: 0 !important;
-    z-index: 1 !important;
-    cursor: pointer !important; /* 클릭 가능 여부 명확화 */
-}
-
-/* 체크박스 스타일 조정 */
-div[data-testid="stCheckbox"] {
-    position: absolute !important;
-    left: 5px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* 체크박스 라벨 스타일 */
-div[data-testid="stCheckbox"] label {
-    margin-left: 5px !important;
-    font-size: 0.9em !important;
-    color: #000000 !important;
+    cursor: pointer !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -194,12 +186,9 @@ div[data-testid="stCheckbox"] label {
     .calendar-day-container {
         background-color: #2a2a2a !important;
     }
-    .calendar-day-box {
+    .calendar-checkbox-label {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
-        color: #ffffff !important;
-    }
-    div[data-testid="stCheckbox"] label {
         color: #ffffff !important;
     }
 }
@@ -219,16 +208,13 @@ div[data-testid="stCheckbox"] label {
         width: calc(600px / 7) !important;
         height: 48px !important;
     }
-    .calendar-day-box {
+    .calendar-checkbox-label {
         width: 38px !important;
         height: 38px !important;
         font-size: 1em !important;
     }
     .day-header {
         width: calc(600px / 7) !important;
-    }
-    div[data-testid="stCheckbox"] label {
-        font-size: 1em !important;
     }
 }
 
@@ -253,7 +239,7 @@ div[data-testid="stCheckbox"] label {
         height: calc(280px / 7) !important;
         background-color: #f0f0f0 !important;
     }
-    .calendar-day-box {
+    .calendar-checkbox-label {
         width: 34px !important;
         height: 34px !important;
         font-size: 0.9em !important;
@@ -268,7 +254,7 @@ div[data-testid="stCheckbox"] label {
     .calendar-day-container {
         background-color: #2a2a2a !important;
     }
-    .calendar-day-box {
+    .calendar-checkbox-label {
         border: 1px solid #888 !important;
         background-color: #000000 !important;
         color: #ffffff !important;
@@ -276,26 +262,26 @@ div[data-testid="stCheckbox"] label {
 }
 
 /* 날짜 박스 호버 효과 */
-.calendar-day-box:hover {
+.calendar-checkbox-label:hover {
     background-color: #e0e0e0 !important;
     border-color: #555 !important;
 }
 
 /* 다크 모드에서 날짜 박스 호버 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-box:hover {
+    .calendar-checkbox-label:hover {
         background-color: #333333 !important;
         border-color: #aaaaaa !important;
     }
 }
 
 /* 오늘 날짜 스타일 */
-.calendar-day-box.current-day:not(.selected-day) {
+.calendar-checkbox-label.current-day:not(.selected-day) {
     border: 2px solid #0000ff !important;
 }
 
 /* 선택된 날짜 스타일 (st.checkbox 체크 시 동기화) */
-.calendar-day-box.selected-day {
+.calendar-checkbox-label.selected-day {
     background-color: transparent !important;
     color: #000000 !important;
     border: 2px solid #ff0000 !important;
@@ -304,14 +290,14 @@ div[data-testid="stCheckbox"] label {
 
 /* 다크 모드에서 선택된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-box.selected-day {
+    .calendar-checkbox-label.selected-day {
         color: #ffffff !important;
         border: 2px solid #ff0000 !important;
     }
 }
 
 /* 비활성화된 날짜 스타일 */
-.calendar-day-box.disabled-day {
+div[data-testid="stCheckbox"].disabled-day label {
     border: 1px solid #555 !important;
     background-color: #cccccc !important;
     color: #666 !important;
@@ -320,7 +306,7 @@ div[data-testid="stCheckbox"] label {
 
 /* 다크 모드에서 비활성화된 날짜 */
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .calendar-day-box.disabled-day {
+    div[data-testid="stCheckbox"].disabled-day label {
         background-color: #333333 !important;
         border: 1px solid #444 !important;
         color: #666 !important;
@@ -348,6 +334,6 @@ div[data-testid="stCheckbox"] label {
 }
 
 /* 호버 시 원 제거 (의도치 않은 원 표시 방지) */
-.calendar-day-box:hover .selection-mark {
+.calendar-checkbox-label:hover .selection-mark {
     display: none !important; /* 호버 시 동그라미 제거 */
 }
