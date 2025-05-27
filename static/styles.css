@@ -85,17 +85,6 @@ button[kind="primary"] {
     }
 }
 
-/* 버튼 스타일 조정 (투명하게 만들기) */
-button {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    cursor: pointer !important;
-}
-
 /* 달력 컨테이너 스타일 */
 .calendar-wrapper {
     display: flex !important;
