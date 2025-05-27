@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 5:59 KST)
-current_datetime = datetime(2025, 5, 27, 17, 59)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 6:02 KST)
+current_datetime = datetime(2025, 5, 27, 18, 2)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -79,17 +79,14 @@ def render_calendar_interactive(apply_date):
                         label_visibility="visible"  # 라벨을 숫자로 표시
                     )
 
-                    # 체크박스 상태에 따라 selected_dates 즉시 업데이트
+                    # 체크박스 상태에 따라 selected_dates 업데이트
                     if checked and date_obj not in selected_dates:
                         selected_dates.add(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 상태 변화 후 UI 갱신
                     elif not checked and date_obj in selected_dates:
                         selected_dates.discard(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        st.rerun()  # 상태 변화 후 UI 갱신
+                    st.session_state.selected_dates = selected_dates
 
-                    # 숫자와 선택 표시 렌der링
+                    # 숫자와 선택 표시 렌더링
                     week_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
