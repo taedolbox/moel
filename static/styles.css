@@ -11,10 +11,16 @@ div[data-testid="stHorizontalBlock"] {
 /* stMarkdownContainer 스타일 */
 div[data-testid="stMarkdownContainer"] {
     display: flex !important;
-    justify-content: center !important; /* 수평 중앙 정렬 */
+    justify-content: center !important; /* 요일과 날짜는 중앙 정렬 */
     align-items: center !important; /* 수직 중앙 정렬 */
     width: 100% !important;
     height: 100% !important;
+    text-align: left !important; /* 본문 텍스트는 왼쪽 정렬 */
+}
+
+/* 요일과 날짜를 포함하지 않은 stMarkdownContainer (본문 텍스트) */
+div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+    justify-content: flex-start !important; /* 본문 텍스트는 왼쪽 정렬 */
 }
 
 /* 요일 헤더 스타일 */
@@ -24,8 +30,11 @@ div[data-testid="stMarkdownContainer"] {
     margin: 0 auto;
     padding: 0;
     color: #333;
-    width: 40px; /* 원형 크기 .day와 동일 */
-    height: 40px; /* 원형 크기 .day와 동일 */
+    width: 40px !important; /* 원형 크기 고정 */
+    height: 40px !important; /* 원형 크기 고정 */
+    min-width: 40px !important; /* 최소 크기 고정 */
+    min-height: 40px !important; /* 최소 크기 고정 */
+    aspect-ratio: 1/1 !important; /* 원형 유지 */
     line-height: 40px; /* 텍스트 세로 중앙 정렬 */
     border: 1px solid #ccc; /* 원형 테두리 */
     border-radius: 50%; /* 원형 스타일 */
@@ -38,9 +47,12 @@ div[data-testid="stMarkdownContainer"] {
 /* 날짜 스타일 */
 .day {
     text-align: center; /* 텍스트 중앙 정렬 */
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
+    width: 40px !important; /* 원형 크기 고정 */
+    height: 40px !important; /* 원형 크기 고정 */
+    min-width: 40px !important; /* 최소 크기 고정 */
+    min-height: 40px !important; /* 최소 크기 고정 */
+    aspect-ratio: 1/1 !important; /* 원형 유지 */
+    line-height: 40px; /* 텍스트 세로 중앙 정렬 */
     border: 1px solid #ccc;
     border-radius: 50%;
     margin: 0 auto;
@@ -59,11 +71,14 @@ div[data-testid="stMarkdownContainer"] {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    width: 42px !important; /* .day보다 약간 크게 설정하여 클릭 감도 개선 */
-    height: 42px !important; /* .day보다 약간 크게 설정하여 클릭 감도 개선 */
-    margin: -1px 0 0 -1px !important; /* 원 숫자와 밀착하도록 조정 */
+    width: 42px !important; /* .day보다 약간 크게 설정 */
+    height: 42px !important; /* .day보다 약간 크게 설정 */
+    min-width: 42px !important;
+    min-height: 42px !important;
+    aspect-ratio: 1/1 !important; /* 원형 유지 */
+    margin: -1px 0 0 -1px !important; /* 원 숫자와 밀착 */
     padding: 0 !important;
-    background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인을 위해 반투명 파란색 */
+    background-color: rgba(0, 128, 255, 0.3); /* 터치 영역 확인 */
     cursor: pointer !important;
     z-index: 5000 !important;
     pointer-events: auto !important;
@@ -75,12 +90,15 @@ div[data-testid="stMarkdownContainer"] {
 
 /* 체크박스 내부 요소 스타일 */
 .stCheckbox > div > div {
-    width: 42px !important; /* .stCheckbox와 동일한 크기 */
-    height: 42px !important; /* .stCheckbox와 동일한 크기 */
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    aspect-ratio: 1/1 !important;
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    background-color: rgba(255, 165, 0, 0.3); /* 내부 요소 확인을 위해 반투명 주황색 */
+    background-color: rgba(255, 165, 0, 0.3); /* 내부 요소 확인 */
 }
 
 /* 모바일에서도 7열 유지, 크기 증가 및 정렬 조정 */
@@ -94,12 +112,18 @@ div[data-testid="stMarkdownContainer"] {
     }
     div[data-testid="stMarkdownContainer"] {
         display: flex !important;
-        justify-content: center !important; /* 수평 중앙 정렬 */
+        justify-content: center !important; /* 요일과 날짜 중앙 정렬 */
         align-items: center !important; /* 수직 중앙 정렬 */
+    }
+    div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+        justify-content: flex-start !important; /* 본문 텍스트 왼쪽 정렬 */
     }
     .day, .stCheckbox {
         width: 40px !important;
         height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        aspect-ratio: 1/1 !important;
         line-height: 40px !important;
         font-size: 1em;
         margin: 2px auto !important; /* 모바일 여백 유지 */
@@ -107,11 +131,17 @@ div[data-testid="stMarkdownContainer"] {
     .stCheckbox > div > div {
         width: 100% !important;
         height: 100% !important;
+        min-width: 100% !important;
+        min-height: 100% !important;
+        aspect-ratio: 1/1 !important;
     }
     .day-header {
         padding: 5px 2px; /* 모바일 간격 조정 */
         width: auto; /* 모바일에서는 원형 제거 */
         height: auto; /* 모바일에서는 원형 제거 */
+        min-width: auto !important;
+        min-height: auto !important;
+        aspect-ratio: unset !important;
         line-height: normal; /* 기본 라인 높이 */
         border: none; /* 모바일에서는 테두리 제거 */
         border-radius: 0; /* 모바일에서는 원형 제거 */
