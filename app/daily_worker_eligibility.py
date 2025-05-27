@@ -7,7 +7,7 @@ import calendar
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # 현재 날짜와 시간
-current_datetime = datetime(2025, 5, 27, 23, 3)
+current_datetime = datetime(2025, 5, 27, 23, 10)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드
@@ -72,7 +72,7 @@ def render_calendar(apply_date):
                                     else:
                                         selected_dates.discard(date_obj)
                                     st.session_state.selected_dates = selected_dates
-                                    st.rerun()  # st.experimental_rerun() 대신 st.rerun()
+                                    # st.rerun() 제거: 상태 변경 후 자동 갱신
                             st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
     # 선택된 근무일자 표시
