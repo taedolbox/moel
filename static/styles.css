@@ -141,7 +141,7 @@ div[data-testid="column"] {
     width: 34px !important;
     height: 34px !important;
     display: flex !important;
-    align-items: center ! ст
+    align-items: center !important;
     justify-content: center !important;
     border: 1px solid #ffffff !important;
     background-color: #ffffff !important;
@@ -154,12 +154,36 @@ div[data-testid="column"] {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 1 !important;
-    cursor: pointer !important;
 }
 
-/* Streamlit 버튼 숨기기 */
+/* 버튼 오버레이 (st.button을 날짜 원과 겹치게 배치) */
+.button-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2 !important;
+}
+
+/* Streamlit 버튼 스타일 */
 button.hidden-button {
-    display: none !important;
+    width: 34px !important;
+    height: 34px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+}
+
+/* 버튼 호버 효과 */
+button.hidden-button:hover {
+    background: transparent !important;
 }
 
 /* 다크 모드에서 달력 스타일 */
@@ -193,6 +217,10 @@ button.hidden-button {
         height: 38px !important;
         font-size: 1em !important;
     }
+    button.hidden-button {
+        width: 38px !important;
+        height: 38px !important;
+    }
     div[data-testid="column"] {
         width: calc(600px / 7) !important;
         max-width: calc(600px / 7) !important;
@@ -223,12 +251,18 @@ button.hidden-button {
         height: 34px !important;
         font-size: 0.9em !important;
     }
+    button.hidden-button {
+        width: 34px !important;
+        height: 34px !important;
+    }
     div[data-testid="column"] {
         width: calc(280px / 7) !important;
         max-width: calc(280px / 7) !important;
         min-width: calc(280px / 7) !important;
         margin: 0 !important;
         padding: 0 !important;
+        flex: 1 !important;
+        box-sizing: border-box !important;
     }
     .day-header {
         width: calc(280px / 7) !important;
