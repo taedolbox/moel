@@ -28,34 +28,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const rect = this.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
-            // 녹색 점 생성
+
+            // 체크박스 범위(-20px, 40x40px)에 녹색 점 표시
+            const checkboxArea = {
+                x: -20, // .stCheckbox의 left: -20px
+                y: 0,
+                width: 40,
+                height: 40
+            };
             const dot = document.createElement('div');
             dot.className = 'click-dot';
-            dot.style.left = `${x}px`;
-            dot.style.top = `${y}px`;
+            // 체크박스 영역 중앙에 점 표시
+            dot.style.left = `${checkboxArea.x + checkboxArea.width / 2}px`;
+            dot.style.top = `${checkboxArea.y + checkboxArea.height / 2}px`;
             this.appendChild(dot);
-            
+
             // 1초 후 점 제거
             setTimeout(() => {
                 dot.remove();
             }, 1000);
-            
-            // Streamlit에 선택된 날짜 전달
-            window.parent.postMessage({
-                type: 'select_date',
-                date: dateStr
-            }, '*');
+
+            // 체크박스 범위 내 클릭인지 확인
+            if (x >= checkboxArea.x && x <= checkboxArea.x + checkboxArea.width &&
+                y >= checkboxArea.y && y <= checkboxArea.y + checkboxArea.height) {
+                window.parent.postMessage({
+                    type: 'select_date',
+                    date: dateStr
+                }, '*');
+            }
         });
     });
-});
-
-// Streamlit 메시지 수신
-window.addEventListener('message', function(e) {
-    if (e.data.type === 'select_date') {
-        // Streamlit에서 처리
-        // 이 부분은 Streamlit이 메시지를 받아 처리
-    }
 });
 </script>
 """
@@ -125,7 +127,7 @@ def render_calendar(apply_date):
             else:
                 selected_dates.add(date_obj)
             st.session_state.selected_dates = selected_dates
-            del st.session_state.selected_date  # 상태 초기화
+            del st.session_state.selected_date
             st.rerun()
 
     # 선택된 근무일자 표시
@@ -152,7 +154,7 @@ def render_calendar(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}")
-    st.markdown("**안내**: 날짜를 클릭해 선택하세요. 선택된 위치는 녹색 점으로 표시됩니다.")
+    st.markdown("**안내**: 날짜의 좌측 영역(녹색 점)을 클릭해 선택하세요. 선택된 날짜는 빨간 테두리로 표시됩니다.")
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date())
     render_calendar(apply_date)
 
