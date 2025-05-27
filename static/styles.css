@@ -368,6 +368,3 @@ button[data-testid="stButton"]:hover {
 .selected-day .selection-mark {
     display: block !important;
 }
-button[data-testid="stFormSubmitButton"] {
-    display: none !important; /* 폼 제출 버튼 숨김 */
-}
