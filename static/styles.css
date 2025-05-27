@@ -48,7 +48,7 @@ div[data-testid="stHorizontalBlock"] {
     padding: 0 !important;
     opacity: 0 !important;
     cursor: pointer !important;
-    z-index: 4000 !important; /* 더 높은 z-index */
+    z-index: 5000 !important; /* 더 높은 z-index */
     pointer-events: auto !important; /* 터치/클릭 이벤트 활성화 */
 }
 
