@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 3:48 KST)
-current_datetime = datetime(2025, 5, 27, 15, 48)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 3:55 KST)
+current_datetime = datetime(2025, 5, 27, 15, 55)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -71,17 +71,16 @@ def render_calendar_interactive(apply_date):
                         class_name += " current-day"
 
                     container_key = f"date_{date_obj.isoformat()}"
-                    # 체크박스를 숨기고 상태 관리
+                    # 체크박스를 보이게 유지
                     week_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
-                        f'<input type="checkbox" id="{container_key}" name="{container_key}" class="hidden-checkbox" {"checked" if is_selected else ""}>'
+                        f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
                         f'<label for="{container_key}" class="{class_name}">{day}</label>'
                         f'</div>'
                     )
 
-                    # 체크박스 상태를 실시간으로 반영 (Streamlit의 한계로 직접 반영 어려움)
-                    # 대신, 상태를 수동으로 업데이트하는 로직을 추가
+                    # 체크박스 상태를 실시간으로 반영 시도
                     if container_key in st.session_state:
                         if st.session_state[container_key] is not None:
                             if st.session_state[container_key]:
@@ -101,6 +100,13 @@ def render_calendar_interactive(apply_date):
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
+
+    # 디버깅 정보 출력 (페이지 하단)
+    st.markdown("### 🔍 디버깅 정보")
+    st.write("**현재 세션 상태 (st.session_state):**")
+    st.write(st.session_state)
+    st.write("**선택된 날짜 (st.session_state.selected_dates):**")
+    st.write([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)])
 
     return st.session_state.selected_dates
 
