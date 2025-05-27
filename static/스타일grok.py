@@ -214,3 +214,206 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888;
     cursor: not-allowed;
 }
+
+
+
+
+/* ─────────────────────────────
+   달력 컨테이너 7열 그리드 구성
+───────────────────────────── */
+div[data-testid="stHorizontalBlock"] {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 0px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: flex-start !important;
+}
+
+/* ─────────────────────────────
+   Markdown 정렬 (요일/숫자)
+───────────────────────────── */
+div[data-testid="stMarkdownContainer"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-align: left !important;
+}
+
+div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+    justify-content: flex-start !important;
+}
+
+/* ─────────────────────────────
+   요일 헤더 스타일
+───────────────────────────── */
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    margin: 0 auto;
+    padding: 0;
+    color: #333;
+    width: 40px !important;
+    height: 40px !important;
+    aspect-ratio: 1/1 !important;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: #f8f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ─────────────────────────────
+   날짜(숫자) 원 스타일
+───────────────────────────── */
+.day {
+    text-align: center;
+    width: 40px !important;
+    height: 40px !important;
+    aspect-ratio: 1/1 !important;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ─────────────────────────────
+   숨겨진 체크박스 영역
+───────────────────────────── */
+.stCheckbox {
+    opacity: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: auto !important;
+    z-index: 1 !important;
+}
+
+/* 내부 구조 완전 숨김 */
+.stCheckbox > div > div {
+    display: none !important;
+}
+
+/* ─────────────────────────────
+   날짜 상태별 스타일
+───────────────────────────── */
+.day:hover:not(.disabled) {
+    background-color: #f0f0f0;
+}
+
+.day.selected {
+    border: 2px solid #ff4444;
+    font-weight: bold;
+}
+
+.day.current {
+    border: 2px solid #4444ff;
+}
+
+.day.disabled {
+    background-color: #e0e0e0;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* ─────────────────────────────
+   모바일 최적화 (7열 유지 + 크기 조정)
+───────────────────────────── */
+@media (max-width: 767px) {
+    div[data-testid="stHorizontalBlock"] {
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 2px !important;
+        justify-content: flex-start !important;
+        margin-left: 0;
+    }
+
+    .day, .stCheckbox {
+        width: 40px !important;
+        height: 40px !important;
+        aspect-ratio: 1/1 !important;
+        line-height: 40px !important;
+        font-size: 1em;
+        margin: 2px auto !important;
+    }
+
+    .stCheckbox {
+        left: 0 !important;
+    }
+
+    .day-header {
+        padding: 5px 2px;
+        width: auto;
+        height: auto;
+        aspect-ratio: unset !important;
+        line-height: normal;
+        border: none;
+        border-radius: 0;
+        background-color: transparent;
+        justify-content: center;
+    }
+}
+
+/* ─────────────────────────────
+   데스크탑 레이아웃 왼쪽 정렬
+───────────────────────────── */
+@media (min-width: 768px) {
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 600px !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+    }
+}
+
+/* ─────────────────────────────
+   텍스트 전체 왼쪽 정렬
+───────────────────────────── */
+.stMarkdown, .stText, .stHeader {
+    text-align: left !important;
+}
+
+/* ─────────────────────────────
+   다크 모드 대응
+───────────────────────────── */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .day-header {
+        color: #ddd;
+        background-color: #444;
+    }
+    .day-header.weekend {
+        color: #ff6666;
+    }
+    .day {
+        background-color: #333;
+        color: #ddd;
+        border-color: #888;
+    }
+    .day:hover:not(.disabled) {
+        background-color: #444;
+    }
+    .day.disabled {
+        background-color: #555;
+        color: #888;
+    }
+    .day.selected {
+        border-color: #ff6666;
+    }
+    .day.current {
+        border-color: #6666ff;
+    }
+}
+
+
