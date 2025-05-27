@@ -259,6 +259,13 @@ button[kind="primary"] {
     .day-header {
         width: calc(280px / 7) !important;
     }
+
+    /* 모바일에서 선택된 근무일자 섹션 보장 */
+    div[data-testid="stMarkdownContainer"] {
+        width: 100% !important;
+        max-width: 280px !important;
+        margin: 0 auto !important;
+    }
 }
 
 /* 모바일 다크 모드 스타일 */
