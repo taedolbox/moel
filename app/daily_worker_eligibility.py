@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 8:52 KST)
-current_datetime = datetime(2025, 5, 27, 20, 52)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 8:58 KST)
+current_datetime = datetime(2025, 5, 27, 20, 58)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -70,29 +70,29 @@ def render_calendar_interactive(apply_date):
                     if is_disabled:
                         class_name += " disabled-day"
 
-                    # 버튼과 날짜 렌der링
+                    # 체크박스와 날짜 렌더링
                     calendar_html += (
                         f'<div class="calendar-day-container {class_name}">'
-                        f'<div class="calendar-day-content">'
-                    )
-                    if not is_disabled:
-                        calendar_html += f'{st.button(str(day), key=container_key, use_container_width=True)}'
-                        if 'last_clicked' in st.session_state and st.session_state.last_clicked == container_key:
-                            if date_obj in selected_dates:
-                                selected_dates.discard(date_obj)
-                            else:
-                                selected_dates.add(date_obj)
-                            st.session_state.selected_dates = selected_dates
-                            st.session_state.last_clicked = None
-                            st.rerun()
-                    else:
-                        calendar_html += f'{day}'
-                    calendar_html += (
-                        f'</div>'
+                        f'<div class="calendar-day-content">{day}</div>'
                         f'<div class="selection-mark" style="display: {"block" if is_selected else "none"};"></div>'
                         f'</div>'
                     )
-            calendar_html += '</div>'
+
+                    # 체크박스 추가
+                    if not is_disabled:
+                        checkbox = st.checkbox(
+                            "", 
+                            value=is_selected, 
+                            key=container_key, 
+                            label_visibility="hidden"
+                        )
+                        if checkbox != is_selected:
+                            if checkbox:
+                                selected_dates.add(date_obj)
+                            else:
+                                selected_dates.discard(date_obj)
+                            st.session_state.selected_dates = selected_dates
+                            st.rerun()
             st.markdown(calendar_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
