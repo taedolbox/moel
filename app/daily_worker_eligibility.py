@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 1:49 KST)
-current_datetime = datetime(2025, 5, 27, 13, 49)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 3:48 KST)
+current_datetime = datetime(2025, 5, 27, 15, 48)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -71,30 +71,33 @@ def render_calendar_interactive(apply_date):
                         class_name += " current-day"
 
                     container_key = f"date_{date_obj.isoformat()}"
-                    # 체크박스를 사용해 상태 관리
+                    # 체크박스를 숨기고 상태 관리
                     week_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
-                        f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
+                        f'<input type="checkbox" id="{container_key}" name="{container_key}" class="hidden-checkbox" {"checked" if is_selected else ""}>'
                         f'<label for="{container_key}" class="{class_name}">{day}</label>'
                         f'</div>'
                     )
 
-                    # 체크박스 상태에 따라 세션 상태 업데이트
+                    # 체크박스 상태를 실시간으로 반영 (Streamlit의 한계로 직접 반영 어려움)
+                    # 대신, 상태를 수동으로 업데이트하는 로직을 추가
                     if container_key in st.session_state:
-                        if st.session_state[container_key]:
-                            selected_dates.add(date_obj)
-                        else:
-                            selected_dates.discard(date_obj)
-                        st.session_state.selected_dates = selected_dates
-                        del st.session_state[container_key]
-                        st.rerun()
+                        if st.session_state[container_key] is not None:
+                            if st.session_state[container_key]:
+                                selected_dates.add(date_obj)
+                            else:
+                                selected_dates.discard(date_obj)
+                            st.session_state.selected_dates = selected_dates
+                            del st.session_state[container_key]
+                            st.rerun()
 
                 week_html += '</div>'
                 st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # 선택된 근무일자 표시
     if st.session_state.selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(st.session_state.selected_dates)]))
