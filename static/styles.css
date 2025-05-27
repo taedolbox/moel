@@ -6,6 +6,7 @@ div[data-testid="stHorizontalBlock"] {
     gap: 2px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    justify-content: center !important; /* 중앙 정렬 보완 */
 }
 
 /* 요일 헤더 스타일 */
@@ -15,6 +16,8 @@ div[data-testid="stHorizontalBlock"] {
     margin: 0;
     padding: 5px 0;
     color: #333;
+    display: flex;
+    justify-content: center; /* 요일 중앙 정렬 */
 }
 
 .day-header.weekend {
@@ -35,7 +38,9 @@ div[data-testid="stHorizontalBlock"] {
     cursor: pointer;
     transition: background-color 0.2s;
     position: relative;
-    overflow: hidden; /* 체크박스 오버플로우 방지 */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* 숫자 중앙 정렬 */
 }
 
 /* 체크박스 스타일 */
@@ -45,13 +50,13 @@ div[data-testid="stHorizontalBlock"] {
     left: 0 !important;
     width: 100% !important; /* .day의 전체 너비 */
     height: 100% !important; /* .day의 전체 높이 */
-    margin: 0 !important; /* 마진 제거 */
+    margin: 0 !important;
     padding: 0 !important;
     opacity: 0 !important;
     cursor: pointer !important;
-    z-index: 5000 !important; /* 더 높은 z-index */
-    pointer-events: auto !important; /* 터치/클릭 이벤트 활성화 */
-    box-sizing: border-box !important; /* 크기 계산에 패딩/마진 포함 */
+    z-index: 5000 !important;
+    pointer-events: auto !important;
+    box-sizing: border-box !important;
 }
 
 /* 체크박스 내부 요소 숨기기 */
@@ -64,12 +69,13 @@ div[data-testid="stHorizontalBlock"] {
     left: 0 !important;
 }
 
-/* 모바일에서도 7열 유지, 크기 증가 */
+/* 모바일에서도 7열 유지, 크기 증가 및 정렬 조정 */
 @media (max-width: 767px) {
     div[data-testid="stHorizontalBlock"] {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         gap: 2px !important;
+        justify-content: center !important; /* 모바일도 중앙 정렬 */
     }
     .day, .stCheckbox {
         width: 40px !important;
@@ -81,25 +87,14 @@ div[data-testid="stHorizontalBlock"] {
         width: 40px !important;
         height: 40px !important;
     }
+    .day-header {
+        padding: 5px 2px; /* 모바일에서 간격 조정 */
+    }
 }
 
-.day:hover:not(.disabled) {
-    background-color: #f0f0f0;
-}
-
-.day.selected {
-    border: 2px solid #ff4444;
-    font-weight: bold;
-}
-
-.day.current {
-    border: 2px solid #4444ff;
-}
-
-.day.disabled {
-    background-color: #e0e0e0;
-    color: #888;
-    cursor: not-allowed;
+/* 전체 텍스트 중앙 정렬 (필요 시 조정) */
+.stMarkdown, .stText {
+    text-align: center !important;
 }
 
 /* 다크 모드 지원 */
@@ -128,4 +123,23 @@ div[data-testid="stHorizontalBlock"] {
     .day.current {
         border-color: #6666ff;
     }
+}
+
+.day:hover:not(.disabled) {
+    background-color: #f0f0f0;
+}
+
+.day.selected {
+    border: 2px solid #ff4444;
+    font-weight: bold;
+}
+
+.day.current {
+    border: 2px solid #4444ff;
+}
+
+.day.disabled {
+    background-color: #e0e0e0;
+    color: #888;
+    cursor: not-allowed;
 }
