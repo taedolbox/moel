@@ -152,18 +152,24 @@ div[data-testid="stCheckbox"] {
     position: absolute !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
     width: 34px !important;
     height: 34px !important;
     z-index: 1 !important;
-    opacity: 0 !important; /* 체크박스 숨김 */
 }
 
-/* 체크박스 라벨 스타일 (숨김) */
+/* Streamlit 체크박스 숨김 */
+div[data-testid="stCheckbox"] input[type="checkbox"] {
+    display: none !important;
+}
+
+/* Streamlit 체크박스 라벨 숨김 */
 div[data-testid="stCheckbox"] label {
-    display: none !important; /* 라벨 숨김 */
+    display: none !important;
+}
+
+/* 커스텀 체크박스 숨김 */
+.hidden-checkbox {
+    display: none !important;
 }
 
 /* 달력 숫자 컨텐츠 스타일 */
@@ -292,7 +298,7 @@ div[data-testid="stCheckbox"] label {
     border: 2px solid #0000ff !important;
 }
 
-/* 선택된 날짜 스타일 (st.checkbox 체크 시 동기화) */
+/* 선택된 날짜 스타일 */
 .calendar-day-content.selected-day {
     background-color: transparent !important;
     color: #000000 !important;
