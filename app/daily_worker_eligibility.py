@@ -7,8 +7,8 @@ import calendar
 # 달력의 시작 요일을 일요일로 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
-# 현재 날짜와 시간 (2025년 5월 27일 오후 1:44 KST)
-current_datetime = datetime(2025, 5, 27, 13, 44)
+# 현재 날짜와 시간 (2025년 5월 27일 오후 1:49 KST)
+current_datetime = datetime(2025, 5, 27, 13, 49)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 def get_date_range(apply_date):
@@ -39,29 +39,26 @@ def render_calendar_interactive(apply_date):
             days_of_week_korean = ["일", "월", "화", "수", "목", "금", "토"]
 
             # 요일 헤더 생성 (7열 고정)
-            st.markdown('<div class="header-grid">', unsafe_allow_html=True)
+            header_html = '<div class="header-grid">'
             for i, day_name in enumerate(days_of_week_korean):
                 color = "red" if i == 0 or i == 6 else "#000000"
-                st.markdown(
-                    f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>',
-                    unsafe_allow_html=True
-                )
-            st.markdown('</div>', unsafe_allow_html=True)
+                header_html += f'<div class="day-header"><span style="color: {color}">{day_name}</span></div>'
+            header_html += '</div>'
+            st.markdown(header_html, unsafe_allow_html=True)
 
             # 달력 렌더링
             for week in cal:
-                st.markdown('<div class="calendar-grid">', unsafe_allow_html=True)
+                week_html = '<div class="calendar-grid">'
                 for i, day in enumerate(week):
                     if day == 0:
-                        st.markdown('<div class="calendar-day-container"></div>', unsafe_allow_html=True)
+                        week_html += '<div class="calendar-day-container"></div>'
                         continue
                     date_obj = date(year, month, day)
                     if date_obj > apply_date:
-                        st.markdown(
+                        week_html += (
                             f'<div class="calendar-day-container">'
                             f'<div class="calendar-day-box disabled-day">{day}</div>'
-                            f'</div>',
-                            unsafe_allow_html=True
+                            f'</div>'
                         )
                         continue
 
@@ -75,13 +72,12 @@ def render_calendar_interactive(apply_date):
 
                     container_key = f"date_{date_obj.isoformat()}"
                     # 체크박스를 사용해 상태 관리
-                    st.markdown(
+                    week_html += (
                         f'<div class="calendar-day-container">'
                         f'<div class="selection-mark"></div>'
-                        f'<label for="{container_key}" class="{class_name}">{day}</label>'
                         f'<input type="checkbox" id="{container_key}" name="{container_key}" {"checked" if is_selected else ""}>'
-                        f'</div>',
-                        unsafe_allow_html=True
+                        f'<label for="{container_key}" class="{class_name}">{day}</label>'
+                        f'</div>'
                     )
 
                     # 체크박스 상태에 따라 세션 상태 업데이트
@@ -93,6 +89,9 @@ def render_calendar_interactive(apply_date):
                         st.session_state.selected_dates = selected_dates
                         del st.session_state[container_key]
                         st.rerun()
+
+                week_html += '</div>'
+                st.markdown(week_html, unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
