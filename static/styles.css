@@ -228,3 +228,10 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888;
     cursor: not-allowed;
 }
+h3 {
+    color: #333333;
+}
+.stButton>button {
+    background-color: #007bff;
+    color: white;
+}
