@@ -26,20 +26,12 @@ def main():
     st.markdown("""
         <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
         <script>
-            function toggleSidebar() {
-                const sidebar = document.querySelector('.stSidebar');
-                const button = document.getElementById('toggle-btn');
-                const sidebarContent = sidebar.querySelector('.stSidebarContent');
-                if (sidebar && button && sidebarContent) {
-                    const isCollapsed = sidebar.classList.toggle('collapsed');
-                    button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
-                    sidebarContent.style.display = isCollapsed ? 'none' : 'block';
-                    // 모바일 뷰에서도 너비 동기화
-                    sidebar.style.width = isCollapsed ? '0px' : '300px';
-                }
-            }
-            // DOM 로드 후 초기화
+            // 기본 토글 버튼 제거
             document.addEventListener('DOMContentLoaded', function() {
+                const defaultToggle = document.querySelector('button[aria-label="Open sidebar"], button[aria-label="Close sidebar"], button[data-testid*="sidebar-toggle"], button[class*="stSidebarToggle"]');
+                if (defaultToggle) defaultToggle.style.display = 'none';
+
+                // 커스텀 토글 초기화
                 const sidebar = document.querySelector('.stSidebar');
                 const button = document.getElementById('toggle-btn');
                 const sidebarContent = sidebar.querySelector('.stSidebarContent');
@@ -50,6 +42,18 @@ def main():
                     sidebar.style.width = '300px';
                 }
             });
+
+            function toggleSidebar() {
+                const sidebar = document.querySelector('.stSidebar');
+                const button = document.getElementById('toggle-btn');
+                const sidebarContent = sidebar.querySelector('.stSidebarContent');
+                if (sidebar && button && sidebarContent) {
+                    const isCollapsed = sidebar.classList.toggle('collapsed');
+                    button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
+                    sidebarContent.style.display = isCollapsed ? 'none' : 'block';
+                    sidebar.style.width = isCollapsed ? '0px' : '300px';
+                }
+            }
         </script>
     """, unsafe_allow_html=True)
 
