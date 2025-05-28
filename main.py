@@ -21,7 +21,17 @@ def main():
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+    # Inject custom JavaScript for sidebar button text
+    st.markdown(
+        """
+        <script src="static/sidebar_button.js"></script>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.title("💼 실업급여 도우미")
+
+    # ... (rest of your main.py code) ...
 
     # Sidebar search functionality
     with st.sidebar:
