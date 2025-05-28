@@ -1,3 +1,31 @@
+/* 사이드바 스타일 */
+.sidebar {
+  width: 0;
+  height: 100vh;
+  background-color: #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  transition: 0.3s;
+}
+
+.sidebar.open {
+  width: 250px;
+}
+
+/* 버튼 스타일 */
+.toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
 /* 컨테이너 스타일 */
 div[data-testid="stHorizontalBlock"] {
     display: grid !important;
