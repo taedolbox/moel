@@ -29,7 +29,12 @@ def main():
             // 기본 토글 버튼 및 SVG 제거
             document.addEventListener('DOMContentLoaded', function() {
                 const defaultToggle = document.querySelector('button[class*="st-emotion-cache"], button[class*="stSidebarToggle"], svg[class*="st-emotion-cache"], svg[class*="e10vaf9m1"]');
-                if (defaultToggle) defaultToggle.style.display = 'none';
+                if (defaultToggle) {
+                    defaultToggle.style.display = 'none';
+                    console.log('Default toggle removed');
+                } else {
+                    console.log('No default toggle found');
+                }
 
                 // 커스텀 토글 초기화
                 const sidebar = document.querySelector('.stSidebar');
@@ -40,6 +45,9 @@ def main():
                     button.textContent = '메뉴닫기';
                     sidebarContent.style.display = 'block';
                     sidebar.style.width = '300px';
+                    console.log('Custom toggle initialized');
+                } else {
+                    console.log('Toggle initialization failed:', { sidebar, button, sidebarContent });
                 }
             });
 
@@ -52,6 +60,7 @@ def main():
                     button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
                     sidebarContent.style.display = isCollapsed ? 'none' : 'block';
                     sidebar.style.width = isCollapsed ? '0px' : '300px';
+                    console.log('Sidebar toggled:', isCollapsed);
                 }
             }
         </script>
