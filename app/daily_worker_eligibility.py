@@ -9,7 +9,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 28, 8, 53, tzinfo=KST)
+current_datetime = datetime(2025, 5, 28, 8, 44, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
 # 스타일시트 로드
@@ -22,7 +22,7 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar(apply_date):
-    """달력을 렌더링하고 날짜 선택 기능을 제공합니다."""
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다. 기존 UI 유지."""
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
@@ -31,71 +31,63 @@ def render_calendar(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
-    with st.container():
-        st.markdown('<div class="calendar-wrapper">', unsafe_allow_html=True)
-        for year, month in months:
-            st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
-            cal = calendar.monthcalendar(year, month)
-            days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
+    for year, month in months:
+        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
+        cal = calendar.monthcalendar(year, month)
+        days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더
+        # 요일 헤더
+        with st.container():
+            cols = st.columns(7, gap="small")
+            for i, day in enumerate(days_of_week):
+                with cols[i]:
+                    class_name = "day-header"
+                    if i == 0 or i == 6:
+                        class_name += " weekend"
+                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+
+        # 날짜 렌더링
+        for week in cal:
             with st.container():
                 cols = st.columns(7, gap="small")
-                for i, day in enumerate(days_of_week):
+                for i, day in enumerate(week):
                     with cols[i]:
-                        class_name = "day-header"
-                        if i == 0 or i == 6:
-                            class_name += " weekend"
-                        st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                        if day == 0:
+                            st.empty()
+                            continue
+                        date_obj = date(year, month, day)
+                        is_selected = date_obj in selected_dates
+                        is_current = date_obj == current_date
+                        is_disabled = date_obj > apply_date
 
-            # 날짜 렌더링
-            for week in cal:
-                with st.container():
-                    cols = st.columns(7, gap="small")
-                    for i, day in enumerate(week):
-                        with cols[i]:
-                            if day == 0:
-                                st.empty()
-                                continue
-                            date_obj = date(year, month, day)
-                            is_selected = date_obj in selected_dates
-                            is_current = date_obj == current_date
-                            is_disabled = date_obj > apply_date
+                        class_name = "day"
+                        if is_selected:
+                            class_name += " selected"
+                        if is_current:
+                            class_name += " current"
+                        if is_disabled:
+                            class_name += " disabled"
 
-                            class_name = "day"
-                            if is_selected:
-                                class_name += " selected"
-                            if is_current:
-                                class_name += " current"
+                        with st.container():
                             if is_disabled:
-                                class_name += " disabled"
-
-                            with st.container():
-                                if is_disabled:
-                                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                                else:
-                                    with st.container():
-                                        checkbox_key = f"date_{date_obj}"
-                                        checkbox_value = st.checkbox(
-                                            "", key=checkbox_key, value=is_selected, label_visibility="hidden"
-                                        )
-                                        st.markdown(
-                                            f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
-                                            unsafe_allow_html=True
-                                        )
-                                        if checkbox_value != is_selected:
-                                            if checkbox_value:
-                                                selected_dates.add(date_obj)
-                                            else:
-                                                selected_dates.discard(date_obj)
-                                            st.session_state.selected_dates = selected_dates
-                                            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # 선택된 근무일자 표시
-    if selected_dates:
-        st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(", ".join([d.strftime("%m-%d") for d in sorted(selected_dates)]))
+                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                            else:
+                                with st.container():
+                                    checkbox_key = f"date_{date_obj}"
+                                    checkbox_value = st.checkbox(
+                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
+                                    )
+                                    st.markdown(
+                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                        unsafe_allow_html=True
+                                    )
+                                    if checkbox_value != is_selected:
+                                        if checkbox_value:
+                                            selected_dates.add(date_obj)
+                                        else:
+                                            selected_dates.discard(date_obj)
+                                        st.session_state.selected_dates = selected_dates
+                                        st.rerun()
 
     return st.session_state.selected_dates
 
@@ -122,6 +114,11 @@ def daily_worker_eligibility_app():
     st.markdown("#### ✅ 근무일 선택 달력")
     selected_dates = render_calendar(apply_date)
     st.markdown("---")
+
+    # 선택된 근무일자 표시
+    if selected_dates:
+        st.markdown("### ✅ 선택된 근무일자")
+        st.markdown(", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
 
     # 조건 1 계산 및 표시
     total_days = len(date_range_objects)
