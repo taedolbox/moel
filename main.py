@@ -18,11 +18,7 @@ from app.questions import (
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
 def main():
-    # Apply custom CSS
-    with open("static/styles.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-    # Add custom toggle button with inline JavaScript
+    # Add custom toggle button with inline JavaScript (moved to top)
     st.markdown("""
         <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
         <script>
@@ -65,6 +61,10 @@ def main():
             }
         </script>
     """, unsafe_allow_html=True)
+
+    # Apply custom CSS
+    with open("static/styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
     st.title("💼 실업급여 도우미")
 
