@@ -5,7 +5,7 @@ from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
 from app.wage_delay import wage_delay_app
 from app.unemployment_recognition import unemployment_recognition_app
-from app.realjob_application import realjob_application_app  # 새 모듈 임포트
+from app.realjob_application import realjob_application_app
 from app.questions import (
     get_employment_questions,
     get_self_employment_questions,
@@ -14,9 +14,10 @@ from app.questions import (
     get_daily_worker_eligibility_questions
 )
 
-def main():
-    st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")  # layout을 wide로 변경
+# 페이지 설정을 파일 최상단으로 이동
+st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
+def main():
     # Apply custom CSS
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -31,7 +32,7 @@ def main():
         # Menu and question definitions
         menus = {
             "수급자격": ["임금 체불 판단", "원거리 발령 판단"],
-            "실업인정": ["실업인정", "실업인정 신청"],  # 이미 추가된 상태
+            "실업인정": ["실업인정", "실업인정 신청"],
             "취업촉진수당": ["조기재취업수당"],
             "실업급여 신청가능 시점": ["실업급여 신청 가능 시점", "일용직(건설일용포함)"]
         }
@@ -39,7 +40,7 @@ def main():
             "임금 체불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
-            "실업인정 신청": [],  # 질문은 비워둠
+            "실업인정 신청": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
@@ -48,7 +49,7 @@ def main():
         filtered_menus = {}
         if search_query:
             search_query = search_query.lower()
-            for mainummenu, sub_menus in menus.items():
+            for main_menu, sub_menus in menus.items():
                 filtered_sub_menus = [
                     sub for sub in sub_menus
                     if search_query in sub.lower() or
@@ -92,7 +93,7 @@ def main():
             if sub_menu == "실업인정":
                 unemployment_recognition_app()
             elif sub_menu == "실업인정 신청":
-                realjob_application_app()  # 새로운 함수 연결
+                realjob_application_app()
         elif menu == "취업촉진수당":
             if sub_menu == "조기재취업수당":
                 early_reemployment_app()
