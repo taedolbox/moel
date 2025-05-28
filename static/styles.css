@@ -1,8 +1,8 @@
-/* Streamlit의 기본 사이드바 토글 버튼 숨기기 (확장된 선택자) */
-button[aria-label="Open sidebar"],
-button[aria-label="Close sidebar"],
-button[data-testid*="sidebar-toggle"],
-button[class*="stSidebarToggle"] {
+/* Streamlit의 기본 사이드바 토글 버튼 및 SVG 숨기기 */
+button[class*="st-emotion-cache"],
+button[class*="stSidebarToggle"],
+svg[class*="st-emotion-cache"],
+svg[class*="e10vaf9m1"] {
   display: none !important;
   outline: none !important;
   border: none !important;
@@ -10,7 +10,7 @@ button[class*="stSidebarToggle"] {
 
 /* 사이드바 스타일 */
 .stSidebar {
-  width: 300px !important; /* 기본 너비 설정 */
+  width: 300px !important;
   min-width: 300px !important;
   transition: width 0.3s ease;
   position: relative;
@@ -81,7 +81,7 @@ button[class*="stSidebarToggle"] {
   margin: 0 !important;
 }
 
-/* 나머지 기존 스타일 (생략 가능, 필요 시 유지) */
+/* 나머지 기존 스타일 (필요 시 유지) */
 div[data-testid="stHorizontalBlock"] {
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
@@ -109,5 +109,3 @@ div[data-testid="stHorizontalBlock"] {
 h3 {
   color: #333333;
 }
-
-/* 필요 시 다른 스타일 유지 (예: .day, .day-header 등) */
