@@ -1,111 +1,67 @@
 # main.py
+# moel/app/realjob_application.py
 import streamlit as st
-from app.daily_worker_eligibility import daily_worker_eligibility_app
-from app.early_reemployment import early_reemployment_app
-from app.remote_assignment import remote_assignment_app
-from app.wage_delay import wage_delay_app
-from app.unemployment_recognition import unemployment_recognition_app
-from app.questions import (
-    get_employment_questions,
-    get_self_employment_questions,
-    get_remote_assignment_questions,
-    get_wage_delay_questions,
-    get_daily_worker_eligibility_questions
-)
 
-def main():
-    st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")  # layout을 wide로 변경
+def realjob_application_app():
+    st.markdown("""
+        <h3 style='color: #333333;'>
+            실업인정 대상 기간 중 국내 체류 일정이 있으신가요? (※ 고용24에서 비대면 인정 가능 구간/사유에서 일자사유 세부 설정 필요)
+        </h3>
+    """, unsafe_allow_html=True)
 
-    # Apply custom CSS
-    with open("static/styles.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        st.checkbox("구직활동이 없는 경우 체크하세요")
+    with col2:
+        st.button("구직활동 등록")
 
-    st.title("💼 실업급여 도우미")
+    st.markdown("### 구직활동 *")
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.text_input("구직번호 *", value="G10000H1EE-003")
+            st.text_input("구직일자 *", value="YYYY-MM-DD")
+            st.selectbox("사유체크 *", ["사유체크를 입력하세요", "옵션1", "옵션2"])
+        with col2:
+            st.button("사유체크를 입력하세요", key="reason_check")
 
-    # Sidebar search functionality
+    st.markdown("### 연락처/활동내역 *")
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.selectbox("연락처 *", ["010-1234-5678", "010-9876-5432"])
+            st.radio("이메일 주소 입력", ["입력 안함", "입력함"])
+            st.text_input("이메일", placeholder="이메일을 입력하세요")
+        with col2:
+            st.selectbox("직업번호", ["직업을 선택하세요", "선택1", "선택2"])
+
+    st.markdown("### 재취업 활동 *")
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.selectbox("활동 *", ["활동을 선택하세요", "활동1", "활동2"])
+            st.selectbox("구체적 활동", ["구체적 활동을 선택하세요", "활동1", "활동2"])
+        with col2:
+            st.button("모집 정보 입력", key="recruit_info")
+
+    st.markdown("### 수급자격 *")
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.selectbox("수급자격", ["수급자격을 선택하세요", "자격1", "자격2"])
+        with col2:
+            st.button("입력자격", key="input_qualification")
+
+    st.button("등록하기")
+    st.button("등록/취소 버튼없기", key="cancel")
+
     with st.sidebar:
-        st.markdown("### 🔍 검색")
-        search_query = st.text_input("메뉴 또는 질문을 검색하세요", key="search_query")
-
-        # Menu and question definitions
-        menus = {
-            "수급자격": ["임금 체불 판단", "원거리 발령 판단"],
-            "실업인정": ["실업인정", "실업인정 신청"],  # 실업인정 신청 하위 메뉴 추가
-            "취업촉진수당": ["조기재취업수당"],
-            "실업급여 신청가능 시점": ["실업급여 신청 가능 시점", "일용직(건설일용포함)"]
-        }
-        all_questions = {
-            "임금 체불 판단": get_wage_delay_questions(),
-            "원거리 발령 판단": get_remote_assignment_questions(),
-            "실업인정": [],  # 기존 실업인정 질문 (비워둠)
-            "실업인정 신청": [],  # 새로운 하위 메뉴 질문 (필요 시 추가)
-            "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
-            "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
-        }
-
-        # Filter menus based on search query
-        filtered_menus = {}
-        if search_query:
-            search_query = search_query.lower()
-            for main_menu, sub_menus in menus.items():
-                filtered_sub_menus = [
-                    sub for sub in sub_menus
-                    if search_query in sub.lower() or
-                    any(search_query in q.lower() for q in all_questions.get(sub, []))
-                ]
-                if filtered_sub_menus or search_query in main_menu.lower():
-                    filtered_menus[main_menu] = filtered_sub_menus
-        else:
-            filtered_menus = menus
-
-        # Main menu selection with default value
-        menu = st.selectbox(
-            "📌 메뉴를 선택하세요",
-            list(filtered_menus.keys()),
-            key="main_menu",
-            index=0 if filtered_menus else None
-        )
-
-        # Sub menu selection with default value
-        sub_menu = None
-        if menu and filtered_menus.get(menu):
-            sub_menu = st.radio(
-                "📋 하위 메뉴",
-                filtered_menus[menu],
-                key="sub_menu",
-                index=0
-            )
-        elif not filtered_menus:
-            st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
-
-    st.markdown("---")
-
-    # Call functions based on menu selection
-    if menu and sub_menu:
-        if menu == "수급자격":
-            if sub_menu == "임금 체불 판단":
-                wage_delay_app()
-            elif sub_menu == "원거리 발령 판단":
-                remote_assignment_app()
-        elif menu == "실업인정":
-            if sub_menu == "실업인정":
-                unemployment_recognition_app()
-            elif sub_menu이 sub_menu == "실업인정 신청":
-                unemployment_recognition_app()  # 기존 함수 재사용
-        elif menu == "취업촉진수당":
-            if sub_menu == "조기재취업수당":
-                early_reemployment_app()
-        elif menu == "실업급여 신청가능 시점":
-            if sub_menu == "실업급여 신청 가능 시점":
-                st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
-            elif sub_menu == "일용직(건설일용포함)":
-                daily_worker_eligibility_app()
-    else:
-        st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
-
-    st.markdown("---")
-    st.caption("ⓒ 2025 실업급여 도우미는 도움을 드리기 위한 목적입니다. 실제 가능 여부는 고용센터의 판단을 기준으로 합니다.")
-    st.markdown("[나의 지역 고용센터 찾기](https://www.work24.go.kr/cm/c/d/0190/retrieveInstSrchLst.do)에서 자세한 정보를 확인하세요.")
-
-if __name__ == "__main__":
-    main()
+        st.markdown("### 고용보험 B.S. 공공 유저관리")
+        st.write("PRBCON-SK 08")
+        st.write("~SOCK-SK 01")
+        st.markdown("#### 실업급여실행 *")
+        st.selectbox("연락처", ["연락처를 선택하세요", "010-1234-5678"])
+        st.markdown("#### 근로자 *")
+        st.selectbox("활동", ["활동을 선택하세요", "활동1", "활동2"])
+        st.markdown("#### SS 08 *")
+        st.selectbox("GREIND", ["GREIND 선택", "옵션1", "옵션2"])
