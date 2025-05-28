@@ -51,8 +51,10 @@ svg[class*="e10vaf9m1"] {
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  z-index: 1000;
+  z-index: 10000; /* z-index를 높여 다른 요소 위에 표시 */
   font-family: 'Noto Sans KR', sans-serif;
+  display: block !important; /* 강제로 표시 */
+  opacity: 1 !important; /* 투명도 문제 방지 */
 }
 
 /* 모바일 뷰에서 추가 조정 */
