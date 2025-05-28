@@ -1,33 +1,22 @@
 // static/sidebar_button.js
 document.addEventListener('DOMContentLoaded', (event) => {
     function updateSidebarButtonText() {
-        // 사이드바 열기 버튼 찾기 (초기 상태 또는 닫힌 상태)
-        let sidebarButtonOpen = document.querySelector('button[aria-label="메뉴 열기"]');
-        // 사이드바 닫기 버튼 찾기 (열린 상태)
-        let sidebarButtonClose = document.querySelector('button[aria-label="메뉴 닫기"]');
+        // data-testid를 사용하여 버튼을 직접 찾습니다.
+        // 이 data-testid는 사용자님이 제공해주신 HTML에서 확인된 값입니다.
+        const sidebarButton = document.querySelector('button[data-testid="stBaseButton-headerNoPadding"]');
 
-        // Streamlit 1.x 버전에서는 data-testid를 사용할 수도 있습니다.
-        // aria-label을 찾지 못했을 경우 data-testid로 시도
-        if (!sidebarButtonOpen && !sidebarButtonClose) {
-            const genericButton = document.querySelector('button[data-testid="stSidebarCollapseButton"]');
-            if (genericButton) {
-                if (genericButton.getAttribute('aria-expanded') === 'false') {
-                    sidebarButtonOpen = genericButton;
-                } else if (genericButton.getAttribute('aria-expanded') === 'true') {
-                    sidebarButtonClose = genericButton;
-                }
+        if (sidebarButton) {
+            // aria-expanded 속성을 통해 사이드바가 열려있는지 닫혀있는지 확인합니다.
+            // 사이드바가 열리면 'true', 닫히면 'false' 값을 가집니다.
+            const isSidebarExpanded = sidebarButton.getAttribute('aria-expanded') === 'true';
+
+            if (isSidebarExpanded) {
+                sidebarButton.setAttribute('aria-label', '메뉴 닫기');
+                sidebarButton.innerHTML = '메뉴닫기';
+            } else {
+                sidebarButton.setAttribute('aria-label', '메뉴 열기');
+                sidebarButton.innerHTML = '메뉴열기';
             }
-        }
-
-        // 버튼 텍스트와 aria-label 업데이트
-        if (sidebarButtonOpen) {
-            sidebarButtonOpen.setAttribute('aria-label', '메뉴 열기');
-            sidebarButtonOpen.innerHTML = '메뉴열기';
-        }
-
-        if (sidebarButtonClose) {
-            sidebarButtonClose.setAttribute('aria-label', '메뉴 닫기');
-            sidebarButtonClose.innerHTML = '메뉴닫기';
         }
     }
 
@@ -35,14 +24,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
     updateSidebarButtonText();
 
     // MutationObserver를 사용하여 DOM 변경 감지
-    // Streamlit이 UI를 다시 렌더링할 때 버튼 텍스트가 유지되도록 합니다.
+    // 특히 aria-expanded 속성 변경을 감지해야 합니다.
     const observer = new MutationObserver(updateSidebarButtonText);
-    // childList: 자식 노드 추가/제거 감지
-    // subtree: 모든 후손 노드 감지
-    // attributes: 속성 변경 감지 (aria-expanded 등)
-    // attributeFilter: 특정 속성만 감지하여 성능 최적화
-    const config = { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-expanded', 'aria-label'] };
+    const config = {
+        childList: true,   // 자식 노드 변경 감지
+        subtree: true,     // 모든 하위 노드까지 감지
+        attributes: true,  // 속성 변경 감지
+        attributeFilter: ['aria-expanded', 'aria-label'] // aria-expanded와 aria-label 속성만 필터링하여 효율성 높임
+    };
 
-    // document.body를 관찰 시작 (전체 문서의 변경을 감시)
+    // document.body 전체를 관찰 시작 (Streamlit의 동적 렌더링에 대응)
     observer.observe(document.body, config);
 });
