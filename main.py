@@ -1,11 +1,11 @@
 # main.py
+
 import streamlit as st
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
 from app.wage_delay import wage_delay_app
 from app.unemployment_recognition import unemployment_recognition_app
-from app.realjob_application import realjob_application_app
 from app.questions import (
     get_employment_questions,
     get_self_employment_questions,
@@ -14,53 +14,8 @@ from app.questions import (
     get_daily_worker_eligibility_questions
 )
 
-# 페이지 설정
-st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
-
 def main():
-    # Add custom toggle button with inline JavaScript (moved to top)
-    st.markdown("""
-        <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
-        <script>
-            // 기본 토글 버튼 및 SVG 제거
-            document.addEventListener('DOMContentLoaded', function() {
-                const defaultToggle = document.querySelector('button[class*="st-emotion-cache"], button[class*="stSidebarToggle"], svg[class*="st-emotion-cache"], svg[class*="e10vaf9m1"]');
-                if (defaultToggle) {
-                    defaultToggle.style.display = 'none';
-                    console.log('Default toggle removed');
-                } else {
-                    console.log('No default toggle found');
-                }
-
-                // 커스텀 토글 초기화
-                const sidebar = document.querySelector('.stSidebar');
-                const button = document.getElementById('toggle-btn');
-                const sidebarContent = sidebar.querySelector('.stSidebarContent');
-                if (sidebar && button && sidebarContent) {
-                    sidebar.classList.remove('collapsed');
-                    button.textContent = '메뉴닫기';
-                    sidebarContent.style.display = 'block';
-                    sidebar.style.width = '350px';
-                    console.log('Custom toggle initialized');
-                } else {
-                    console.log('Toggle initialization failed:', { sidebar, button, sidebarContent });
-                }
-            });
-
-            function toggleSidebar() {
-                const sidebar = document.querySelector('.stSidebar');
-                const button = document.getElementById('toggle-btn');
-                const sidebarContent = sidebar.querySelector('.stSidebarContent');
-                if (sidebar && button && sidebarContent) {
-                    const isCollapsed = sidebar.classList.toggle('collapsed');
-                    button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
-                    sidebarContent.style.display = isCollapsed ? 'none' : 'block';
-                    sidebar.style.width = isCollapsed ? '0px' : '350px';
-                    console.log('Sidebar toggled:', isCollapsed);
-                }
-            }
-        </script>
-    """, unsafe_allow_html=True)
+    st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
 
     # Apply custom CSS
     with open("static/styles.css") as f:
@@ -76,7 +31,7 @@ def main():
         # Menu and question definitions
         menus = {
             "수급자격": ["임금 체불 판단", "원거리 발령 판단"],
-            "실업인정": ["실업인정", "실업인정 신청"],
+            "실업인정": ["실업인정"],
             "취업촉진수당": ["조기재취업수당"],
             "실업급여 신청가능 시점": ["실업급여 신청 가능 시점", "일용직(건설일용포함)"]
         }
@@ -84,13 +39,13 @@ def main():
             "임금 체불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
-            "실업인정 신청": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
 
         # Filter menus based on search query
         filtered_menus = {}
+        selected_sub_menu = None
         if search_query:
             search_query = search_query.lower()
             for main_menu, sub_menus in menus.items():
@@ -101,53 +56,65 @@ def main():
                 ]
                 if filtered_sub_menus or search_query in main_menu.lower():
                     filtered_menus[main_menu] = filtered_sub_menus
+                for sub in sub_menus:
+                    if search_query in sub.lower() or any(search_query in q.lower() for q in all_questions.get(sub, [])):
+                        selected_sub_menu = sub
+                        st.session_state.selected_menu = main_menu
+                        break
+                if selected_sub_menu:
+                    break
         else:
             filtered_menus = menus
 
-        # Main menu selection with default value
-        menu = st.selectbox(
-            "📌 메뉴를 선택하세요",
-            list(filtered_menus.keys()),
-            key="main_menu",
-            index=0 if filtered_menus else None
-        )
-
-        # Sub menu selection with default value
+        # Main menu selection
+        menu = None
         sub_menu = None
-        if menu and filtered_menus.get(menu):
-            sub_menu = st.radio(
-                "📋 하위 메뉴",
-                filtered_menus[menu],
-                key="sub_menu",
-                index=0
-            )
-        elif not filtered_menus:
+        if filtered_menus:
+            menu = st.selectbox("📌 메뉴를 선택하세요", list(filtered_menus.keys()), key="main_menu")
+            if filtered_menus.get(menu):
+                sub_menu = st.radio("📋 하위 메뉴", filtered_menus[menu], key="sub_menu")
+            else:
+                st.warning("검색 결과에 해당하는 하위 메뉴가 없습니다.")
+        else:
             st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
 
     st.markdown("---")
 
     # Call functions based on menu selection
-    if menu and sub_menu:
-        if menu == "수급자격":
+    if menu is not None and sub_menu is not None:
+        if menu == "수급자격" and sub_menu:
             if sub_menu == "임금 체불 판단":
                 wage_delay_app()
             elif sub_menu == "원거리 발령 판단":
                 remote_assignment_app()
-        elif menu == "실업인정":
+        elif menu == "실업인정" and sub_menu:
             if sub_menu == "실업인정":
                 unemployment_recognition_app()
-            elif sub_menu == "실업인정 신청":
-                realjob_application_app()
-        elif menu == "취업촉진수당":
+        elif menu == "취업촉진수당" and sub_menu:
             if sub_menu == "조기재취업수당":
                 early_reemployment_app()
-        elif menu == "실업급여 신청가능 시점":
+        elif menu == "실업급여 신청가능 시점" and sub_menu:
             if sub_menu == "실업급여 신청 가능 시점":
                 st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
             elif sub_menu == "일용직(건설일용포함)":
                 daily_worker_eligibility_app()
     else:
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
+
+    # Auto-call function based on search query
+    if search_query and selected_sub_menu is not None:
+        if selected_sub_menu == "임금 체불 판단":
+            wage_delay_app()
+        elif selected_sub_menu == "원거리 발령 판단":
+            remote_assignment_app()
+        elif selected_sub_menu == "실업인정":
+            unemployment_recognition_app()
+        elif selected_sub_menu == "조기재취업수당":
+            early_reemployment_app()
+        elif selected_sub_menu == "실업급여 신청 가능 시점":
+            st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
+        elif selected_sub_menu == "일용직(건설일용포함)":
+            daily_worker_eligibility_app()
 
     st.markdown("---")
     st.caption("ⓒ 2025 실업급여 도우미는 도움을 드리기 위한 목적입니다. 실제 가능 여부는 고용센터의 판단을 기준으로 합니다.")
