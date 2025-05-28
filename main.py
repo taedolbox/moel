@@ -40,7 +40,7 @@ def main():
                     sidebar.classList.remove('collapsed');
                     button.textContent = '메뉴닫기';
                     sidebarContent.style.display = 'block';
-                    sidebar.style.width = '300px';
+                    sidebar.style.width = '350px';
                     console.log('Custom toggle initialized');
                 } else {
                     console.log('Toggle initialization failed:', { sidebar, button, sidebarContent });
@@ -55,7 +55,7 @@ def main():
                     const isCollapsed = sidebar.classList.toggle('collapsed');
                     button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
                     sidebarContent.style.display = isCollapsed ? 'none' : 'block';
-                    sidebar.style.width = isCollapsed ? '0px' : '300px';
+                    sidebar.style.width = isCollapsed ? '0px' : '350px';
                     console.log('Sidebar toggled:', isCollapsed);
                 }
             }
