@@ -26,9 +26,9 @@ def main():
     st.markdown("""
         <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
         <script>
-            // 기본 토글 버튼 제거
+            // 기본 토글 버튼 및 SVG 제거
             document.addEventListener('DOMContentLoaded', function() {
-                const defaultToggle = document.querySelector('button[aria-label="Open sidebar"], button[aria-label="Close sidebar"], button[data-testid*="sidebar-toggle"], button[class*="stSidebarToggle"]');
+                const defaultToggle = document.querySelector('button[class*="st-emotion-cache"], button[class*="stSidebarToggle"], svg[class*="st-emotion-cache"], svg[class*="e10vaf9m1"]');
                 if (defaultToggle) defaultToggle.style.display = 'none';
 
                 // 커스텀 토글 초기화
