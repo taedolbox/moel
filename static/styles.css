@@ -235,3 +235,31 @@ h3 {
     background-color: #007bff;
     color: white;
 }
+/* 메인 콘텐츠를 100% 너비로 확장 */
+.stApp {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* 컨테이너와 열 정렬 개선 */
+.stContainer {
+    width: 100%;
+}
+
+.stColumns > div {
+    width: 100% !important;
+}
+
+/* 버튼 스타일 (선택 사항) */
+.stButton>button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+}
+
+/* 제목 스타일 */
+h3 {
+    color: #333333;
+}
