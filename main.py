@@ -34,6 +34,8 @@ def main():
                     const isCollapsed = sidebar.classList.toggle('collapsed');
                     button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
                     sidebarContent.style.display = isCollapsed ? 'none' : 'block';
+                    // 모바일 뷰에서도 너비 동기화
+                    sidebar.style.width = isCollapsed ? '0px' : '300px';
                 }
             }
             // DOM 로드 후 초기화
@@ -45,6 +47,7 @@ def main():
                     sidebar.classList.remove('collapsed');
                     button.textContent = '메뉴닫기';
                     sidebarContent.style.display = 'block';
+                    sidebar.style.width = '300px';
                 }
             });
         </script>
