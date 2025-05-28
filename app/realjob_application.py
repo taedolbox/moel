@@ -2,6 +2,13 @@ import streamlit as st
 import pandas as pd
 
 def realjob_application_app():
+    # 페이지 설정 (넓은 레이아웃)
+    st.set_page_config(page_title="실업인정 신청", layout="wide")
+
+    # CSS 스타일 적용
+    with open("static/styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
     st.markdown("""
         <h3 style='color: #333333;'>
             실업인정 대상 기간 중 국내 체류 일정이 있으신가요? (※ 고용24에서 비대면 인정 가능 구간/사유에서 일자사유 세부 설정 필요)
@@ -37,7 +44,7 @@ def realjob_application_app():
             st.text_input("이메일", placeholder="이메일을 입력하세요")
             st.selectbox("직업번호", ["직업을 선택하세요", "선택1", "선택2"])
         with col2:
-            st.selectbox("사유확인", ["사유확인", "사유1", "사유2"])  # 이미지에서 추가된 필드
+            st.selectbox("사유확인", ["사유확인", "사유1", "사유2"])
 
     # 재취업 활동 입력
     st.markdown("### 재취업 활동 *")
@@ -46,12 +53,12 @@ def realjob_application_app():
         with col1:
             st.selectbox("활동 *", ["활동을 선택하세요", "활동1", "활동2"])
             st.selectbox("구체적 활동", ["구체적 활동을 선택하세요", "활동1", "활동2"])
-            st.selectbox("국적 발령", ["국적 발령", "옵션1", "옵션2"])  # 이미지에서 추가된 필드
+            st.selectbox("국적 발령", ["국적 발령", "옵션1", "옵션2"])
         with col2:
             if st.button("모집 정보 입력", key="recruit_info"):
                 st.write("모집 정보가 입력되었습니다.")
             if st.button("산학협력 입력하세요", key="industry_academia"):
-                st.write("산학협력 입력이 완료되었습니다.")  # 이미지에서 추가된 버튼
+                st.write("산학협력 입력이 완료되었습니다.")
 
     # 수급자격 입력
     st.markdown("### 수급자격 *")
