@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 
 def realjob_application_app():
-    # 페이지 설정 (넓은 레이아웃)
-    st.set_page_config(page_title="실업인정 신청", layout="wide")
-
     # CSS 스타일 적용
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -27,7 +24,7 @@ def realjob_application_app():
     with st.container():
         col1, col2 = st.columns([1, 1])
         with col1:
-            st.text_input("구직번호 *", value="G10000H1EE-003")
+            st.text_input("구직번호prjlkjlkjlkj  구직번호 *", value="G10000H1EE-003")
             st.text_input("구직일자 *", value="YYYY-MM-DD")
             st.selectbox("사유체크 *", ["사유체크를 입력하세요", "옵션1", "옵션2"])
         with col2:
