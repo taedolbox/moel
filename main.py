@@ -21,7 +21,7 @@ def main():
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    # Inject custom JavaScript for sidebar button text
+    # 사이드바 버튼 텍스트 변경을 위한 JavaScript 삽입 (이 부분을 추가)
     st.markdown(
         """
         <script src="static/sidebar_button.js"></script>
@@ -30,8 +30,6 @@ def main():
     )
 
     st.title("💼 실업급여 도우미")
-
-    # ... (rest of your main.py code) ...
 
     # Sidebar search functionality
     with st.sidebar:
