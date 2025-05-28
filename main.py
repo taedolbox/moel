@@ -22,10 +22,37 @@ def main():
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    # Add toggle button with JavaScript
+    # Add custom toggle button with inline JavaScript
     st.markdown("""
-        <button class="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
-        <script src="/static/script.js"></script>
+        <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
+        <script>
+            function toggleSidebar() {
+                const sidebar = document.querySelector('.stSidebar');
+                const button = document.getElementById('toggle-btn');
+                if (sidebar && button) {
+                    const isCollapsed = sidebar.classList.toggle('collapsed');
+                    button.textContent = isCollapsed ? '메뉴열기' : '메뉴닫기';
+                    // 사이드바 콘텐츠 강제로 표시/숨김
+                    const sidebarContent = sidebar.querySelector('.stSidebarContent');
+                    if (sidebarContent) {
+                        sidebarContent.style.display = isCollapsed ? 'none' : 'block';
+                    }
+                }
+            }
+            // DOM 로드 후 초기화
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebar = document.querySelector('.stSidebar');
+                const button = document.getElementById('toggle-btn');
+                if (sidebar && button) {
+                    sidebar.classList.remove('collapsed');
+                    button.textContent = '메뉴닫기';
+                    const sidebarContent = sidebar.querySelector('.stSidebarContent');
+                    if (sidebarContent) {
+                        sidebarContent.style.display = 'block';
+                    }
+                }
+            });
+        </script>
     """, unsafe_allow_html=True)
 
     st.title("💼 실업급여 도우미")
@@ -43,7 +70,7 @@ def main():
             "실업급여 신청가능 시점": ["실업급여 신청 가능 시점", "일용직(건설일용포함)"]
         }
         all_questions = {
-            "임금 체불 판단": get_wage_delay_questions(),
+            "임금 첶불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
             "실업인정 신청": [],
