@@ -30,14 +30,15 @@ def main():
         # Menu and question definitions
         menus = {
             "수급자격": ["임금 체불 판단", "원거리 발령 판단"],
-            "실업인정": ["실업인정"],
+            "실업인정": ["실업인정", "실업인정 신청"],  # 실업인정 신청 하위 메뉴 추가
             "취업촉진수당": ["조기재취업수당"],
             "실업급여 신청가능 시점": ["실업급여 신청 가능 시점", "일용직(건설일용포함)"]
         }
         all_questions = {
             "임금 체불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
-            "실업인정": [],
+            "실업인정": [],  # 기존 실업인정 질문 (비워둠)
+            "실업인정 신청": [],  # 새로운 하위 메뉴 질문 (필요 시 추가)
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
@@ -89,6 +90,8 @@ def main():
         elif menu == "실업인정":
             if sub_menu == "실업인정":
                 unemployment_recognition_app()
+            elif sub_menu이 sub_menu == "실업인정 신청":
+                unemployment_recognition_app()  # 기존 함수 재사용
         elif menu == "취업촉진수당":
             if sub_menu == "조기재취업수당":
                 early_reemployment_app()
