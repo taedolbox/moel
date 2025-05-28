@@ -14,6 +14,24 @@ from app.questions import (
     get_daily_worker_eligibility_questions
 )
 
+import streamlit as st
+
+# 사이드바 표시 여부를 저장하는 변수 (초기값은 False)
+show_sidebar = False
+
+# 사이드바 열기/닫기 버튼
+if st.button("사이드바 열기/닫기"):
+    show_sidebar = not show_sidebar
+
+# 사이드바 표시
+if show_sidebar:
+    st.sidebar.title("사이드바 메뉴")
+    st.sidebar.text("메뉴를 선택하세요:")
+    # 사이드바에 추가할 위젯들 (예: selectbox, etc.)
+    menu = ["옵션 1", "옵션 2", "옵션 3"]
+    selected_option = st.sidebar.selectbox("메뉴", menu)
+    st.sidebar.write(f"선택된 옵션: {selected_option}")
+
 # 페이지 설정을 파일 최상단으로 이동
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
