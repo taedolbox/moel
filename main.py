@@ -14,13 +14,19 @@ from app.questions import (
     get_daily_worker_eligibility_questions
 )
 
-# 페이지 설정을 파일 최상단으로 이동
+# 페이지 설정
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
 def main():
     # Apply custom CSS
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+    # Add toggle button with JavaScript
+    st.markdown("""
+        <button class="toggle-btn" onclick="toggleSidebar()">메뉴열기</button>
+        <script src="/static/script.js"></script>
+    """, unsafe_allow_html=True)
 
     st.title("💼 실업급여 도우미")
 
