@@ -148,7 +148,7 @@ def daily_worker_eligibility_app():
     st.markdown("---") # 구분선을 출력합니다.
     st.markdown("#### 근무일 선택 달력") # 달력 섹션의 헤더를 출력합니다.
     # render_calendar 함수를 호출하여 달력을 렌더링하고 선택된 날짜들을 가져옵니다.
-    selected_dates = render_calendar(apply_date)
+    #selected_dates = render_calendar(apply_date)
     st.markdown("---") # 구분선을 출력합니다.
 
     # 조건 1 계산
