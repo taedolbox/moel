@@ -21,7 +21,7 @@ div[data-testid="stMarkdownContainer"] {
 /* 요일과 날짜를 포함하지 않은 stMarkdownContainer */
 div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: flex-start !important;
-    flex-direction: column !important; /* 디버그 로그 세로 정렬 방지 */
+    flex-direction: column !important;
 }
 
 /* 요일 헤더 스타일 */
@@ -72,7 +72,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 
 /* 호버 시 툴팁 표시 */
 .day:not(.disabled):hover::before {
-    content: '숫자 오른쪽을 클릭해주세요';
+    content: '숫자를 클릭해주세요';
     position: absolute;
     right: 50px;
     top: 0;
@@ -94,25 +94,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     background-color: #ffe6e6 !important;
 }
 
-/* 체크박스 스타일 */
-.stCheckbox {
-    position: absolute;
-    width: 40px !important;
-    height: 40px !important;
-    left: 0 !important;
-    top: 0 !important;
-    z-index: 6500 !important;
-    opacity: 0 !important;
-    pointer-events: auto !important;
-    cursor: pointer;
-}
-
-.stCheckbox > div > div {
-    display: block !important;
-    width: 40px !important;
-    height: 40px !important;
-    border: none !important;
-    background-color: transparent !important;
+/* Streamlit 버튼 숨기기 */
+div[data-testid="stButton"] button {
+    display: none !important;
 }
 
 /* 결과 텍스트 스타일 */
@@ -157,16 +141,6 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         border: 2px solid #ff4444 !important;
         font-weight: bold !important;
         background-color: #ffe6e6 !important;
-    }
-    .stCheckbox {
-        width: 40px !important;
-        height: 40px !important;
-        left: 0 !important;
-        top: 0 !important;
-    }
-    .stCheckbox > div > div {
-        width: 40px !important;
-        height: 40px !important;
     }
     .result-text {
         padding: 8px;
@@ -228,9 +202,6 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     .result-text {
         background-color: #2a2a2a;
         border-left-color: #4CAF50;
-    }
-    .stCheckbox > div > div {
-        background-color: transparent !important;
     }
 }
 
