@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 import pytz
-import time
+#import time
 
 # 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
