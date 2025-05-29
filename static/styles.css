@@ -23,7 +23,10 @@
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 5px 15px;
+    padding: 5px 10px;
+    text-align: left;
+    font-size: 14px;
+    width: 100%;
 }
 
 /* 제목 스타일 */
@@ -34,6 +37,38 @@ h3 {
 /* 사이드바 스타일 */
 .css-1v0mbdj {
     transition: all 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/* 사이드바 토글 버튼 스타일 */
+.sidebar-toggle-container {
+    position: relative;
+    width: 100%;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+#sidebar-toggle {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 5px;
+}
+
+#sidebar-toggle:hover {
+    background-color: #0056b3;
+}
+
+.toggle-icon {
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.toggle-text {
+    font-size: 14px;
 }
 
 /* 반응형 디자인 */
