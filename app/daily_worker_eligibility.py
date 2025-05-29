@@ -10,7 +10,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 22, 33, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 22, 38, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드
@@ -81,7 +81,7 @@ def render_calendar(apply_date):
                                 )
                                 with st.form(key=f"form_{date_str}", clear_on_submit=True):
                                     # 투명한 버튼으로 클릭 처리
-                                    if st.form_submit_button("", use_container_width=True, type="primary"):
+                                    if st.form_submit_button("", use_container_width=True):
                                         if date_obj in selected_dates:
                                             selected_dates.discard(date_obj)
                                         else:
