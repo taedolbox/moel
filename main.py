@@ -17,7 +17,14 @@ from app.questions import (
 # 페이지 설정을 가장 먼저 호출
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
-# CSS 로드
+# Font Awesome CDN 로드 및 CSS 로드
+st.markdown(
+    """
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    """,
+    unsafe_allow_html=True
+)
+
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -33,15 +40,15 @@ def main():
             st.session_state.toggle_clicked = False
 
         # 버튼 텍스트와 아이콘 설정
-        button_icon = ">" if not st.session_state.sidebar_visible else "<"
+        button_icon = "fa-chevron-right" if not st.session_state.sidebar_visible else "fa-chevron-left"
         button_text = "메뉴 열기" if not st.session_state.sidebar_visible else "메뉴 닫기"
 
-        # 커스텀 HTML 버튼 생성
+        # 커스텀 HTML 버튼 생성 (Font Awesome 아이콘 사용)
         st.markdown(
             f"""
             <div class="sidebar-toggle-container">
                 <button id="sidebar-toggle" onclick="streamlitCallback('toggle_clicked', true)">
-                    <span class="toggle-icon">{button_icon}</span>
+                    <i class="fas {button_icon} toggle-icon"></i>
                     <span class="toggle-text">{button_text}</span>
                 </button>
             </div>
