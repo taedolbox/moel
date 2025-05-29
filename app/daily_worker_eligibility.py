@@ -15,7 +15,7 @@ def toggle_date(date_str):
 def render_calendar(year: int, month: int):
     st.markdown(f"### {year}년 {month}월")
 
-    # CSS for grid layout and styling
+    # CSS for grid layout and circular highlighting
     st.markdown(
         """
         <style>
@@ -26,18 +26,15 @@ def render_calendar(year: int, month: int):
             text-align: center;
             margin-bottom: 1rem;
         }
-        .day-number {
-            font-weight: 500;
-            padding: 0.3rem 0;
-        }
-        .day-select {
+        .day {
             padding: 0.6rem 0;
             border-radius: 50%;
             cursor: pointer;
+            font-weight: 500;
             background-color: #f0f0f0;
             transition: 0.2s;
         }
-        .day-select:hover {
+        .day:hover {
             background-color: #d0d0ff;
         }
         .selected {
@@ -57,36 +54,29 @@ def render_calendar(year: int, month: int):
 
     # 달력 계산
     first_day = datetime.date(year, month, 1)
-    start_weekday = (first_day.weekday() + 1) % 7  # 일요일=0
+    start_weekday = first_day.weekday()  # 월요일=0
+    start_weekday = (start_weekday + 1) % 7  # 일요일=0 기준으로 변경
     days_in_month = (datetime.date(year + int(month / 12), (month % 12) + 1, 1) - first_day).days
 
-    # 날짜 숫자 라인 렌더링
-    numbers_html = '<div class="calendar">'
-    numbers_html += '<div></div>' * start_weekday
-    for day in range(1, days_in_month + 1):
-        numbers_html += f'<div class="day-number">{day}</div>'
-    numbers_html += '</div>'
+    # 날짜 렌더링
+    calendar_html = '<div class="calendar">'
+    calendar_html += '<div></div>' * start_weekday
 
-    # 선택 버튼 라인 렌더링
-    select_html = '<div class="calendar">'
-    select_html += '<div></div>' * start_weekday
     for day in range(1, days_in_month + 1):
         date = datetime.date(year, month, day)
         date_str = date.isoformat()
         selected_class = "selected" if date_str in st.session_state.selected_dates else ""
-        select_html += f'<div class="day-select {selected_class}" onclick="fetch(\'/?toggle={date_str}\', {{method: \'POST\'}}).then(() => window.location.reload())"></div>'
-    select_html += '</div>'
+        calendar_html += f'<div class="day {selected_class}" onclick="fetch(\'/?toggle={date_str}\', {{method: \'POST\'}}).then(() => window.location.reload())">{day}</div>'
 
-    # 출력
-    st.markdown(numbers_html, unsafe_allow_html=True)
-    st.markdown(select_html, unsafe_allow_html=True)
+    calendar_html += '</div>'
+    st.markdown(calendar_html, unsafe_allow_html=True)
 
-# URL 파라미터로부터 클릭 처리
-query_params = st.experimental_get_query_params()
-toggle = query_params.get("toggle", [None])[0]
+# URL 파라미터로부터 클릭 처리 (st.query_params 사용)
+toggle_list = st.query_params.get("toggle")
+toggle = toggle_list[0] if toggle_list else None
 if toggle:
     toggle_date(toggle)
-    st.experimental_set_query_params()  # clear toggle param
+    st.experimental_set_query_params()  # 쿼리 파라미터 초기화
 
 # 렌더링
 render_calendar(2025, 5)
