@@ -10,7 +10,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 19, 23, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 19, 31, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
@@ -122,6 +122,8 @@ def daily_worker_eligibility_app():
     st.markdown("---")
     st.markdown("#### 근무일 선택 달력")
     selected_dates = render_calendar(apply_date)
+    st.markdown("---")
+
     # 조건 1 계산
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
@@ -222,7 +224,7 @@ def daily_worker_eligibility_app():
             unsafe_allow_html=True
         )
 
-    # 건설일용근로자: 조건 1 & 2
+    # 건설일용근로자: 조건 1과 2
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
