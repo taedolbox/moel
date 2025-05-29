@@ -107,9 +107,13 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     left: 0 !important;
     top: 0 !important;
     z-index: 6500 !important;
-    opacity: 0 !important; /* 투명화 */
+    opacity: 0 !important;
     pointer-events: auto !important;
     cursor: pointer;
+}
+.day.selected {
+    border: 2px solid #ff4444 !important;
+    background-color: #ffe6e6 !important;
 }
 
 .stCheckbox > div > div {
