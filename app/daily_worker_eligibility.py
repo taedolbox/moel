@@ -4,13 +4,14 @@ from datetime import datetime, timedelta, date
 import calendar
 import pytz
 import time
+import streamlit.components.v1 as components
 
 # 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 22, 25, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 22, 29, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드
@@ -33,16 +34,31 @@ def render_calendar(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
-    # JavaScript로 클릭 이벤트 처리
-    st.markdown("""
+    # JavaScript로 세션 상태 업데이트
+    components.html("""
     <script>
     function toggleDate(dateStr) {
         const dateInput = document.getElementById('date_' + dateStr);
         dateInput.checked = !dateInput.checked;
-        dateInput.dispatchEvent(new Event('change'));
+        const selected = dateInput.checked;
+        // Streamlit 세션 상태 업데이트
+        fetch('/_stcore/session-state', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                'key': 'selected_dates',
+                'value': dateStr,
+                'action': selected ? 'add' : 'remove'
+            })
+        }).then(response => {
+            if (response.ok) {
+                // 상태 업데이트 후 약간의 지연을 두고 새로고침 방지
+                setTimeout(() => window.Streamlit.setComponentValue({}), 0);
+            }
+        });
     }
     </script>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
@@ -81,25 +97,14 @@ def render_calendar(apply_date):
                         if is_disabled:
                             class_name += " disabled"
 
-                        with st.container():
-                            if is_disabled:
-                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                            else:
-                                date_str = date_obj.strftime("%Y-%m-%d")
-                                st.markdown(
-                                    f"""
-                                    <input type="checkbox" id="date_{date_str}" style="display: none;" {"checked" if is_selected else ""} onchange="this.form.submit()">
-                                    <div class="{class_name}" onclick="toggleDate('{date_str}')">{day}</div>
-                                    """,
-                                    unsafe_allow_html=True
-                                )
-                                with st.form(key=f"form_{date_str}", clear_on_submit=True):
-                                    if st.form_submit_button(label="", use_container_width=True, type="primary"):
-                                        if date_obj in selected_dates:
-                                            selected_dates.discard(date_obj)
-                                        else:
-                                            selected_dates.add(date_obj)
-                                        st.session_state.selected_dates = selected_dates
+                        date_str = date_obj.strftime("%Y-%m-%d")
+                        st.markdown(
+                            f"""
+                            <div class="{class_name}" onclick="toggleDate('{date_str}')">{day}</div>
+                            <input type="checkbox" id="date_{date_str}" style="display: none;" {"checked" if is_selected else ""}>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
     # 선택된 근무일자 표시
     if selected_dates:
