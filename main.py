@@ -1,5 +1,4 @@
 # main.py
-
 import streamlit as st
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
@@ -15,10 +14,10 @@ from app.questions import (
     get_daily_worker_eligibility_questions
 )
 
-# 페이지 설정을 파일 최상단으로 이동
+# 페이지 설정을 가장 먼저 호출
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
-# CSS 추가
+# CSS 로드 (st.set_page_config 이후)
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -29,7 +28,9 @@ def main():
 
     # 사이드바 토글 버튼
     with st.sidebar:
-        if st.button("사이드바 열기/닫기"):
+        # 버튼 텍스트와 상태에 따른 아이콘 설정
+        button_text = "메뉴 열기" if not st.session_state.sidebar_visible else "메뉴 닫기"
+        if st.button(f"{button_text}"):
             st.session_state.sidebar_visible = not st.session_state.sidebar_visible
             st.rerun()
 
@@ -40,6 +41,15 @@ def main():
         <style>
         .css-1v0mbdj {{ /* 사이드바 클래스 */
             display: {sidebar_display} !important;
+            transition: all 0.3s ease; /* 부드러운 전환 효과 */
+        }}
+        .stButton>button {{
+            text-align: left; /* 텍스트 왼쪽 정렬 */
+            padding: 5px 10px; /* 버튼 패딩 조정 */
+        }}
+        .stButton>button::before {{
+            content: "{'>' if not st.session_state.sidebar_visible else '<'}"; /* 아이콘 동적 설정 */
+            margin-right: 5px; /* 텍스트와 아이콘 간격 */
         }}
         </style>
         """,
