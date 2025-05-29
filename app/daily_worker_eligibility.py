@@ -10,7 +10,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 19, 12, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 19, 15, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
@@ -77,7 +77,7 @@ def render_calendar(apply_date):
                                 with st.container():
                                     checkbox_key = f"date_{date_obj}"
                                     checkbox_value = st.checkbox(
-                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
+                                        "", key=checkbox_key, value=is_selected, label_visibility="visible"
                                     )
                                     st.markdown(
                                         f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
@@ -102,7 +102,7 @@ def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
-    # 현재 날짜와 시간 표시
+    # 현재 날짜 및 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
     # 요건 조건 설명
@@ -235,8 +235,8 @@ def daily_worker_eligibility_app():
         error_message = "❌ 건설일용근로자: 신청 불가능<br>"
         if not condition1:
             error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
-            if not condition2:
-                error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
+        if not condition2:
+            error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
         st.markdown(
             f'<div class="result-text">'
             f'<p>{error_message}</p>'
