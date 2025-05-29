@@ -47,16 +47,15 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 
 /* 날짜 스타일 */
 .day {
-    text-align: center;
     width: 40px !important;
     height: 40px !important;
     min-width: 40px !important;
     min-height: 40px !important;
     aspect-ratio: 1/1 !important;
-    line-height: 40px;
+    line-height: 40px !important;
     border: 1px solid #ccc;
     border-radius: 50%;
-    margin: 0 auto;
+    margin: 2px auto !important;
     background-color: #fff;
     color: #333;
     cursor: pointer;
@@ -65,11 +64,10 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 6000 !important;
-    pointer-events: auto !important;
+    z-index: 9999 !important;
+    padding: 0 !important; /* padding 제거로 클릭 범위 최대화 */
     touch-action: manipulation !important;
-    padding: 10px !important;
-}
+}}
 
 /* 호버 및 터치 시 체크박스 범위에 녹색 점 표시 */
 .day:not(.disabled):hover::after,
