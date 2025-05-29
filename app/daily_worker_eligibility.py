@@ -10,19 +10,21 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 20, 11, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
-# 스타일시트 로드 (캐시 방지 확인)
+# 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
-with open("styles.css") as f:
-    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+with open("static/styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def get_date_range(apply_date):
+    """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar(apply_date):
+    """달력을 렌더링하고 날짜 선택 기능을 제공합니다."""
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
@@ -36,6 +38,7 @@ def render_calendar(apply_date):
         cal = calendar.monthcalendar(year, month)
         days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
+        # 요일 헤더
         with st.container():
             cols = st.columns(7, gap="small")
             for i, day in enumerate(days_of_week):
@@ -45,6 +48,7 @@ def render_calendar(apply_date):
                         class_name += " weekend"
                     st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
+        # 날짜 렌더링
         for week in cal:
             with st.container():
                 cols = st.columns(7, gap="small")
@@ -85,9 +89,11 @@ def render_calendar(apply_date):
                                         else:
                                             selected_dates.discard(date_obj)
                                         st.session_state.selected_dates = selected_dates
+                                        # 디버깅 로그
                                         st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
                                         st.rerun()
 
+    # 선택된 근무일자 표시
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
@@ -95,17 +101,22 @@ def render_calendar(apply_date):
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
+    """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
+    # 현재 날짜 및 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
+    # 요건 조건
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
+    # 수급자격 신청일 선택
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
 
+    # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
 
     st.markdown("---")
@@ -113,6 +124,7 @@ def daily_worker_eligibility_app():
     selected_dates = render_calendar(apply_date)
     st.markdown("---")
 
+    # 조건 1 계산
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
     threshold = total_days / 3
@@ -129,6 +141,7 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
+    # 조건 2 계산 (건설일용근로자)
     fourteen_days_prior_end = apply_date - timedelta(days=1)
     fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
     fourteen_days_prior_range = [d.date() for d in pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)]
@@ -144,6 +157,7 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
 
+    # 조건 1 불충족 시 미래 신청일 제안
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         found_suggestion = False
@@ -171,6 +185,7 @@ def daily_worker_eligibility_app():
                 unsafe_allow_html=True
             )
 
+    # 조건 2 불충족 시 미래 신청일 제안
     if not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
         last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
@@ -191,6 +206,7 @@ def daily_worker_eligibility_app():
             )
 
     st.subheader("📌 최종 판단")
+    # 일반일용근로자: 조건 1
     if condition1:
         st.markdown(
             f'<div class="result-text">'
@@ -208,6 +224,7 @@ def daily_worker_eligibility_app():
             unsafe_allow_html=True
         )
 
+    # 건설일용근로자: 조건 1과 2
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
