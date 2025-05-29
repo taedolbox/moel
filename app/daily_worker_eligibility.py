@@ -1,3 +1,4 @@
+# app/daily_worker_eligibility.py
 import streamlit as st # Streamlit 라이브러리를 가져와 웹 앱을 만듭니다.
 import pandas as pd # 날짜 범위 생성 등 데이터 처리를 위해 pandas 라이브러리를 가져옵니다.
 from datetime import datetime, timedelta, date # 날짜 및 시간 계산을 위한 datetime 모듈을 가져옵니다.
