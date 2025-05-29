@@ -90,7 +90,7 @@ def render_calendar(apply_date):
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
-        st.markdown(", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
+        st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
 
     return st.session_state.selected_dates
 
