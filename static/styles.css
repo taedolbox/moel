@@ -21,6 +21,7 @@ div[data-testid="stMarkdownContainer"] {
 /* 요일과 날짜를 포함하지 않은 stMarkdownContainer */
 div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: flex-start !important;
+    flex-direction: column !important; /* 디버그 로그 세로 정렬 방지 */
 }
 
 /* 요일 헤더 스타일 */
@@ -138,6 +139,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     }
     div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         justify-content: flex-start !important;
+        flex-direction: column !important;
     }
     .day {
         width: 40px !important;
