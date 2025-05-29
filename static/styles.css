@@ -60,7 +60,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     background-color: #fff;
     color: #333;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, border 0.2s;
     position: relative;
     display: flex;
     justify-content: center;
@@ -80,8 +80,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     height: 8px;
     background-color: #00ff00;
     border-radius: 50%;
-    left: -10px; /* 체크박스 범위 중앙 (-20px + 40px/2) */
-    top: 20px; /* 체크박스 범위 중앙 (0 + 40px/2) */
+    left: -10px;
+    top: 20px;
     z-index: 7000;
     opacity: 1;
     animation: fadeOut 1s forwards;
@@ -96,7 +96,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 /* 선택된 날짜 (빨간 테두리) */
 .day.selected {
     border: 2px solid #ff4444 !important;
-    font-weight: bold;
+    font-weight: bold !important;
+    background-color: #fff !important; /* 배경색 덮어씌움 방지 */
 }
 
 /* 체크박스 스타일 */
@@ -107,7 +108,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     left: -20px;
     top: 0;
     z-index: 6500 !important;
-    opacity: 0; /* 투명하게, 클릭 가능 */
+    opacity: 0;
     pointer-events: auto !important;
     cursor: pointer;
 }
@@ -176,6 +177,11 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         margin: 0 0 0 0 !important;
         justify-content: flex-start !important;
     }
+    .day.selected {
+        border: 2px solid #ff4444 !important; /* 데스크탑에서 명시적 적용 */
+        font-weight: bold !important;
+        background-color: #fff !important;
+    }
 }
 
 /* 모든 텍스트 왼쪽 정렬 */
@@ -205,7 +211,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         color: #888;
     }
     .day.selected {
-        border-color: #ff6666 !important;
+        border: 2px solid #ff6666 !important; /* 다크 모드에서 색상 조정 */
+        font-weight: bold !important;
+        background-color: #333 !important;
     }
     .day.current {
         border-color: #6666ff;
