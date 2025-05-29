@@ -417,3 +417,281 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 
 
+
+
+/* 컨테이너 스타일 */
+div[data-testid="stHorizontalBlock"] {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 0px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    justify-content: flex-start !important;
+}
+
+/* stMarkdownContainer 스타일 */
+div[data-testid="stMarkdownContainer"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-align: left !important;
+}
+
+/* 요일과 날짜를 포함하지 않은 stMarkdownContainer */
+div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+    justify-content: flex-start !important;
+}
+
+/* 요일 헤더 스타일 */
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    margin: 0 auto;
+    padding: 0;
+    color: #333;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    aspect-ratio: 1/1 !important;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: #f8f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 날짜 스타일 */
+.day {
+    text-align: center;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    aspect-ratio: 1/1 !important;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s, border 0.2s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 6000 !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    padding: 10px !important;
+}
+
+/* 호버 시 툴팁 표시 */
+.day:not(.disabled):hover::before {
+    content: '숫자 오른쪽을 클릭해주세요';
+    position: absolute;
+    right: 50px; /* 툴팁 오른쪽 끝을 원 왼쪽에 맞춤 */
+    top: 0;
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 7000;
+    opacity: 0.9;
+    pointer-events: none; /* 툴팁이 클릭 방해 안 하도록 */
+}
+
+/* 호버 및 터치 시 녹색 점 표시 */
+.day:not(.disabled):hover::after,
+.day:not(.disabled):active::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #00ff00;
+    border-radius: 50%;
+    left: -10px;
+    top: 20px;
+    z-index: 7000;
+    opacity: 1;
+    animation: fadeOut 1s forwards;
+}
+
+/* 페이드아웃 애니메이션 */
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* 선택된 날짜 (빨간 테두리 및 배경색) */
+.day.selected {
+    border: 2px solid #ff4444 !important;
+    font-weight: bold !important;
+    background-color: #ffe6e6 !important;
+}
+
+/* 체크박스 스타일 */
+.stCheckbox {
+    position: absolute;
+    width: 40px !important;
+    height: 40px !important;
+    left: 0 !important;
+    top: 0 !important;
+    z-index: 6500 !important;
+    opacity: 0 !important;
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+.stCheckbox > div > div {
+    display: block !important;
+    width: 40px !important;
+    height: 40px !important;
+    border: none !important;
+    background-color: transparent !important;
+}
+
+/* 결과 텍스트 스타일 */
+.result-text {
+    margin: 10px 0;
+    padding: 10px;
+    border-left: 4px solid #36A2EB;
+    background-color: #f9f9f9;
+}
+
+/* 모바일 스타일 */
+@media (max-width: 767px) {
+    div[data-testid="stHorizontalBlock"] {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 2px !important;
+        justify-content: flex-start !important;
+        margin-left: 0;
+    }
+    div[data-testid="stMarkdownContainer"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+        justify-content: flex-start !important;
+    }
+    .day {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        aspect-ratio: 1/1 !important;
+        line-height: 40px !important;
+        font-size: 1em;
+        margin: 2px auto !important;
+        padding: 15px !important;
+        touch-action: manipulation !important;
+    }
+    .day:not(.disabled):hover::after,
+    .day:not(.disabled):active::after {
+        left: -10px;
+        top: 20px;
+    }
+    .day.selected {
+        border: 2px solid #ff4444 !important;
+        font-weight: bold !important;
+        background-color: #ffe6e6 !important;
+    }
+    .stCheckbox {
+        width: 40px !important;
+        height: 40px !important;
+        left: 0 !important;
+        top: 0 !important;
+    }
+    .stCheckbox > div > div {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .result-text {
+        padding: 8px;
+    }
+}
+
+/* 데스크탑 스타일 */
+@media (min-width: 768px) {
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 600px !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+    }
+    .day.selected {
+        border: 2px solid #ff4444 !important;
+        font-weight: bold !important;
+        background-color: #ffe6e6 !important;
+    }
+}
+
+/* 모든 텍스트 왼쪽 정렬 */
+.stMarkdown, .stText, .stHeader {
+    text-align: left !important;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark), [data-theme="dark"] {
+    .day-header {
+        color: #ddd;
+        background-color: #444;
+    }
+    .day-header.weekend {
+        color: #ff6666;
+    }
+    .day {
+        background-color: #333;
+        color: #ddd;
+        border-color: #888;
+    }
+    .day:hover:not(.disabled) {
+        background-color: #444;
+    }
+    .day:not(.disabled):hover::before {
+        background-color: #555;
+        color: #fff;
+    }
+    .day.disabled {
+        background-color: #555;
+        color: #888;
+    }
+    .day.selected {
+        border: 2px solid #ff6666 !important;
+        font-weight: bold !important;
+        background-color: #4a2a2a !important;
+    }
+    .day.current {
+        border-color: #6666ff;
+    }
+    .result-text {
+        background-color: #2a2a2a;
+        border-left-color: #4CAF50;
+    }
+    .stCheckbox > div > div {
+        background-color: transparent !important;
+    }
+}
+
+.day:hover:not(.disabled) {
+    background-color: #f0f0f0;
+}
+
+.day.current {
+    border: 2px solid #4444ff;
+}
+
+.day.disabled {
+    background-color: #e0e0e0;
+    color: #888;
+    cursor: not-allowed;
+}
+
