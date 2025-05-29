@@ -10,7 +10,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 19, 31, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 19, 41, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
@@ -101,7 +101,7 @@ def render_calendar(apply_date):
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
-    """일용근로자 수급자격 요건 모의계산 앱입니다."""
+    """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
     # 현재 날짜 및 시간 표시
@@ -109,15 +109,15 @@ def daily_worker_eligibility_app():
 
     # 요건 조건
     st.markdown("### 📋 요건 조건")
-    st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근무일 수가 총 일수의 1/3 미만이어야 합니다.")
-    st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
+    st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
+    st.markdown("- **조건 2 (건설일용근로자만 해당)**: 신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
     # 수급자격 신청일 선택
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
 
     # 날짜 범위 및 시작일 가져오기
-    date_range_objects, start_date = get_date_range(apply_date)
+    date_range_objects, date_obj = get_date_range(apply_date)
 
     st.markdown("---")
     st.markdown("#### 근무일 선택 달력")
@@ -211,7 +211,7 @@ def daily_worker_eligibility_app():
         st.markdown(
             f'<div class="result-text">'
             f'<p>✅ 일반일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만</b></p>'
+            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({date_obj.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만</b></p>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -219,7 +219,7 @@ def daily_worker_eligibility_app():
         st.markdown(
             f'<div class="result-text">'
             f'<p>❌ 일반일용근로자: 신청 불가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b></p>'
+            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({date_obj.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b></p>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -229,14 +229,14 @@ def daily_worker_eligibility_app():
         st.markdown(
             f'<div class="result-text">'
             f'<p>✅ 건설일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime("%Y-%m-%d")} ~ {fourteen_days_prior_end.strftime("%Y-%m-%d")}) 근무 사실이 없음을 확인합니다.</b></p>'
+            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({date_obj.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime("%Y-%m-%d")} ~ {fourteen_days_prior_end.strftime("%Y-%m-%d")}) 근무 사실이 없음을 확인합니다.</b></p>'
             f'</div>',
             unsafe_allow_html=True
         )
     else:
         error_message = "❌ 건설일용근로자: 신청 불가능<br>"
         if not condition1:
-            error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
+            error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({date_obj.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
         if not condition2:
             error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
         st.markdown(
