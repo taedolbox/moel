@@ -103,17 +103,6 @@ def render_calendar(apply_date):
                                         f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
                                         unsafe_allow_html=True
                                     )
-                                    # 체크박스 값이 변경되었는지 확인합니다.
-                                    if checkbox_value != is_selected:
-                                        if checkbox_value: # 체크박스가 선택되면 날짜를 추가합니다.
-                                            selected_dates.add(date_obj)
-                                        else: # 체크박스가 해제되면 날짜를 제거합니다.
-                                            selected_dates.discard(date_obj)
-                                        # 세션 상태의 selected_dates를 업데이트합니다.
-                                        st.session_state.selected_dates = selected_dates
-                                        # 디버깅 로그를 출력합니다.
-                                        st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
-                                        #st.rerun() # 앱을 재실행하여 UI를 업데이트합니다. (선택 상태 반영)
 
     # 선택된 근무일자 표시
     if selected_dates: # 선택된 날짜가 하나라도 있으면
