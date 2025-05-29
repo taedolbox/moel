@@ -87,28 +87,6 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     pointer-events: none; /* 툴팁이 클릭 방해 안 하도록 */
 }
 
-/* 호버 및 터치 시 녹색 점 표시 */
-.day:not(.disabled):hover::after,
-.day:not(.disabled):active::after {
-    content: '';
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background-color: #00ff00;
-    border-radius: 50%;
-    left: -10px;
-    top: 20px;
-    z-index: 7000;
-    opacity: 1;
-    animation: fadeOut 1s forwards;
-}
-
-/* 페이드아웃 애니메이션 */
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
 /* 선택된 날짜 (빨간 테두리 및 배경색) */
 .day.selected {
     border: 2px solid #ff4444 !important;
@@ -173,11 +151,6 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         margin: 2px auto !important;
         padding: 15px !important;
         touch-action: manipulation !important;
-    }
-    .day:not(.disabled):hover::after,
-    .day:not(.disabled):active::after {
-        left: -10px;
-        top: 20px;
     }
     .day.selected {
         border: 2px solid #ff4444 !important;
