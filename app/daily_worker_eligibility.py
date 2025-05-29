@@ -10,7 +10,7 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 19, 15, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 19, 23, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
@@ -77,7 +77,7 @@ def render_calendar(apply_date):
                                 with st.container():
                                     checkbox_key = f"date_{date_obj}"
                                     checkbox_value = st.checkbox(
-                                        "", key=checkbox_key, value=is_selected, label_visibility="visible"
+                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
                                     )
                                     st.markdown(
                                         f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
@@ -89,6 +89,8 @@ def render_calendar(apply_date):
                                         else:
                                             selected_dates.discard(date_obj)
                                         st.session_state.selected_dates = selected_dates
+                                        # 디버깅 로그
+                                        st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
                                         st.rerun()
 
     # 선택된 근무일자 표시
@@ -99,15 +101,15 @@ def render_calendar(apply_date):
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
-    """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
+    """일용근로자 수급자격 요건 모의계산 앱입니다."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
     # 현재 날짜 및 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
-    # 요건 조건 설명
+    # 요건 조건
     st.markdown("### 📋 요건 조건")
-    st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근로일 수가 총 일수의 1/3 미만이어야 합니다.")
+    st.markdown("- **조건 1**: 수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지의 근무일 수가 총 일수의 1/3 미만이어야 합니다.")
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 수급자격 인정신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
@@ -118,11 +120,9 @@ def daily_worker_eligibility_app():
     date_range_objects, start_date = get_date_range(apply_date)
 
     st.markdown("---")
-    st.markdown("#### ✅ 근무일 선택 달력")
+    st.markdown("#### 근무일 선택 달력")
     selected_dates = render_calendar(apply_date)
-    st.markdown("---")
-
-    # 조건 1 계산 및 표시
+    # 조건 1 계산
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
     threshold = total_days / 3
@@ -139,7 +139,7 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 조건 2 계산 및 표시 (건설일용근로자 기준)
+    # 조건 2 계산 (건설일용근로자)
     fourteen_days_prior_end = apply_date - timedelta(days=1)
     fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
     fourteen_days_prior_range = [d.date() for d in pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)]
@@ -183,7 +183,7 @@ def daily_worker_eligibility_app():
                 unsafe_allow_html=True
             )
 
-    # 조건 2 불충족 시 미래 신청일 제안 (건설일용근로자 기준)
+    # 조건 2 불충족 시 미래 신청일 제안
     if not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
         last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
@@ -204,7 +204,7 @@ def daily_worker_eligibility_app():
             )
 
     st.subheader("📌 최종 판단")
-    # 일반일용근로자: 조건 1만 판단
+    # 일반일용근로자: 조건 1
     if condition1:
         st.markdown(
             f'<div class="result-text">'
@@ -222,7 +222,7 @@ def daily_worker_eligibility_app():
             unsafe_allow_html=True
         )
 
-    # 건설일용근로자: 조건 1과 조건 2 모두 판단
+    # 건설일용근로자: 조건 1 & 2
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
