@@ -1,4 +1,4 @@
-import streamlit
+import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
@@ -6,12 +6,12 @@ import pytz
 import time
 
 # 달력 시작 요일 설정
-calendar.setfirstweekday(calendar.SUNDAY
+calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 19, 6, tzinfo=KST)
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A일 오후 %I:%M KST')
+current_datetime = datetime(2025, 5, 29, 19, 12, tzinfo=KST)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
@@ -20,7 +20,7 @@ with open("static/styles.css") as f:
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
-    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).date()
+    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def render_calendar(apply_date):
@@ -30,7 +30,7 @@ def render_calendar(apply_date):
 
     selected_dates = st.session_state.selected_dates
     current_date = current_datetime.date()
-    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).date()
+    start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
     for year, month in months:
@@ -62,13 +62,13 @@ def render_calendar(apply_date):
                         is_current = date_obj == current_date
                         is_disabled = date_obj > apply_date
 
-                        class_name = "day'
+                        class_name = "day"
                         if is_selected:
                             class_name += " selected"
                         if is_current:
                             class_name += " current"
-                            if is_disabled:
-                                class_name += " disabled"
+                        if is_disabled:
+                            class_name += " disabled"
 
                         with st.container():
                             if is_disabled:
@@ -80,7 +80,7 @@ def render_calendar(apply_date):
                                         "", key=checkbox_key, value=is_selected, label_visibility="hidden"
                                     )
                                     st.markdown(
-                                        f'<div class="{class_name}" data-date="{date_obj}"}>{day}</div>',
+                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
                                         unsafe_allow_html=True
                                     )
                                     if checkbox_value != is_selected:
@@ -91,19 +91,16 @@ def render_calendar(apply_date):
                                         st.session_state.selected_dates = selected_dates
                                         st.rerun()
 
-                                        # 디버깅 로그
-                                        st.write(f"Debug: Date {date_obj}, Selected: {is_selected}, Class: {class_name}")
-
     # 선택된 근무일자 표시
     if selected_dates:
-        st.markdown("### ✅ 선택된 선택된 근무일자")
+        st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%Y-%m-%d") for d in sorted(selected_dates)]))
 
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱의 메인 함수입니다."""
-    st.header("💼 일용근로자 수급자격 요건 모의계산")
+    st.header("일용근로자 수급자격 요건 모의계산")
 
     # 현재 날짜와 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
@@ -238,8 +235,8 @@ def daily_worker_eligibility_app():
         error_message = "❌ 건설일용근로자: 신청 불가능<br>"
         if not condition1:
             error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
-        if not condition2:
-            error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
+            if not condition2:
+                error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
         st.markdown(
             f'<div class="result-text">'
             f'<p>{error_message}</p>'
