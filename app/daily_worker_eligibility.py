@@ -10,10 +10,10 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 22, 17, tzinfo=KST)
+current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
-# 스타일시트 로드
+# 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -32,17 +32,6 @@ def render_calendar(apply_date):
     current_date = current_datetime.date()
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
-
-    # JavaScript로 클릭 이벤트 처리
-    st.markdown("""
-    <script>
-    function toggleDate(dateStr) {
-        const dateInput = document.getElementById('date_' + dateStr);
-        dateInput.checked = !dateInput.checked;
-        dateInput.dispatchEvent(new Event('change'));
-    }
-    </script>
-    """, unsafe_allow_html=True)
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
@@ -85,21 +74,24 @@ def render_calendar(apply_date):
                             if is_disabled:
                                 st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
                             else:
-                                date_str = date_obj.strftime("%Y-%m-%d")
-                                st.markdown(
-                                    f"""
-                                    <input type="checkbox" id="date_{date_str}" style="display: none;" {"checked" if is_selected else ""} onchange="this.form.submit()">
-                                    <div class="{class_name}" onclick="toggleDate('{date_str}')">{day}</div>
-                                    """,
-                                    unsafe_allow_html=True
-                                )
-                                with st.form(key=f"form_{date_str}", clear_on_submit=True):
-                                    if st.form_submit_button(label="", use_container_width=True, type="primary"):
-                                        if date_obj in selected_dates:
-                                            selected_dates.discard(date_obj)
-                                        else:
+                                with st.container():
+                                    checkbox_key = f"date_{date_obj}"
+                                    checkbox_value = st.checkbox(
+                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
+                                    )
+                                    st.markdown(
+                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                        unsafe_allow_html=True
+                                    )
+                                    if checkbox_value != is_selected:
+                                        if checkbox_value:
                                             selected_dates.add(date_obj)
+                                        else:
+                                            selected_dates.discard(date_obj)
                                         st.session_state.selected_dates = selected_dates
+                                        # 디버깅 로그
+                                        st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
+                                        st.rerun()
 
     # 선택된 근무일자 표시
     if selected_dates:
@@ -256,3 +248,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+원숫자 클릭시 디버그를 위한 출력내용이 있나?
