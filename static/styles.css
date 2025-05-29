@@ -1,4 +1,3 @@
-# static/styles.css
 /* 컨테이너 스타일 */
 div[data-testid="stHorizontalBlock"] {
     display: grid !important; /* Streamlit의 수평 블록을 그리드 레이아웃으로 설정하여 7열 구조 지원 */
