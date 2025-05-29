@@ -173,6 +173,11 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         left: -10px;
         top: 20px;
     }
+    .day.selected {
+        border: 2px solid #ff4444 !important;
+        font-weight: bold !important;
+        background-color: #ffe6e6 !important;
+    }
     .stCheckbox {
         width: 20px !important;
         height: 20px !important;
