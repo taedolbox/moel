@@ -17,7 +17,7 @@ from app.questions import (
 # 페이지 설정을 가장 먼저 호출
 st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="wide")
 
-# CSS 로드 (st.set_page_config 이후)
+# CSS 로드
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -26,12 +26,42 @@ def main():
     if 'sidebar_visible' not in st.session_state:
         st.session_state.sidebar_visible = True
 
-    # 사이드바 토글 버튼
+    # 커스텀 HTML 버튼을 사이드바 상단 오른쪽에 배치
     with st.sidebar:
-        # 버튼 텍스트와 상태에 따른 아이콘 설정
+        # 클릭 상태를 처리하기 위한 키
+        if 'toggle_clicked' not in st.session_state:
+            st.session_state.toggle_clicked = False
+
+        # 버튼 텍스트와 아이콘 설정
+        button_icon = ">" if not st.session_state.sidebar_visible else "<"
         button_text = "메뉴 열기" if not st.session_state.sidebar_visible else "메뉴 닫기"
-        if st.button(f"{button_text}"):
+
+        # 커스텀 HTML 버튼 생성
+        st.markdown(
+            f"""
+            <div class="sidebar-toggle-container">
+                <button id="sidebar-toggle" onclick="streamlitCallback('toggle_clicked', true)">
+                    <span class="toggle-icon">{button_icon}</span>
+                    <span class="toggle-text">{button_text}</span>
+                </button>
+            </div>
+            <script>
+                function streamlitCallback(key, value) {{
+                    window.parent.postMessage({{
+                        type: "streamlit:setComponentValue",
+                        key: key,
+                        value: value
+                    }}, "*");
+                }}
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # 버튼 클릭 이벤트 처리
+        if st.session_state.toggle_clicked:
             st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+            st.session_state.toggle_clicked = False  # 클릭 상태 초기화
             st.rerun()
 
     # CSS로 사이드바 표시/숨김 제어
@@ -42,14 +72,6 @@ def main():
         .css-1v0mbdj {{ /* 사이드바 클래스 */
             display: {sidebar_display} !important;
             transition: all 0.3s ease; /* 부드러운 전환 효과 */
-        }}
-        .stButton>button {{
-            text-align: left; /* 텍스트 왼쪽 정렬 */
-            padding: 5px 10px; /* 버튼 패딩 조정 */
-        }}
-        .stButton>button::before {{
-            content: "{'>' if not st.session_state.sidebar_visible else '<'}"; /* 아이콘 동적 설정 */
-            margin-right: 5px; /* 텍스트와 아이콘 간격 */
         }}
         </style>
         """,
