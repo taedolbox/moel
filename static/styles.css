@@ -74,7 +74,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .day:not(.disabled):hover::before {
     content: '숫자 오른쪽을 클릭해주세요';
     position: absolute;
-    right: -120px;
+    left: -120px;
     top: 0;
     background-color: #333;
     color: #fff;
@@ -86,7 +86,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     opacity: 0.9;
 }
 
-/* 호버 및 터치 시 녹색 점 표시 */
+/* 호버 및 터치 시 녹색 점 표시 
 .day:not(.disabled):hover::after,
 .day:not(.disabled):active::after {
     content: '';
@@ -100,7 +100,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     z-index: 7000;
     opacity: 1;
     animation: fadeOut 1s forwards;
-}
+}*/
 
 /* 페이드아웃 애니메이션 */
 @keyframes fadeOut {
