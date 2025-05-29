@@ -14,9 +14,9 @@ current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
 current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
-timestamp = time.time()
-with open("static/styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+#timestamp = time.time()
+#with open("static/styles.css") as f:
+#    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
