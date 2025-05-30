@@ -1,7 +1,7 @@
 div[data-testid="stHorizontalBlock"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important; /* 기본 그리드 간격 */
+    gap: 2px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important;
@@ -18,18 +18,17 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: flex-start !important;
 }
 .month-container {
-    margin-bottom: 2rem !important; /* 4월-5월 달력 간격 축소 */
+    margin-bottom: 2rem !important;
 }
-/* 5월 달력의 요일 헤더 간격 조정 */
 .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-    gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
+    gap: 8px !important;
 }
 .day-header {
     text-align: center !important;
     font-weight: bold !important;
     margin: 0 auto !important;
     padding: 0 !important;
-    color: #333 !important;
+    color: #4444ff !important; /* 모든 요일 색상을 파란색으로 변경 */
     width: 40px !important;
     height: 40px !important;
     min-width: 40px !important;
@@ -43,11 +42,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
 }
-.day-header.sunday {
-    color: red !important;
-}
+.day-header.sunday,
 .day-header.saturday {
-    color: blue !important;
+    color: #4444ff !important; /* 일요일과 토요일도 파란색으로 통일 */
 }
 .day {
     text-align: center !important;
@@ -107,7 +104,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     100% { opacity: 0; }
 }
 .day.selected {
-    border: 2px solid #4444ff !important; /* 파란색 테두리 */
+    border: 2px solid #4444ff !important;
     font-weight: bold !important;
     background-color: #e6e6ff !important;
 }
@@ -144,7 +141,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         margin-left: 0 !important;
     }
     .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-        gap: 6px !important; /* 모바일에서 5월 요일 헤더 간격 */
+        gap: 6px !important;
     }
     .day {
         width: 40px !important;
@@ -176,14 +173,12 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .day-header {
-        color: #ddd !important;
+        color: #6666ff !important; /* 다크 모드에서도 파란색 */
         background-color: #444 !important;
     }
-    .day-header.sunday {
-        color: red !important;
-    }
+    .day-header.sunday,
     .day-header.saturday {
-        color: blue !important;
+        color: #6666ff !important; /* 일요일과 토요일도 다크 모드에서 파란색 */
     }
     .day {
         background-color: #333 !important;
