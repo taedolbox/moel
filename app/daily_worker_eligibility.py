@@ -10,11 +10,9 @@ import time # 타임스탬프 생성을 위해 time 모듈을 가져옵니다.
 calendar.setfirstweekday(calendar.SUNDAY) # 달력의 첫 번째 요일을 일요일로 설정합니다.
 
 # KST 시간대 설정
-KST = pytz.timezone('Asia/Seoul') # 한국 표준시(KST) 시간대 객체를 생성합니다.
-# 현재 시간을 KST로 설정 (고정된 날짜와 시간 사용)
-current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
-# 현재 시간을 한국어 형식의 문자열로 포맷합니다.
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
+KST = pytz.timezone('Asia/Seoul')
+current_datetime = datetime.now(KST)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time() # 현재 타임스탬프를 가져와 캐시 방지 쿼리로 사용합니다. (현재 코드에서는 사용되지 않음)
