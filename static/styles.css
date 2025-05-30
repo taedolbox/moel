@@ -45,7 +45,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .day-header.sunday {
     color: red !important; /* 일요일: 빨간색 */
 }
-.day-header.saturday {
+.day-header weekend {
     color: blue !important; /* 토요일: 파란색 */
 }
 .day {
