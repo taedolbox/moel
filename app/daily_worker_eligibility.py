@@ -119,6 +119,7 @@ def daily_worker_eligibility_app():
     st.markdown("---")
 
     # 수급자격 신청일 선택
+    # 오늘 날짜로 수정을 했습니다: st.date_input의 기본값도 현재 날짜를 따르도록 합니다.
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
 
     # 날짜 범위 및 시작일 가져오기
