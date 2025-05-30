@@ -46,7 +46,7 @@ except FileNotFoundError:
     }}
     /* 5월 달력의 요일 헤더 간격 조정 */
     .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
-        gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
+        gap: 10px !important; /* 5월 요일 헤더 간격 증가 */
     }}
     .day-header {{
         text-align: center !important;
@@ -168,7 +168,7 @@ except FileNotFoundError:
             margin-left: 0 !important;
         }}
         .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
-            gap: 6px !important; /* 모바일에서 5월 요일 헤더 간격 */
+            gap: 8px !important; /* 모바일에서 5월 요일 헤더 간격 */
         }}
         .day {{
             width: 40px !important;
