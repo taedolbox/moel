@@ -28,7 +28,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     font-weight: bold !important;
     margin: 0 auto !important;
     padding: 0 !important;
-    color: #4444ff !important; /* 모든 요일 색상을 파란색으로 변경 */
+    color: #333 !important; /* 평일(월~금) 기본 색상: 기존 회색 */
     width: 40px !important;
     height: 40px !important;
     min-width: 40px !important;
@@ -42,9 +42,11 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
 }
-.day-header.sunday,
+.day-header.sunday {
+    color: red !important; /* 일요일: 빨간색 */
+}
 .day-header.saturday {
-    color: #4444ff !important; /* 일요일과 토요일도 파란색으로 통일 */
+    color: blue !important; /* 토요일: 파란색 */
 }
 .day {
     text-align: center !important;
@@ -173,12 +175,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .day-header {
-        color: #6666ff !important; /* 다크 모드에서도 파란색 */
+        color: #ddd !important; /* 평일 기본 색상 복원 */
         background-color: #444 !important;
     }
-    .day-header.sunday,
+    .day-header.sunday {
+        color: red !important; /* 일요일: 빨간색 */
+    }
     .day-header.saturday {
-        color: #6666ff !important; /* 일요일과 토요일도 다크 모드에서 파란색 */
+        color: blue !important; /* 토요일: 파란색 */
     }
     .day {
         background-color: #333 !important;
