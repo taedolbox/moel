@@ -10,13 +10,247 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-# current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
-# current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
-with open("static/styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+try:
+    with open("static/styles.css") as f:
+        st.markdown(f"<style>{f.read()}</style>?t={timestamp}", unsafe_allow_html=True)
+        st.write("Debug: CSS 파일 로드 성공")
+except FileNotFoundError:
+    st.error("CSS 파일을 찾을 수 없습니다. 경로를 확인하세요: static/styles.css")
+    st.write("Debug: CSS 파일 로드 실패, 내부 CSS 사용")
+    st.markdown(f"""
+    <style>
+    div[data-testid="stHorizontalBlock"] {{
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 2px !important; /* 기본 그리드 간격 */
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: flex-start !important;
+    }}
+    div[data-testid="stMarkdownContainer"] {{
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        text-align: left !important;
+    }}
+    div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {{
+        justify-content: flex-start !important;
+    }}
+    .month-container {{
+        margin-bottom: 2rem !important; /* 4월-5월 달력 간격 축소 */
+    }}
+    /* 5월 달력의 요일 헤더 간격 조정 */
+    .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
+        gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
+    }}
+    .day-header {{
+        text-align: center !important;
+        font-weight: bold !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        color: #333 !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        aspect-ratio: 1/1 !important;
+        line-height: 40px !important;
+        border: 1px solid #ccc !important;
+        border-radius: 50% !important;
+        background-color: #f8f8f8 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }}
+    .day-header.sunday {{
+        color: red !important;
+    }}
+    .day-header.saturday {{
+        color: blue !important;
+    }}
+    .day {{
+        text-align: center !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        aspect-ratio: 1/1 !important;
+        line-height: 40px !important;
+        border: 1px solid #ccc !important;
+        border-radius: 50% !important;
+        margin: 0 auto !important;
+        background-color: #fff !important;
+        color: #333 !important;
+        cursor: pointer !important;
+        transition: background-color 0.2s, border 0.2s !important;
+        position: relative !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        z-index: 6000 !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        padding: 10px !important;
+    }}
+    .day:not(.disabled):hover::before {{
+        content: '숫자 오른쪽을 클릭해주세요' !important;
+        position: absolute !important;
+        right: 50px !important;
+        top: 0 !important;
+        background-color: #333 !important;
+        color: #fff !important;
+        padding: 5px 10px !important;
+        border-radius: 4px !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        z-index: 7000 !important;
+        opacity: 0.9 !important;
+        pointer-events: none !important;
+    }}
+    .day:not(.disabled):hover::after,
+    .day:not(.disabled):active::after {{
+        content: '' !important;
+        position: absolute !important;
+        width: 8px !important;
+        height: 8px !important;
+        background-color: #00ff00 !important;
+        border-radius: 50% !important;
+        left: -10px !important;
+        top: 20px !important;
+        z-index: 7000 !important;
+        opacity: 1 !important;
+        animation: fadeOut 1s forwards !important;
+    }}
+    @keyframes fadeOut {{
+        0% {{ opacity: 1; }}
+        100% {{ opacity: 0; }}
+    }}
+    .day.selected {{
+        border: 2px solid #4444ff !important; /* 파란색 테두리 */
+        font-weight: bold !important;
+        background-color: #e6e6ff !important;
+    }}
+    .stCheckbox {{
+        position: absolute !important;
+        width: 40px !important;
+        height: 40px !important;
+        left: 0 !important;
+        top: 0 !important;
+        z-index: 6500 !important;
+        opacity: 0 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }}
+    .stCheckbox > div > div {{
+        display: block !important;
+        width: 40px !important;
+        height: 40px !important;
+        border: none !important;
+        background-color: transparent !important;
+    }}
+    .result-text {{
+        margin: 10px 0 !important;
+        padding: 10px !important;
+        border-left: 4px solid #36A2EB !important;
+        background-color: #f9f9f9 !important;
+    }}
+    @media (max-width: 767px) {{
+        div[data-testid="stHorizontalBlock"] {{
+            display: grid !important;
+            grid-template-columns: repeat(7, 1fr) !important;
+            gap: 2px !important;
+            justify-content: flex-start !important;
+            margin-left: 0 !important;
+        }}
+        .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
+            gap: 6px !important; /* 모바일에서 5월 요일 헤더 간격 */
+        }}
+        .day {{
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            min-height: 40px !important;
+            aspect-ratio: 1/1 !important;
+            line-height: 40px !important;
+            font-size: 1em !important;
+            margin: 2px auto !important;
+            padding: 15px !important;
+            touch-action: manipulation !important;
+        }}
+        .day.selected {{
+            border: 2px solid #4444ff !important;
+            font-weight: bold !important;
+            background-color: #e6e6ff !important;
+        }}
+    }}
+    @media (min-width: 768px) {{
+        div[data-testid="stHorizontalBlock"] {{
+            max-width: 600px !important;
+            margin: 0 !important;
+            justify-content: flex-start !important;
+        }}
+    }}
+    .stMarkdown, .stText, .stHeader {{
+        text-align: left !important;
+    }}
+    @media (prefers-color-scheme: dark), [data-theme="dark"] {{
+        .day-header {{
+            color: #ddd !important;
+            background-color: #444 !important;
+        }}
+        .day-header.sunday {{
+            color: red !important;
+        }}
+        .day-header.saturday {{
+            color: blue !important;
+        }}
+        .day {{
+            background-color: #333 !important;
+            color: #ddd !important;
+            border-color: #888 !important;
+        }}
+        .day:hover:not(.disabled) {{
+            background-color: #444 !important;
+        }}
+        .day:not(.disabled):hover::before {{
+            background-color: #555 !important;
+            color: #fff !important;
+        }}
+        .day.disabled {{
+            background-color: #555 !important;
+            color: #888 !important;
+        }}
+        .day.selected {{
+            border: 2px solid #6666ff !important;
+            font-weight: bold !important;
+            background-color: #4a2a2a !important;
+        }}
+        .day.current {{
+            border-color: #6666ff !important;
+        }}
+        .result-text {{
+            background-color: #2a2a2a !important;
+            border-left-color: #4CAF50 !important;
+        }}
+    }}
+    .day:hover:not(.disabled) {{
+        background-color: #f0f0f0 !important;
+    }}
+    .day.current {{
+        border: 2px solid #4444ff !important;
+    }}
+    .day.disabled {{
+        background-color: #e0e0e0 !important;
+        color: #888 !important;
+        cursor: not-allowed !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
@@ -33,68 +267,65 @@ def render_calendar(apply_date):
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
-
     for year, month in months:
-        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
-        cal = calendar.monthcalendar(year, month)
-        days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
-
-        # 요일 헤더
         with st.container():
-            cols = st.columns(7, gap="small")
-            for i, day in enumerate(days_of_week):
-                with cols[i]:
-                    class_name = "day-header"
-                    if i == 0 or i == 6:
-                        class_name += " weekend"
-                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="month-container"><h3>{year}년 {month}월</h3></div>', unsafe_allow_html=True)
+            cal = calendar.monthcalendar(year, month)
+            days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-        # 날짜 렌더링
-        for week in cal:
             with st.container():
                 cols = st.columns(7, gap="small")
-                for i, day in enumerate(week):
+                for i, day in enumerate(days_of_week):
                     with cols[i]:
-                        if day == 0:
-                            st.empty()
-                            continue
-                        date_obj = date(year, month, day)
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        is_disabled = date_obj > apply_date
+                        class_name = "day-header"
+                        if i == 0:
+                            class_name += " sunday"
+                        elif i == 6:
+                            class_name += " saturday"
+                        st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
-                        class_name = "day"
-                        if is_selected:
-                            class_name += " selected"
-                        if is_current:
-                            class_name += " current"
-                        if is_disabled:
-                            class_name += " disabled"
+            for week in cal:
+                with st.container():
+                    cols = st.columns(7, gap="small")
+                    for i, day in enumerate(week):
+                        with cols[i]:
+                            if day == 0:
+                                st.empty()
+                                continue
+                            date_obj = date(year, month, day)
+                            is_selected = date_obj in selected_dates
+                            is_current = date_obj == current_date
+                            is_disabled = date_obj > apply_date
 
-                        with st.container():
+                            class_name = "day"
+                            if is_selected:
+                                class_name += " selected"
+                            if is_current:
+                                class_name += " current"
                             if is_disabled:
-                                st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                            else:
-                                with st.container():
-                                    checkbox_key = f"date_{date_obj}"
-                                    checkbox_value = st.checkbox(
-                                        "", key=checkbox_key, value=is_selected, label_visibility="hidden"
-                                    )
-                                    st.markdown(
-                                        f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
-                                        unsafe_allow_html=True
-                                    )
-                                    if checkbox_value != is_selected:
-                                        if checkbox_value:
-                                            selected_dates.add(date_obj)
-                                        else:
-                                            selected_dates.discard(date_obj)
-                                        st.session_state.selected_dates = selected_dates
-                                        # 디버깅 로그
-                                        #st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
-                                        st.rerun()
+                                class_name += " disabled"
 
-    # 선택된 근무일자 표시
+                            with st.container():
+                                if is_disabled:
+                                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+                                else:
+                                    with st.container():
+                                        checkbox_key = f"date_{date_obj}"
+                                        checkbox_value = st.checkbox(
+                                            "", key=checkbox_key, value=is_selected, label_visibility="hidden"
+                                        )
+                                        st.markdown(
+                                            f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                            unsafe_allow_html=True
+                                        )
+                                        if checkbox_value != is_selected:
+                                            if checkbox_value:
+                                                selected_dates.add(date_obj)
+                                            else:
+                                                selected_dates.discard(date_obj)
+                                            st.session_state.selected_dates = selected_dates
+                                            st.rerun()
+
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
@@ -102,27 +333,20 @@ def render_calendar(apply_date):
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
-    """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
-    # 오늘 날짜로 수정을 했습니다: Streamlit 앱이 재실행될 때마다 현재 날짜와 시간을 KST 기준으로 정확히 가져옵니다.
     current_datetime = datetime.now(KST)
-    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
+    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
-    # 현재 날짜 및 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
-    # 요건 조건
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
     st.markdown("- **조건 2 (건설일용근로자만 해당)**: 신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
     st.markdown("---")
 
-    # 수급자격 신청일 선택
-    # 오늘 날짜로 수정을 했습니다: st.date_input의 기본값도 현재 날짜를 따르도록 합니다.
     apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
 
-    # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
 
     st.markdown("---")
@@ -130,7 +354,6 @@ def daily_worker_eligibility_app():
     selected_dates = render_calendar(apply_date)
     st.markdown("---")
 
-    # 조건 1 계산
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
     threshold = total_days / 3
@@ -147,7 +370,6 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 조건 2 계산 (건설일용근로자)
     fourteen_days_prior_end = apply_date - timedelta(days=1)
     fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
     fourteen_days_prior_range = [d.date() for d in pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)]
@@ -163,7 +385,6 @@ def daily_worker_eligibility_app():
 
     st.markdown("---")
 
-    # 조건 1 불충족 시 미래 신청일 제안
     if not condition1:
         st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
         found_suggestion = False
@@ -191,7 +412,6 @@ def daily_worker_eligibility_app():
                 unsafe_allow_html=True
             )
 
-    # 조건 2 불충족 시 미래 신청일 제안
     if not condition2:
         st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
         last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
@@ -212,7 +432,6 @@ def daily_worker_eligibility_app():
             )
 
     st.subheader("📌 최종 판단")
-    # 일반일용근로자: 조건 1
     if condition1:
         st.markdown(
             f'<div class="result-text">'
@@ -230,7 +449,6 @@ def daily_worker_eligibility_app():
             unsafe_allow_html=True
         )
 
-    # 건설일용근로자: 조건 1과 2
     if condition1 and condition2:
         st.markdown(
             f'<div class="result-text">'
