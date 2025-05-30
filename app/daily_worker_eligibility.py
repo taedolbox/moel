@@ -10,8 +10,8 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
-current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
-current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
+# current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
+# current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
@@ -29,9 +29,10 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    current_date = current_datetime.date()
+    current_date = datetime.now(KST).date()
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
+
 
     for year, month in months:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
