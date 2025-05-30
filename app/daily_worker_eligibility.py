@@ -105,6 +105,10 @@ def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
+    # 오늘 날짜로 수정을 했습니다: Streamlit 앱이 재실행될 때마다 현재 날짜와 시간을 KST 기준으로 정확히 가져옵니다.
+    current_datetime = datetime.now(KST)
+    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
+
     # 현재 날짜 및 시간 표시
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
