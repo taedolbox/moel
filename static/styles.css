@@ -20,7 +20,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .month-container {
     margin-bottom: 2rem !important; /* 4월-5월 달력 간격 축소 */
 }
-/* 5월 달력의 요일 헤der 간격 조정 */
+/* 5월 달력의 요일 헤더 간격 조정 */
 .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
     gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
 }
@@ -203,8 +203,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     }
     .day.selected {
         border: 2px solid #6666ff !important;
-        background-color: #4a2a2a !important;
         font-weight: bold !important;
+        background-color: #4a2a2a !important;
     }
     .day.current {
         border-color: #6666ff !important;
