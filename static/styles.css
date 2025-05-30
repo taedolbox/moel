@@ -6,24 +6,7 @@ div[data-testid="stHorizontalBlock"] {
     box-sizing: border-box !important;
     justify-content: flex-start !important;
 }
-div[data-testid="stMarkdownContainer"] {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-    height: 100% !important;
-    text-align: left !important;
-}
-div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
-    justify-content: flex-start !important;
-}
-.month-container {
-    margin-bottom: 2rem !important;
-}
-.month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-    gap: 8px !important;
-}
-.day-header {
+div[data-testid="stHorizontalBlock"] .day-header {
     text-align: center !important;
     font-weight: bold !important;
     margin: 0 auto !important;
@@ -42,11 +25,28 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
 }
-.day-header.sunday {
+div[data-testid="stHorizontalBlock"] .day-header.sunday {
     color: red !important; /* 일요일: 빨간색 */
 }
-.day-header weekend {
+div[data-testid="stHorizontalBlock"] .day-header.saturday {
     color: blue !important; /* 토요일: 파란색 */
+}
+div[data-testid="stMarkdownContainer"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-align: left !important;
+}
+div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
+    justify-content: flex-start !important;
+}
+.month-container {
+    margin-bottom: 2rem !important;
+}
+.month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
+    gap: 8px !important;
 }
 .day {
     text-align: center !important;
@@ -175,14 +175,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .day-header {
-        color: #ddd !important; /* 평일 기본 색상 복원 */
+        color: #ddd !important;
         background-color: #444 !important;
     }
     .day-header.sunday {
-        color: red !important; /* 일요일: 빨간색 */
+        color: red !important;
     }
     .day-header.saturday {
-        color: blue !important; /* 토요일: 파란색 */
+        color: blue !important;
     }
     .day {
         background-color: #333 !important;
