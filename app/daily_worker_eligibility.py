@@ -19,14 +19,13 @@ try:
         st.write("Debug: CSS 파일 로드 성공")
 except FileNotFoundError:
     st.error("CSS 파일을 찾을 수 없습니다. 경로를 확인하세요: static/styles.css")
-    # 대안: CSS를 직접 삽입
     st.write("Debug: CSS 파일 로드 실패, 내부 CSS 사용")
     st.markdown(f"""
     <style>
     div[data-testid="stHorizontalBlock"] {{
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0px !important;
+        gap: 2px !important; /* 기본 그리드 간격 */
         width: 100% !important;
         box-sizing: border-box !important;
         justify-content: flex-start !important;
@@ -43,7 +42,11 @@ except FileNotFoundError:
         justify-content: flex-start !important;
     }}
     .month-container {{
-        margin-bottom: 4rem !important;
+        margin-bottom: 2rem !important; /* 4월-5월 달력 간격 축소 */
+    }}
+    /* 5월 달력의 요일 헤더 간격 조정 */
+    .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
+        gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
     }}
     .day-header {{
         text-align: center !important;
@@ -128,7 +131,7 @@ except FileNotFoundError:
         100% {{ opacity: 0; }}
     }}
     .day.selected {{
-        border: 2px solid #4444ff !important;
+        border: 2px solid #4444ff !important; /* 파란색 테두리 */
         font-weight: bold !important;
         background-color: #e6e6ff !important;
     }}
@@ -163,6 +166,9 @@ except FileNotFoundError:
             gap: 2px !important;
             justify-content: flex-start !important;
             margin-left: 0 !important;
+        }}
+        .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {{
+            gap: 6px !important; /* 모바일에서 5월 요일 헤더 간격 */
         }}
         .day {{
             width: 40px !important;
@@ -262,13 +268,11 @@ def render_calendar(apply_date):
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
     for year, month in months:
-        # 달력 간격을 위해 month-container 추가
         with st.container():
             st.markdown(f'<div class="month-container"><h3>{year}년 {month}월</h3></div>', unsafe_allow_html=True)
             cal = calendar.monthcalendar(year, month)
             days_of_week = ["일", "월", "화", "수", "목", "금", "토"]
 
-            # 요일 헤더
             with st.container():
                 cols = st.columns(7, gap="small")
                 for i, day in enumerate(days_of_week):
@@ -279,10 +283,7 @@ def render_calendar(apply_date):
                         elif i == 6:
                             class_name += " saturday"
                         st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-                        # 디버깅: 클래스 이름 출력
-                        # st.write(f"Debug: Day {day}, Class: {class_name}")
 
-            # 날짜 렌더링
             for week in cal:
                 with st.container():
                     cols = st.columns(7, gap="small")
@@ -325,7 +326,6 @@ def render_calendar(apply_date):
                                             st.session_state.selected_dates = selected_dates
                                             st.rerun()
 
-    # 선택된 근무일자 표시
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
         st.markdown(", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
@@ -333,7 +333,6 @@ def render_calendar(apply_date):
     return st.session_state.selected_dates
 
 def daily_worker_eligibility_app():
-    """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
     current_datetime = datetime.now(KST)
