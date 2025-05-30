@@ -10,6 +10,8 @@ calendar.setfirstweekday(calendar.SUNDAY)
 
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
+current_datetime = datetime(2025, 5, 29, 20, 15, tzinfo=KST)
+current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %H:%M KST')
 
 # 스타일시트 로드 (캐시 방지 쿼리 추가)
 timestamp = time.time()
@@ -27,8 +29,7 @@ def render_calendar(apply_date):
         st.session_state.selected_dates = set()
 
     selected_dates = st.session_state.selected_dates
-    # current_date를 함수 호출 시점에 업데이트하도록 변경
-    current_date = datetime.now(KST).date()
+    current_date = current_datetime.date()
     start_date = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months = sorted(set((d.year, d.month) for d in pd.date_range(start=start_date, end=apply_date)))
 
@@ -88,6 +89,8 @@ def render_calendar(apply_date):
                                         else:
                                             selected_dates.discard(date_obj)
                                         st.session_state.selected_dates = selected_dates
+                                        # 디버깅 로그
+                                        #st.write(f"Debug: Date {date_obj}, Selected: {checkbox_value}, Class: {class_name}")
                                         st.rerun()
 
     # 선택된 근무일자 표시
@@ -101,12 +104,8 @@ def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱."""
     st.header("일용근로자 수급자격 요건 모의계산")
 
-    # `current_datetime`과 `current_time_korean`을 함수 내에서 다시 정의하여 항상 최신 시간을 반영
-    current_datetime_in_app = datetime.now(KST)
-    current_time_korean_in_app = current_datetime_in_app.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
-
     # 현재 날짜 및 시간 표시
-    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean_in_app}", unsafe_allow_html=True)
+    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
     # 요건 조건
     st.markdown("### 📋 요건 조건")
@@ -115,8 +114,7 @@ def daily_worker_eligibility_app():
     st.markdown("---")
 
     # 수급자격 신청일 선택
-    # 여기에서도 current_datetime.date() 대신 current_datetime_in_app.date()를 사용합니다.
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime_in_app.date(), key="apply_date_input")
+    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
 
     # 날짜 범위 및 시작일 가져오기
     date_range_objects, start_date = get_date_range(apply_date)
