@@ -23,13 +23,18 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: flex-start !important; /* 요일 헤더(.day-header)와 날짜(.day)가 없는 경우 왼쪽 정렬로 변경 */
 }
 
+/* 달력 간격 조정 */
+.month-container {
+    margin-bottom: 2rem !important; /* 4월과 5월 달력 간의 간격을 2rem으로 설정 */
+}
+
 /* 요일 헤더 스타일 */
 .day-header {
     text-align: center; /* 텍스트를 가운데 정렬 */
     font-weight: bold; /* 텍스트를 굵게 설정 */
     margin: 0 auto; /* 좌우 마진을 자동으로 설정하여 가운데 배치 */
     padding: 0; /* 내부 여백 제거 */
-    color: #333; /* 텍스트 색상을 회색(#333)으로 설정 */
+    color: #333; /* 기본 텍스트 색상을 회색(#333)으로 설정 */
     width: 40px !important; /* 너비를 40px로 고정 */
     height: 40px !important; /* 높이를 40px로 고정 */
     min-width: 40px !important; /* 최소 너비를 40px로 설정 */
@@ -42,6 +47,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     display: flex; /* 플렉스 레이아웃 사용 */
     justify-content: center; /* 플렉스 항목을 수평 가운데 정렬 */
     align-items: center; /* 플렉스 항목을 수직 가운데 정렬 */
+}
+
+/* 일요일과 토요일 색상 설정 */
+.day-header.weekend.sunday {
+    color: red !important; /* 일요일은 빨간색 */
+}
+.day-header.weekend.saturday {
+    color: blue !important; /* 토요일은 파란색 */
 }
 
 /* 날짜 스타일 */
@@ -224,8 +237,11 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         color: #ddd; /* 텍스트 색상을 밝은 회색(#ddd)으로 */
         background-color: #444; /* 배경색을 어두운 회색(#444)으로 */
     }
-    .day-header.weekend {
-        color: #ff6666; /* 주말 텍스트 색상을 밝은 빨간색(#ff6666)으로 */
+    .day-header.weekend.sunday {
+        color: red !important; /* 일요일은 빨간색 */
+    }
+    .day-header.weekend.saturday {
+        color: blue !important; /* 토요일은 파란색 */
     }
     .day {
         background-color: #333; /* 배경색을 어두운 회색(#333)으로 */
