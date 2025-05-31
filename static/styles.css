@@ -230,3 +230,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .day.saturday {
     color: blue !important;
 }
+.day-header.sunday {
+    color: red !important;
+}
+.day-header.saturday {
+    color: blue !important;
+}
