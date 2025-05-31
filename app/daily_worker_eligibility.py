@@ -41,14 +41,16 @@ def render_calendar(apply_date):
 
         # 요일 헤더
         with st.container():
+            day_headers = ["일", "월", "화", "수", "목", "금", "토"]
             cols = st.columns(7, gap="small")
-            for i, day in enumerate(days_of_week):
+            for i, day_name in enumerate(day_headers):
                 with cols[i]:
                     class_name = "day-header"
-                    if i == 0 or i == 6:
-                        class_name += " weekend"
-                    st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
-
+                    if i == 0:
+                        class_name += " sunday"
+                    elif i == 6:
+                        class_name += " saturday"
+                    st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
         # 날짜 렌더링
         # 날짜 렌더링 (변경된 부분 포함)
         for week in cal:
