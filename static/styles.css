@@ -224,3 +224,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888 !important;
     cursor: not-allowed !important;
 }
+.day.sunday {
+    color: red !important;
+}
+.day.saturday {
+    color: blue !important;
+}
