@@ -287,3 +287,62 @@ div[data-testid="stHorizontalBlock"] .day-header {
         grid-template-columns: repeat(7, 1fr) !important;
     }
 }
+/* 모든 날짜 셀의 높이와 정렬을 일관성 있게 유지 */
+.day, .day.disabled {
+    height: 40px !important;
+    min-height: 40px !important;
+    line-height: 40px !important;
+    aspect-ratio: 1/1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+/* 비활성화된 날짜(.disabled)에도 동일한 스타일 적용 */
+.day.disabled {
+    background-color: #e0e0e0 !important;
+    color: #888 !important;
+    cursor: not-allowed !important;
+    border: 1px solid #ccc !important;
+    border-radius: 50% !important;
+}
+
+/* 그리드 내의 열 정렬 보정 */
+div[data-testid="stHorizontalBlock"] {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 2px !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important; /* 모든 셀의 높이를 동일하게 맞춤 */
+}
+
+/* 각 주(week) 컨테이너의 높이 보정 */
+div[data-testid="stHorizontalBlock"] > div {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: stretch !important; /* 주 내 모든 셀의 높이를 동일하게 */
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 모바일 및 데스크톱 환경에서 높이 일관성 유지 */
+@media (max-width: 767px) {
+    div[data-testid="stHorizontalBlock"] .day,
+    div[data-testid="stHorizontalBlock"] .day.disabled {
+        height: 40px !important;
+        min-height: 40px !important;
+        line-height: 40px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 600px !important;
+        margin: 0 auto !important;
+    }
+}
