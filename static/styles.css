@@ -230,7 +230,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888 !important;
     cursor: not-allowed !important;
 }
-/* 수급자격신청일 이후 날짜의 가로 정렬 보정 */
+/* 수급자격신청일 이후 날짜의 간격 및 정렬 보정 */
 div[data-testid="stHorizontalBlock"] .day {
     height: 40px !important; /* 높이 고정 */
     min-height: 40px !important;
@@ -244,22 +244,23 @@ div[data-testid="stHorizontalBlock"] .day {
     box-sizing: border-box !important; /* 높이 계산 보정 */
 }
 
-/* 그리드 간격 및 정렬 일관성 유지 */
+/* 그리드 간격 일관성 유지 (수급자격신청일 이전과 동일한 간격) */
 div[data-testid="stHorizontalBlock"] {
-    gap: 2px !important; /* 기본 간격 유지 */
-    row-gap: 8px !important; /* 주 간 수직 간격 */
-    column-gap: 8px !important; /* 날짜 간 수평 간격 */
+    gap: 2px !important; /* 기본 간격 유지 (수급자격신청일 이전 기준) */
+    row-gap: 2px !important; /* 주 간 수직 간격 */
+    column-gap: 2px !important; /* 날짜 간 수평 간격 */
     align-items: stretch !important; /* 모든 셀 높이 일치 */
 }
 
-/* 수급자격신청일 다음 날짜부터 가로 정렬 보정 */
+/* 수급자격신청일 이후 날짜의 간격 보정 */
 div[data-testid="stHorizontalBlock"] .day:nth-child(n+8) {
     margin-left: 0 !important; /* 첫 번째 열 정렬 보정 */
     margin-right: 0 !important; /* 간격 일치 */
     width: 40px !important; /* 너비 고정 */
+    gap: 2px !important; /* 수평 간격 일치 */
 }
 
-/* 각 주 컨테이너의 가로 정렬 보정 */
+/* 각 주 컨테이너의 간격 및 정렬 보정 */
 div[data-testid="stHorizontalBlock"] > div {
     display: flex !important;
     flex-direction: row !important;
@@ -269,4 +270,5 @@ div[data-testid="stHorizontalBlock"] > div {
     padding: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    gap: 2px !important; /* 주 내 간격 일치 */
 }
