@@ -1,11 +1,16 @@
 div[data-testid="stHorizontalBlock"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important; /* 기본 그리드 간격 */
+    gap: 2px !important; /* 기본 그리드 간격 (수급자격신청일 이전 기준 유지) */
     width: 100% !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important;
+    /* 수정: 간격 일관성 유지 */
+    row-gap: 2px !important; /* 주 간 수직 간격 */
+    column-gap: 2px !important; /* 날짜 간 수평 간격 */
+    align-items: stretch !important; /* 모든 셀 높이 일치 */
 }
+
 div[data-testid="stMarkdownContainer"] {
     display: flex !important;
     justify-content: center !important;
@@ -14,16 +19,23 @@ div[data-testid="stMarkdownContainer"] {
     height: 100% !important;
     text-align: left !important;
 }
+
 div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: flex-start !important;
 }
+
 .month-container {
     margin-bottom: 2rem !important; /* 4월-5월 달력 간격 축소 */
 }
+
 /* 5월 달력의 요일 헤더 간격 조정 */
 .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-    gap: 8px !important; /* 5월 요일 헤더 간격 증가 */
+    gap: 8px !important; /* 5월 요일 헤더 간격 증가 (기존 유지) */
+    /* 수정: 요일 헤더 간격 보정 */
+    row-gap: 2px !important; /* 수급자격신청일 이전과 동일한 간격 */
+    column-gap: 2px !important;
 }
+
 .day-header {
     text-align: center !important;
     font-weight: bold !important;
@@ -43,18 +55,24 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
 }
+
 .day-header.sunday {
     color: red !important;
 }
+
 .day-header.saturday {
     color: blue !important;
 }
+
 .day.sunday {
     color: red !important;
 }
+
 .day.saturday {
     color: blue !important;
-}.day {
+}
+
+.day {
     text-align: center !important;
     width: 40px !important;
     height: 40px !important;
@@ -77,7 +95,11 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     pointer-events: auto !important;
     touch-action: manipulation !important;
     padding: 10px !important;
+    /* 수정: 간격 일치 위해 패딩 제거 */
+    padding: 0 !important;
+    box-sizing: border-box !important;
 }
+
 .day:not(.disabled):hover::before {
     content: '숫자 오른쪽을 클릭해주세요' !important;
     position: absolute !important;
@@ -93,6 +115,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     opacity: 0.9 !important;
     pointer-events: none !important;
 }
+
 .day:not(.disabled):hover::after,
 .day:not(.disabled):active::after {
     content: '' !important;
@@ -107,15 +130,18 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     opacity: 1 !important;
     animation: fadeOut 1s forwards !important;
 }
+
 @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+
 .day.selected {
     border: 2px solid #4444ff !important; /* 파란색 테두리 */
     font-weight: bold !important;
     background-color: #e6e6ff !important;
 }
+
 .stCheckbox {
     position: absolute !important;
     width: 40px !important;
@@ -127,6 +153,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     pointer-events: auto !important;
     cursor: pointer !important;
 }
+
 .stCheckbox > div > div {
     display: block !important;
     width: 40px !important;
@@ -134,12 +161,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     border: none !important;
     background-color: transparent !important;
 }
+
 .result-text {
     margin: 10px 0 !important;
     padding: 10px !important;
     border-left: 4px solid #36A2EB !important;
     background-color: #f9f9f9 !important;
 }
+
 @media (max-width: 767px) {
     div[data-testid="stHorizontalBlock"] {
         display: grid !important;
@@ -147,9 +176,15 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         gap: 2px !important;
         justify-content: flex-start !important;
         margin-left: 0 !important;
+        /* 수정: 모바일 간격 일치 */
+        row-gap: 2px !important;
+        column-gap: 2px !important;
     }
     .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
         gap: 6px !important; /* 모바일에서 5월 요일 헤더 간격 */
+        /* 수정: 모바일 간격 보정 */
+        row-gap: 2px !important;
+        column-gap: 2px !important;
     }
     .day {
         width: 40px !important;
@@ -161,7 +196,9 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         font-size: 1em !important;
         margin: 2px auto !important;
         padding: 15px !important;
-        touch-action: manipulation !important;
+        /* 수정: 모바일 패딩 제거 */
+        padding: 0 !important;
+        box-sizing: border-box !important;
     }
     .day.selected {
         border: 2px solid #4444ff !important;
@@ -169,16 +206,22 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         background-color: #e6e6ff !important;
     }
 }
+
 @media (min-width: 768px) {
     div[data-testid="stHorizontalBlock"] {
         max-width: 600px !important;
         margin: 0 !important;
         justify-content: flex-start !important;
+        /* 수정: 데스크톱 간격 일치 */
+        row-gap: 2px !important;
+        column-gap: 2px !important;
     }
 }
+
 .stMarkdown, .stText, .stHeader {
     text-align: left !important;
 }
+
 @media (prefers-color-scheme: dark), [data-theme="dark"] {
     .day-header {
         color: #ddd !important;
@@ -219,48 +262,22 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         border-left-color: #4CAF50 !important;
     }
 }
+
 .day:hover:not(.disabled) {
     background-color: #f0f0f0 !important;
 }
+
 .day.current {
     border: 2px solid #4444ff !important;
 }
+
 .day.disabled {
     background-color: #e0e0e0 !important;
     color: #888 !important;
     cursor: not-allowed !important;
 }
-/* 수급자격신청일 이후 날짜의 간격 및 정렬 보정 */
-div[data-testid="stHorizontalBlock"] .day {
-    height: 40px !important; /* 높이 고정 */
-    min-height: 40px !important;
-    max-height: 40px !important;
-    line-height: 40px !important; /* 수직 중앙 정렬 */
-    padding: 0 !important; /* 불필요한 패딩 제거 */
-    margin: 0 !important; /* 불필요한 마진 제거 */
-    display: flex !important;
-    justify-content: center !important; /* 가로 중앙 정렬 */
-    align-items: center !important; /* 수직 중앙 정렬 */
-    box-sizing: border-box !important; /* 높이 계산 보정 */
-}
 
-/* 그리드 간격 일관성 유지 (수급자격신청일 이전과 동일한 간격) */
-div[data-testid="stHorizontalBlock"] {
-    gap: 2px !important; /* 기본 간격 유지 (수급자격신청일 이전 기준) */
-    row-gap: 2px !important; /* 주 간 수직 간격 */
-    column-gap: 2px !important; /* 날짜 간 수평 간격 */
-    align-items: stretch !important; /* 모든 셀 높이 일치 */
-}
-
-/* 수급자격신청일 이후 날짜의 간격 보정 */
-div[data-testid="stHorizontalBlock"] .day:nth-child(n+8) {
-    margin-left: 0 !important; /* 첫 번째 열 정렬 보정 */
-    margin-right: 0 !important; /* 간격 일치 */
-    width: 40px !important; /* 너비 고정 */
-    gap: 2px !important; /* 수평 간격 일치 */
-}
-
-/* 각 주 컨테이너의 간격 및 정렬 보정 */
+/* 추가: 각 주 컨테이너의 간격 및 정렬 보정 */
 div[data-testid="stHorizontalBlock"] > div {
     display: flex !important;
     flex-direction: row !important;
@@ -270,5 +287,13 @@ div[data-testid="stHorizontalBlock"] > div {
     padding: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    gap: 2px !important; /* 주 내 간격 일치 */
+    gap: 2px !important; /* 주 내 간격 일치 (수급자격신청일 이전 기준) */
+}
+
+/* 추가: 수급자격신청일 이후 날짜의 간격 보정 */
+div[data-testid="stHorizontalBlock"] .day:nth-child(n+8) {
+    margin-left: 0 !important; /* 첫 번째 열 정렬 보정 */
+    margin-right: 0 !important; /* 간격 일치 */
+    width: 40px !important; /* 너비 고정 */
+    gap: 2px !important; /* 수평 간격 일치 */
 }
