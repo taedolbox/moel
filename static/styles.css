@@ -236,3 +236,54 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .day-header.saturday {
     color: blue !important;
 }
+/* Streamlit의 st.columns로 생성된 열에 대한 강제 정렬 */
+div[data-testid="stHorizontalBlock"] > div {
+    display: flex !important;
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* 각 날짜 셀의 너비와 정렬을 강제로 고정 */
+div[data-testid="stHorizontalBlock"] > div > div {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* 달력의 모든 셀이 동일한 크기를 가지도록 보장 */
+div[data-testid="stHorizontalBlock"] .day,
+div[data-testid="stHorizontalBlock"] .day-header {
+    flex: 1 1 0 !important;
+    max-width: 40px !important;
+    min-width: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* 모바일 환경에서 추가적인 정렬 보정 */
+@media (max-width: 767px) {
+    div[data-testid="stHorizontalBlock"] > div {
+        flex: 1 1 0 !important;
+        max-width: 14.28% !important; /* 7열 기준으로 1/7 */
+    }
+}
+
+/* 데스크톱 환경에서 추가적인 정렬 보정 */
+@media (min-width: 768px) {
+    div[data-testid="stHorizontalBlock"] {
+        max-width: 600px !important;
+        margin: 0 auto !important;
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+    }
+}
