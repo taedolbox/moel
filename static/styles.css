@@ -236,70 +236,67 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 .day-header.saturday {
     color: blue !important;
 }
-/* 모든 날짜 셀의 높이를 강제로 일치시키고 수직 정렬 */
-.day, .day.disabled, .day-header {
+/* 1. 6월 1일과 2일의 높이 간격 일치시키기 */
+.day, .day.disabled, .day.current {
     height: 40px !important;
     min-height: 40px !important;
-    max-height: 40px !important; /* 최대 높이 제한 */
-    line-height: 40px !important; /* 수직 중앙 정렬 */
-    padding: 0 !important; /* 불필요한 패딩 제거 */
+    max-height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 !important;
     margin: 0 auto !important;
-    display: flex !important;
+    display: flex !important ngx-install
     justify-content: center !important;
-    align-items: center !important; /* 수직 중앙 정렬 강화 */
+    align-items: center !important;
     box-sizing: border-box !important;
 }
 
-/* 각 주 컨테이너의 높이와 정렬 보정 */
-div[data-testid="stHorizontalBlock"] {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px !important;
-    width: 100% !important;
-    align-items: stretch !important; /* 모든 셀의 높이를 동일하게 */
-}
-
-/* 각 주의 열 컨테이너 높이 일치 */
+/* 모든 주 컨테이너의 높이 일치 */
 div[data-testid="stHorizontalBlock"] > div {
-    height: 40px !important; /* 주 단위 높이 고정 */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 날짜 셀 내부 콘텐츠 정렬 */
-.day > div, .day-header > div {
-    display: flex !important;
-    justify-content: center !important;
     align-items: center !important;
-    width: 100% !important;
-    height: 100% !important;
+    justify-content: center !important;
 }
 
-/* 반응형 환경에서도 높이 유지 */
+/* 2. 2025년 6월 제목과 원숫자 왼쪽 끝 정렬 맞추기 */
+div[data-testid="stMarkdownContainer"] h3 {
+    margin-left: 0 !important;
+    padding-left: 10px !important; /* 달력 첫 열과 맞추기 위한 패딩 */
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 달력 전체 컨테이너의 왼쪽 정렬 보정 */
+div[data-testid="stHorizontalBlock"] {
+    margin-left: 0 !important;
+    padding-left: 10px !important; /* 제목과 동일한 패딩 적용 */
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 첫 번째 열(왼쪽 끝 원숫자)의 왼쪽 정렬 보정 */
+div[data-testid="stHorizontalBlock"] > div:first-child {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* 반응형 환경에서도 정렬 유지 */
 @media (max-width: 767px) {
-    div[data-testid="stHorizontalBlock"] > div {
-        height: 40px !important;
+    div[data-testid="stMarkdownContainer"] h3 {
+        padding-left: 8px !important;
     }
-    .day, .day.disabled, .day-header {
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        line-height: 40px !important;
+    div[data-testid="stHorizontalBlock"] {
+        padding-left: 8px !important;
     }
 }
 
 @media (min-width: 768px) {
-    div[data-testid="stHorizontalBlock"] > div {
-        height: 40px !important;
+    div[data-testid="stMarkdownContainer"] h3 {
+        padding-left: 10px !important;
     }
-    .day, .day.disabled, .day-header {
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        line-height: 40px !important;
+    div[data-testid="stHorizontalBlock"] {
+        padding-left: 10px !important;
     }
 }
