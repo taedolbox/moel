@@ -303,3 +303,21 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(2) > div {
 div[data-testid="stHorizontalBlock"] > div:nth-child(3) > div {
     margin-top: 8px !important; /* 1일, 2일과 8일, 9일 간 수직 간격 */
 }
+/* 화요일 요일 헤더의 수직 정렬 보정 */
+div[data-testid="stHorizontalBlock"] .day-header:nth-child(3) {
+    line-height: 40px !important; /* 일관된 높이 유지 */
+    padding: 0 !important; /* 불필요한 패딩 제거 */
+    margin: 0 !important; /* 불필요한 마진 제거 */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important; /* 수직 중앙 정렬 강화 */
+    height: 40px !important; /* 높이 고정 */
+    min-height: 40px !important;
+    max-height: 40px !important;
+    box-sizing: border-box !important;
+}
+
+/* 모든 요일 헤더의 일관된 정렬 보장 */
+div[data-testid="stHorizontalBlock"] .day-header {
+    vertical-align: middle !important; /* 수직 정렬 보정 */
+}
