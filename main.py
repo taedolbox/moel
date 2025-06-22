@@ -41,8 +41,8 @@ def main():
     ]
 
     # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
-    # st.query_params를 사용하여 값을 읽어옵니다.
-    current_selection = st.query_params.get('menu', None) # .get()은 리스트가 아닌 단일 값을 반환합니다.
+    # st.query_params는 앱이 재실행될 때마다 현재 URL의 파라미터를 반영합니다.
+    current_selection = st.query_params.get('menu', None)
     
     # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
     if current_selection not in all_sub_menus:
@@ -60,7 +60,7 @@ def main():
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
-            "실업급여 신청가능 시점": [],
+            "실업급여 신청 가능 시점": [],
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
 
@@ -77,39 +77,47 @@ def main():
             is_selected = current_selection == sub_menu_item
             
             # HTML 버튼 스타일을 인라인으로 정의
-            button_style = f"""
-                width: 100%;
-                text-align: left;
-                background-color: {'#e0f7fa' if is_selected else ('#fff3cd' if sub_menu_matched_by_search and processed_search_query else '#f0f2f6')};
-                color: {'#007bff' if is_selected else '#333333'};
-                border: {'1px solid #007bff' if is_selected else '1px solid #ddd'};
-                border-radius: 5px;
-                padding: 8px 12px;
-                margin-bottom: 5px;
-                cursor: pointer;
-                font-weight: {'bold' if is_selected else 'normal'};
-                white-space: normal;
-                word-wrap: break-word;
-                box-shadow: {'0 0 5px rgba(0, 123, 255, 0.3)' if is_selected else 'none'};
-                transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-            """
-            
-            # 여기서 st.button을 사용하고, 클릭 시 st.query_params를 직접 수정합니다.
-            # st.experimental_set_query_params 대신 st.query_params를 사용합니다.
-            if st.button(sub_menu_item, key=f"sidebar_btn_{sub_menu_item}"):
-                st.query_params['menu'] = sub_menu_item
-                st.experimental_rerun() # 변경된 URL로 앱을 재실행하여 페이지를 다시 로드합니다.
+            # is_selected 상태에 따라 배경색과 텍스트 색을 변경합니다.
+            button_background = '#e0f7fa' if is_selected else ('#fff3cd' if sub_menu_matched_by_search and processed_search_query else '#f0f2f6')
+            button_color = '#007bff' if is_selected else '#333333'
+            button_border = '1px solid #007bff' if is_selected else '1px solid #ddd'
+            button_font_weight = 'bold' if is_selected else 'normal'
+            button_box_shadow = '0 0 5px rgba(0, 123, 255, 0.3)' if is_selected else 'none'
 
-        # 검색된 메뉴 강조를 위한 CSS 추가 (선택적)
-        if processed_search_query:
             st.markdown(f"""
+                <a href="?menu={sub_menu_item}" target="_self" style="text-decoration: none; display: block; margin-bottom: 5px;">
+                    <button style="
+                        width: 100%;
+                        text-align: left;
+                        background-color: {button_background};
+                        color: {button_color};
+                        border: {button_border};
+                        border-radius: 5px;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        font-weight: {button_font_weight};
+                        white-space: normal;
+                        word-wrap: break-word;
+                        box-shadow: {button_box_shadow};
+                        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+                    ">
+                        {sub_menu_item}
+                    </button>
+                </a>
                 <style>
-                    /* 검색된 메뉴에만 적용될 스타일 */
-                    [data-testid="stSidebar"] button[key*="sidebar_btn_"] {{
-                        background-color: var(--search-highlight-bg, #fff3cd);
+                    /* Streamlit 버튼 기본 호버 스타일 제거 및 커스텀 호버 스타일 적용 */
+                    button[data-baseweb="button"]:hover {{
+                        background-color: transparent !important;
+                        border-color: transparent !important;
+                    }}
+                    a:hover button {{
+                        background-color: #e9ecef !important;
+                        border-color: #bbbbbb !important;
                     }}
                 </style>
             """, unsafe_allow_html=True)
+            # st.button 대신 HTML 링크 버튼을 다시 사용합니다.
+            # 이 방식이 st.experimental_rerun() 없이 URL 변경을 유도하는 데 더 적합합니다.
 
 
     st.markdown("---")
@@ -124,7 +132,7 @@ def main():
         unemployment_recognition_app()
     elif current_selection == "조기재취업수당":
         early_reemployment_app()
-    elif current_selection == "실업급여 신청가능 시점":
+    elif current_selection == "실업급여 신청 가능 시점":
         st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
