@@ -3,7 +3,7 @@
 import streamlit as st
 from urllib.parse import urlencode, parse_qs
 
-# app 폴더 내 모듈들을 임포트합니다. 경로를 'app.모듈명'으로 수정합니다.
+# app 폴더 내 모듈들을 임포트합니다.
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
@@ -20,7 +20,7 @@ from app.questions import (
 def main():
     st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
 
-    # 커스텀 CSS 적용 (static/styles.css 파일이 main.py와 같은 레벨의 static/ 폴더에 있다고 가정)
+    # 커스텀 CSS 적용
     try:
         with open("static/styles.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -29,9 +29,6 @@ def main():
 
     st.title("💼 실업급여 도우미")
 
-    # --- URL 쿼리 파라미터에서 현재 메뉴 상태 가져오기 ---
-    query_params = st.query_params
-    
     # 모든 하위 메뉴를 단일 리스트로 정의
     all_sub_menus = [
         "임금 체불 판단",
@@ -42,11 +39,13 @@ def main():
         "일용직(건설일용포함)"
     ]
 
-    # 'menu' 파라미터 값 가져오기. 기본값은 첫 번째 하위 메뉴로 설정 (원하는 초기값으로 변경 가능)
-    # URL 파라미터가 없거나 유효하지 않은 경우, '임금 체불 판단'을 기본으로 합니다.
-    initial_selection = query_params.get('menu', [None])[0]
-    if initial_selection not in all_sub_menus:
-        initial_selection = "임금 체불 판단" # 유효하지 않은 파라미터면 기본값으로
+    # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
+    # `st.query_params`는 Streamlit 앱이 재실행될 때마다 현재 URL의 파라미터를 정확히 반영합니다.
+    current_selection = st.query_params.get('menu', [None])[0]
+    
+    # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
+    if current_selection not in all_sub_menus:
+        current_selection = "임금 체불 판단" # 기본값 설정
 
     # Sidebar
     with st.sidebar:
@@ -73,8 +72,8 @@ def main():
                 any(processed_search_query in q.lower() for q in questions_map.get(sub_menu_item, []))
             )
 
-            # 현재 URL의 'menu' 파라미터와 일치하는지 확인
-            is_selected = initial_selection == sub_menu_item
+            # 현재 `current_selection`과 일치하는지 확인
+            is_selected = current_selection == sub_menu_item
             
             # HTML 버튼 스타일을 인라인으로 정의
             button_style = f"""
@@ -115,12 +114,8 @@ def main():
 
     st.markdown("---")
 
-    # URL 쿼리 파라미터에서 현재 선택된 메뉴를 가져와 사용
-    current_selection = query_params.get('menu', [None])[0]
-    if current_selection not in all_sub_menus:
-        current_selection = "임금 체불 판단" # 유효하지 않은 파라미터면 기본값으로
-
-    # Call functions based on the current selection
+    # --- 메인 콘텐츠 표시 로직 (여기는 변경 없음) ---
+    # `current_selection`은 이미 위에서 URL 파라미터 값으로 설정되었으므로 바로 사용합니다.
     if current_selection == "임금 체불 판단":
         wage_delay_app()
     elif current_selection == "원거리 발령 판단":
@@ -134,6 +129,7 @@ def main():
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
     else:
+        # 이 else 블록은 `current_selection`에 기본값을 설정했으므로 거의 실행되지 않습니다.
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
 
 
