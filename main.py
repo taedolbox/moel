@@ -41,8 +41,8 @@ def main():
     ]
 
     # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
-    # st.query_params는 앱이 재실행될 때마다 현재 URL의 파라미터를 반영합니다.
-    current_selection = st.query_params.get('menu', [None])[0]
+    # st.query_params를 사용하여 값을 읽어옵니다.
+    current_selection = st.query_params.get('menu', None) # .get()은 리스트가 아닌 단일 값을 반환합니다.
     
     # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
     if current_selection not in all_sub_menus:
@@ -60,7 +60,7 @@ def main():
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
-            "실업급여 신청 가능 시점": [],
+            "실업급여 신청가능 시점": [],
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
 
@@ -94,11 +94,10 @@ def main():
                 transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
             """
             
-            # 여기서 st.button을 다시 사용하고, 클릭 시 st.experimental_set_query_params로 URL을 명시적으로 변경합니다.
-            # 이 방법이 URL과 앱 상태 동기화에 더 강력합니다.
-            if st.button(sub_menu_item, key=f"sidebar_btn_{sub_menu_item}", 
-                         type="primary" if is_selected else "secondary"): # 선택된 버튼 시각적으로 강조
-                st.experimental_set_query_params(menu=sub_menu_item)
+            # 여기서 st.button을 사용하고, 클릭 시 st.query_params를 직접 수정합니다.
+            # st.experimental_set_query_params 대신 st.query_params를 사용합니다.
+            if st.button(sub_menu_item, key=f"sidebar_btn_{sub_menu_item}"):
+                st.query_params['menu'] = sub_menu_item
                 st.experimental_rerun() # 변경된 URL로 앱을 재실행하여 페이지를 다시 로드합니다.
 
         # 검색된 메뉴 강조를 위한 CSS 추가 (선택적)
@@ -125,7 +124,7 @@ def main():
         unemployment_recognition_app()
     elif current_selection == "조기재취업수당":
         early_reemployment_app()
-    elif current_selection == "실업급여 신청 가능 시점":
+    elif current_selection == "실업급여 신청가능 시점":
         st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요.")
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
