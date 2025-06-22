@@ -1,5 +1,4 @@
 # main.py
-
 import streamlit as st
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
@@ -37,7 +36,7 @@ def main():
         "원거리 발령 판단": remote_assignment_app,
         "실업인정": unemployment_recognition_app,
         "조기재취업수당": early_reemployment_app,
-        "실업급여 신청 가능 시점": lambda: st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요."),
+        "실업급여 신청 가능 시점": lambda: st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 자세한 내용은 고용센터에 문의하세요 Luna 또는 고용센터에 문의하세요."),
         "일용직(건설일용포함)": daily_worker_eligibility_app
     }
     all_questions = {
@@ -64,41 +63,50 @@ def main():
                 any(search_query in q.lower() for q in all_questions.get(menu, []))
             ]
 
-        # Get selected menu from URL query params
-        query_params = st.query_params
-        url_menu_id = query_params.get("menu", [None])[0]
-        default_menu = None
-        if url_menu_id:
-            try:
-                menu_idx = int(url_menu_id) - 1  # Convert to 0-based index
-                if 0 <= menu_idx < len(all_menus):
-                    default_menu = all_menus[menu_idx]
-            except ValueError:
-                pass
-        if not default_menu and filtered_menus:
-            default_menu = filtered_menus[0]
+        # Initialize selected_menu in session state
+        if "selected_menu" not in st.session_state:
+            query_params = st.query_params
+            url_menu_id = query_params.get("menu", [None])[0]
+            default_menu = None
+            if url_menu_id:
+                try:
+                    menu_idx = int(url_menu_id) - 1  # Convert to 0-based index
+                    if 0 <= menu_idx < len(all_menus):
+                        default_menu = all_menus[menu_idx]
+                except ValueError:
+                    pass
+            st.session_state.selected_menu = default_menu if default_menu in all_menus else filtered_menus[0] if filtered_menus else None
 
         # Menu selection
-        selected_menu = None
         if filtered_menus:
             selected_menu = st.radio(
                 "📋 메뉴",
                 filtered_menus,
-                index=filtered_menus.index(default_menu) if default_menu in filtered_menus else 0,
-                key="selected_menu"
+                index=filtered_menus.index(st.session_state.selected_menu) if st.session_state.selected_menu in filtered_menus else 0,
+                key="menu_selector",
+                on_change=lambda: update_selected_menu(filtered_menus)
             )
-            # Update URL with menu ID
-            if selected_menu:
+            # Update session state and URL
+            if selected_menu != st.session_state.selected_menu:
+                st.session_state.selected_menu = selected_menu
                 menu_id = all_menus.index(selected_menu) + 1  # 1-based index
                 st.query_params["menu"] = str(menu_id)
         else:
             st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
+            st.session_state.selected_menu = None
+
+    def update_selected_menu(filtered_menus):
+        selected_menu = st.session_state.menu_selector
+        if selected_menu in filtered_menus:
+            st.session_state.selected_menu = selected_menu
+            menu_id = all_menus.index(selected_menu) + 1
+            st.query_params["menu"] = str(menu_id)
 
     st.markdown("---")
 
     # Call function based on selected menu
-    if selected_menu:
-        menu_functions.get(selected_menu, lambda: st.info("메뉴를 선택하세요."))()
+    if st.session_state.selected_menu:
+        menu_functions.get(st.session_state.selected_menu, lambda: st.info("메뉴를 선택하세요."))()
     else:
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
 
