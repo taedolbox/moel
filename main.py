@@ -1,7 +1,8 @@
 # main.py
 
 import streamlit as st
-from urllib.parse import urlencode, parse_qs
+# urllib.parse는 이제 직접적으로 사용되지 않습니다.
+# from urllib.parse import urlencode, parse_qs
 
 # app 폴더 내 모듈들을 임포트합니다.
 from app.daily_worker_eligibility import daily_worker_eligibility_app
@@ -40,7 +41,7 @@ def main():
     ]
 
     # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
-    # `st.query_params`는 Streamlit 앱이 재실행될 때마다 현재 URL의 파라미터를 정확히 반영합니다.
+    # st.query_params는 앱이 재실행될 때마다 현재 URL의 파라미터를 반영합니다.
     current_selection = st.query_params.get('menu', [None])[0]
     
     # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
@@ -93,28 +94,28 @@ def main():
                 transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
             """
             
+            # 여기서 st.button을 다시 사용하고, 클릭 시 st.experimental_set_query_params로 URL을 명시적으로 변경합니다.
+            # 이 방법이 URL과 앱 상태 동기화에 더 강력합니다.
+            if st.button(sub_menu_item, key=f"sidebar_btn_{sub_menu_item}", 
+                         type="primary" if is_selected else "secondary"): # 선택된 버튼 시각적으로 강조
+                st.experimental_set_query_params(menu=sub_menu_item)
+                st.experimental_rerun() # 변경된 URL로 앱을 재실행하여 페이지를 다시 로드합니다.
+
+        # 검색된 메뉴 강조를 위한 CSS 추가 (선택적)
+        if processed_search_query:
             st.markdown(f"""
-                <a href="?menu={sub_menu_item}" target="_self" style="text-decoration: none; display: block; margin-bottom: 5px;">
-                    <button style="{button_style}">
-                        {sub_menu_item}
-                    </button>
-                </a>
                 <style>
-                    /* Streamlit 버튼 기본 호버 스타일 제거 및 커스텀 호버 스타일 적용 */
-                    button[data-baseweb="button"]:hover {{
-                        background-color: transparent !important;
-                        border-color: transparent !important;
-                    }}
-                    a:hover button {{
-                        background-color: #e9ecef !important;
-                        border-color: #bbbbbb !important;
+                    /* 검색된 메뉴에만 적용될 스타일 */
+                    [data-testid="stSidebar"] button[key*="sidebar_btn_"] {{
+                        background-color: var(--search-highlight-bg, #fff3cd);
                     }}
                 </style>
             """, unsafe_allow_html=True)
 
+
     st.markdown("---")
 
-    # --- 메인 콘텐츠 표시 로직 (여기는 변경 없음) ---
+    # --- 메인 콘텐츠 표시 로직 ---
     # `current_selection`은 이미 위에서 URL 파라미터 값으로 설정되었으므로 바로 사용합니다.
     if current_selection == "임금 체불 판단":
         wage_delay_app()
@@ -129,7 +130,6 @@ def main():
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
     else:
-        # 이 else 블록은 `current_selection`에 기본값을 설정했으므로 거의 실행되지 않습니다.
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
 
 
