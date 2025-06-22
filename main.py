@@ -1,10 +1,9 @@
 # main.py
 
 import streamlit as st
-# urllib.parse 모듈을 다시 import 해야 합니다.
-from urllib.parse import unquote_plus # unquote_plus 함수 추가
+from urllib.parse import unquote_plus # unquote_plus 함수 임포트 확인
 
-# app 폴더 내 모듈들을 임포트합니다.
+# app 폴더 내 모듈 임포트 확인
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
@@ -21,7 +20,6 @@ from app.questions import (
 def main():
     st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
 
-    # 커스텀 CSS 적용
     try:
         with open("static/styles.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -30,7 +28,6 @@ def main():
 
     st.title("💼 실업급여 도우미")
 
-    # 모든 하위 메뉴를 단일 리스트로 정의
     all_sub_menus = [
         "임금 체불 판단",
         "원거리 발령 판단",
@@ -40,17 +37,15 @@ def main():
         "일용직(건설일용포함)"
     ]
 
-    # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
+    # --- 이 부분의 로직이 가장 중요합니다 ---
     raw_current_selection = st.query_params.get('menu', None)
-    
-    # URL에서 가져온 값을 디코딩합니다.
+
     current_selection = None
     if raw_current_selection:
-        current_selection = unquote_plus(raw_current_selection) # 여기가 핵심 변경 부분!
-    
-    # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
+        current_selection = unquote_plus(raw_current_selection) # URL에서 가져온 값을 여기서 디코딩
+
     if current_selection not in all_sub_menus:
-        current_selection = "임금 체불 판단" # 기본값 설정
+        current_selection = "임금 체불 판단" # 유효하지 않으면 기본값 설정
 
     # Sidebar
     with st.sidebar:
@@ -58,40 +53,32 @@ def main():
         search_query = st.text_input("메뉴 또는 질문을 검색하세요", key="search_query")
         processed_search_query = search_query.lower() if search_query else ""
 
-        # 각 하위 메뉴에 연결된 질문 정의 (검색 기능 유지를 위해 필요)
         questions_map = {
             "임금 체불 판단": get_wage_delay_questions(),
             "원거리 발령 판단": get_remote_assignment_questions(),
             "실업인정": [],
             "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
-            "실업급여 신청 가능 시점": [],
+            "실업급여 신청가능 시점": [],
             "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
         }
 
         st.markdown("### 📌 메뉴 선택")
 
         for sub_menu_item in all_sub_menus:
-            # 하위 메뉴가 검색어와 일치하는지 또는 관련 질문이 일치하는지 확인
             sub_menu_matched_by_search = (
                 processed_search_query in sub_menu_item.lower() or
                 any(processed_search_query in q.lower() for q in questions_map.get(sub_menu_item, []))
             )
 
-            # 현재 `current_selection`과 일치하는지 확인
             is_selected = current_selection == sub_menu_item
-            
-            # HTML 버튼 스타일을 인라인으로 정의
+
             button_background = '#e0f7fa' if is_selected else ('#fff3cd' if sub_menu_matched_by_search and processed_search_query else '#f0f2f6')
             button_color = '#007bff' if is_selected else '#333333'
             button_border = '1px solid #007bff' if is_selected else '1px solid #ddd'
             button_font_weight = 'bold' if is_selected else 'normal'
             button_box_shadow = '0 0 5px rgba(0, 123, 255, 0.3)' if is_selected else 'none'
 
-            # href에 들어갈 메뉴 이름은 URL 인코딩 되어야 합니다.
-            # 하지만 Python에서 한글 문자열을 URL에 직접 넣으면 Streamlit이 알아서 처리해주므로
-            # 여기서는 별도의 urlencode를 하지 않습니다.
-            # st.query_params에서 가져올 때 unquote_plus만 해주면 됩니다.
-            
+            # href에 sub_menu_item이 직접 들어갑니다. 브라우저가 자동으로 인코딩합니다.
             st.markdown(f"""
                 <a href="?menu={sub_menu_item}" target="_self" style="text-decoration: none; display: block; margin-bottom: 5px;">
                     <button style="
@@ -113,7 +100,6 @@ def main():
                     </button>
                 </a>
                 <style>
-                    /* Streamlit 버튼 기본 호버 스타일 제거 및 커스텀 호버 스타일 적용 */
                     button[data-baseweb="button"]:hover {{
                         background-color: transparent !important;
                         border-color: transparent !important;
@@ -128,8 +114,6 @@ def main():
 
     st.markdown("---")
 
-    # --- 메인 콘텐츠 표시 로직 ---
-    # `current_selection`은 이미 위에서 URL 파라미터 값으로 설정되었으므로 바로 사용합니다.
     if current_selection == "임금 체불 판단":
         wage_delay_app()
     elif current_selection == "원거리 발령 판단":
