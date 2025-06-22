@@ -1,8 +1,8 @@
 # main.py
 
 import streamlit as st
-# urllib.parse는 이제 직접적으로 사용되지 않습니다.
-# from urllib.parse import urlencode, parse_qs
+# urllib.parse 모듈을 다시 import 해야 합니다.
+from urllib.parse import unquote_plus # unquote_plus 함수 추가
 
 # app 폴더 내 모듈들을 임포트합니다.
 from app.daily_worker_eligibility import daily_worker_eligibility_app
@@ -41,8 +41,12 @@ def main():
     ]
 
     # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
-    # st.query_params는 앱이 재실행될 때마다 현재 URL의 파라미터를 반영합니다.
-    current_selection = st.query_params.get('menu', None)
+    raw_current_selection = st.query_params.get('menu', None)
+    
+    # URL에서 가져온 값을 디코딩합니다.
+    current_selection = None
+    if raw_current_selection:
+        current_selection = unquote_plus(raw_current_selection) # 여기가 핵심 변경 부분!
     
     # URL 파라미터가 없거나, 유효한 메뉴 목록에 없는 값이라면 기본 메뉴를 설정합니다.
     if current_selection not in all_sub_menus:
@@ -77,13 +81,17 @@ def main():
             is_selected = current_selection == sub_menu_item
             
             # HTML 버튼 스타일을 인라인으로 정의
-            # is_selected 상태에 따라 배경색과 텍스트 색을 변경합니다.
             button_background = '#e0f7fa' if is_selected else ('#fff3cd' if sub_menu_matched_by_search and processed_search_query else '#f0f2f6')
             button_color = '#007bff' if is_selected else '#333333'
             button_border = '1px solid #007bff' if is_selected else '1px solid #ddd'
             button_font_weight = 'bold' if is_selected else 'normal'
             button_box_shadow = '0 0 5px rgba(0, 123, 255, 0.3)' if is_selected else 'none'
 
+            # href에 들어갈 메뉴 이름은 URL 인코딩 되어야 합니다.
+            # 하지만 Python에서 한글 문자열을 URL에 직접 넣으면 Streamlit이 알아서 처리해주므로
+            # 여기서는 별도의 urlencode를 하지 않습니다.
+            # st.query_params에서 가져올 때 unquote_plus만 해주면 됩니다.
+            
             st.markdown(f"""
                 <a href="?menu={sub_menu_item}" target="_self" style="text-decoration: none; display: block; margin-bottom: 5px;">
                     <button style="
@@ -116,8 +124,6 @@ def main():
                     }}
                 </style>
             """, unsafe_allow_html=True)
-            # st.button 대신 HTML 링크 버튼을 다시 사용합니다.
-            # 이 방식이 st.experimental_rerun() 없이 URL 변경을 유도하는 데 더 적합합니다.
 
 
     st.markdown("---")
