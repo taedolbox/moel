@@ -1,7 +1,8 @@
 # main.py
 
-
 import streamlit as st
+from urllib.parse import urlencode, parse_qs # URL 파싱을 위한 모듈 추가
+
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
@@ -24,9 +25,16 @@ def main():
 
     st.title("💼 실업급여 도우미")
 
-    # Initialize session state for current selection if not already present
+    # --- URL 쿼리 파라미터에서 현재 메뉴 상태 가져오기 ---
+    query_params = st.query_params
+    initial_selection = query_params.get('menu', [None])[0] # 'menu' 파라미터 값 가져오기
+
     if 'current_selected_sub_menu' not in st.session_state:
-        st.session_state.current_selected_sub_menu = None
+        st.session_state.current_selected_sub_menu = initial_selection
+
+    # 만약 URL 파라미터가 있고, 현재 세션 상태와 다르면 세션 상태 업데이트
+    if initial_selection and st.session_state.current_selected_sub_menu != initial_selection:
+        st.session_state.current_selected_sub_menu = initial_selection
 
     # Sidebar search functionality
     with st.sidebar:
@@ -69,13 +77,22 @@ def main():
             if sub_menus:
                 st.markdown(f"#### {main_menu}")
                 for sub_menu_item in sub_menus:
-                    # When a button is clicked, update the session state
-                    if st.button(sub_menu_item, key=f"btn_{main_menu}_{sub_menu_item}"):
+                    # 버튼 클릭 시 session_state 업데이트 및 URL 파라미터 변경
+                    is_selected = st.session_state.current_selected_sub_menu == sub_menu_item
+                    button_label = f"**{sub_menu_item}**" if is_selected else sub_menu_item # 선택된 버튼 강조
+                    
+                    if st.button(button_label, key=f"btn_{main_menu}_{sub_menu_item}"):
                         st.session_state.current_selected_sub_menu = sub_menu_item
+                        # URL 파라미터 업데이트 (한글 인코딩 처리)
+                        st.query_params['menu'] = sub_menu_item
+                        st.experimental_rerun() # URL 변경 적용을 위해 재실행
             elif search_query and search_query in main_menu.lower():
-                # If only main menu matched, and it's clicked, clear selection
                 if st.button(main_menu, key=f"btn_only_{main_menu}"):
-                    st.session_state.current_selected_sub_menu = None # Clear if main menu itself is clicked and has no sub-menus
+                    st.session_state.current_selected_sub_menu = None
+                    # URL 파라미터에서 'menu' 제거
+                    if 'menu' in st.query_params:
+                        del st.query_params['menu']
+                    st.experimental_rerun()
 
     st.markdown("---")
 
