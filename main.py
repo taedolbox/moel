@@ -1,5 +1,6 @@
 # main.py
 
+
 import streamlit as st
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
@@ -23,6 +24,10 @@ def main():
 
     st.title("💼 실업급여 도우미")
 
+    # Initialize session state for current selection if not already present
+    if 'current_selected_sub_menu' not in st.session_state:
+        st.session_state.current_selected_sub_menu = None
+
     # Sidebar search functionality
     with st.sidebar:
         st.markdown("### 🔍 검색")
@@ -45,7 +50,6 @@ def main():
 
         # Filter menus based on search query
         filtered_menus = {}
-        selected_sub_menu_from_search = None # Renamed to avoid conflict
         if search_query:
             search_query = search_query.lower()
             for main_menu, sub_menus in menus.items():
@@ -53,8 +57,6 @@ def main():
                 for sub in sub_menus:
                     if search_query in sub.lower() or any(search_query in q.lower() for q in all_questions.get(sub, [])):
                         filtered_sub_menus.append(sub)
-                        selected_sub_menu_from_search = sub # Set if found via search
-                        # No break here, continue to find all matching sub-menus
                 if filtered_sub_menus or search_query in main_menu.lower():
                     filtered_menus[main_menu] = filtered_sub_menus
         else:
@@ -62,31 +64,23 @@ def main():
 
         # Display all main menus and their sub-menus directly
         st.markdown("### 📌 메뉴 선택")
-        selected_sub_menu_from_selection = None # To store the actively selected sub-menu from direct display
 
         for main_menu, sub_menus in filtered_menus.items():
             if sub_menus:
                 st.markdown(f"#### {main_menu}")
                 for sub_menu_item in sub_menus:
+                    # When a button is clicked, update the session state
                     if st.button(sub_menu_item, key=f"btn_{main_menu}_{sub_menu_item}"):
-                        selected_sub_menu_from_selection = sub_menu_item
-            elif search_query and search_query in main_menu.lower(): # Display main menu if only it matches search
+                        st.session_state.current_selected_sub_menu = sub_menu_item
+            elif search_query and search_query in main_menu.lower():
+                # If only main menu matched, and it's clicked, clear selection
                 if st.button(main_menu, key=f"btn_only_{main_menu}"):
-                    # If only main menu matched, and it's clicked, what should happen?
-                    # For now, it will just select the main menu, and no sub-menu will be active.
-                    # You might want to define a default behavior for such cases.
-                    pass # Or set selected_sub_menu_from_selection to a default for that main_menu
-
+                    st.session_state.current_selected_sub_menu = None # Clear if main menu itself is clicked and has no sub-menus
 
     st.markdown("---")
 
-    # Determine which sub-menu to display based on direct selection or search
-    if selected_sub_menu_from_selection:
-        current_selection = selected_sub_menu_from_selection
-    elif selected_sub_menu_from_search:
-        current_selection = selected_sub_menu_from_search
-    else:
-        current_selection = None # No specific sub-menu selected initially
+    # Use the value from session state to determine which app to show
+    current_selection = st.session_state.current_selected_sub_menu
 
     # Call functions based on the current selection
     if current_selection == "임금 체불 판단":
@@ -102,7 +96,9 @@ def main():
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
     else:
-        st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
+        # Only show this message if nothing is selected initially or if selection is cleared
+        if not st.session_state.current_selected_sub_menu and not search_query:
+            st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
 
     st.markdown("---")
     st.caption("ⓒ 2025 실업급여 도우미는 도움을 드리기 위한 목적입니다. 실제 가능 여부는 고용센터의 판단을 기준으로 합니다.")
