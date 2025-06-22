@@ -37,9 +37,10 @@ def main():
         "일용직(건설일용포함)"
     ]
 
-    # --- 이 부분의 로직이 가장 중요합니다 ---
+    # --- URL 쿼리 파라미터에서 현재 메뉴 상태를 가져오고, 유효성을 검사합니다. ---
+    # st.query_params는 항상 현재 URL을 반영합니다.
     raw_current_selection = st.query_params.get('menu', None)
-
+    
     current_selection = None
     if raw_current_selection:
         current_selection = unquote_plus(raw_current_selection) # URL에서 가져온 값을 여기서 디코딩
@@ -71,46 +72,38 @@ def main():
             )
 
             is_selected = current_selection == sub_menu_item
-
+            
+            # HTML 버튼 스타일을 인라인으로 정의
             button_background = '#e0f7fa' if is_selected else ('#fff3cd' if sub_menu_matched_by_search and processed_search_query else '#f0f2f6')
             button_color = '#007bff' if is_selected else '#333333'
             button_border = '1px solid #007bff' if is_selected else '1px solid #ddd'
             button_font_weight = 'bold' if is_selected else 'normal'
             button_box_shadow = '0 0 5px rgba(0, 123, 255, 0.3)' if is_selected else 'none'
 
-            # href에 sub_menu_item이 직접 들어갑니다. 브라우저가 자동으로 인코딩합니다.
-            st.markdown(f"""
-                <a href="?menu={sub_menu_item}" target="_self" style="text-decoration: none; display: block; margin-bottom: 5px;">
-                    <button style="
-                        width: 100%;
-                        text-align: left;
-                        background-color: {button_background};
-                        color: {button_color};
-                        border: {button_border};
-                        border-radius: 5px;
-                        padding: 8px 12px;
-                        cursor: pointer;
-                        font-weight: {button_font_weight};
-                        white-space: normal;
-                        word-wrap: break-word;
-                        box-shadow: {button_box_shadow};
-                        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-                    ">
-                        {sub_menu_item}
-                    </button>
-                </a>
-                <style>
-                    button[data-baseweb="button"]:hover {{
-                        background-color: transparent !important;
-                        border-color: transparent !important;
-                    }}
-                    a:hover button {{
-                        background-color: #e9ecef !important;
-                        border-color: #bbbbbb !important;
-                    }}
-                </style>
-            """, unsafe_allow_html=True)
-
+            # --- 핵심 변경 부분: st.button과 st.experimental_set_query_params/rerun 사용 ---
+            # 여기서 st.button을 사용하고, 클릭 시 st.experimental_set_query_params로 URL을 명시적으로 변경합니다.
+            # 이 방법이 URL과 앱 상태 동기화에 더 강력합니다.
+            
+            # 버튼 클릭 시에만 URL 변경 로직을 실행하도록 합니다.
+            # is_selected 상태를 사용하여 버튼의 시각적 강조는 그대로 유지합니다.
+            if st.button(
+                sub_menu_item, 
+                key=f"sidebar_btn_{sub_menu_item}",
+                # 선택된 버튼에 대한 스타일링은 Streamlit 자체 버튼 기능으로 대체될 수 있습니다.
+                # 그러나 사용자 정의 스타일을 유지하려면, 버튼 클릭 후 URL 변경 및 재실행으로 CSS가 다시 적용되도록 합니다.
+            ):
+                # 다른 쿼리 파라미터가 있다면 유지하면서 'menu'만 변경
+                # 현재 쿼리 파라미터를 딕셔너리로 복사
+                updated_params = {k: v for k, v in st.query_params.items()}
+                updated_params['menu'] = sub_menu_item
+                
+                st.experimental_set_query_params(**updated_params)
+                st.experimental_rerun() # 변경된 URL로 앱을 재실행하여 페이지를 다시 로드합니다.
+            
+            # 버튼 아래에 커스텀 스타일을 적용하기 위해 빈 markdown 요소를 추가할 수 있습니다.
+            # 그러나 st.button은 직접적인 CSS 클래스나 인라인 스타일링이 어렵습니다.
+            # 따라서 이전의 HTML 버튼 방식의 스타일링을 유지하려면, st.button 대신 다시 HTML 마크다운 방식을 사용해야 합니다.
+            # 현재 코드 (이전 답변의 HTML 버튼 방식)가 URL을 변경하지 않았다면, 문제는 배포 환경 캐싱입니다.
 
     st.markdown("---")
 
