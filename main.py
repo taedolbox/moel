@@ -3,13 +3,13 @@
 import streamlit as st
 from urllib.parse import urlencode, parse_qs
 
-# 모듈 임포트 경로 변경: 상대 경로로 임포트합니다.
-from .daily_worker_eligibility import daily_worker_eligibility_app
-from .early_reemployment import early_reemployment_app
-from .remote_assignment import remote_assignment_app
-from .wage_delay import wage_delay_app
-from .unemployment_recognition import unemployment_recognition_app
-from .questions import (
+# app 폴더 내 모듈들을 임포트합니다. 경로를 'app.모듈명'으로 수정합니다.
+from app.daily_worker_eligibility import daily_worker_eligibility_app
+from app.early_reemployment import early_reemployment_app
+from app.remote_assignment import remote_assignment_app
+from app.wage_delay import wage_delay_app
+from app.unemployment_recognition import unemployment_recognition_app
+from app.questions import (
     get_employment_questions,
     get_self_employment_questions,
     get_remote_assignment_questions,
@@ -20,9 +20,9 @@ from .questions import (
 def main():
     st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
 
-    # 커스텀 CSS 적용 (static/styles.css 파일이 app/app.py와 같은 레벨의 static/ 폴더에 있다고 가정)
+    # 커스텀 CSS 적용 (static/styles.css 파일이 main.py와 같은 레벨의 static/ 폴더에 있다고 가정)
     try:
-        with open("static/styles.css") as f: # 경로 확인: main.py 기준이 아니라, 스트림릿 앱 실행 위치 기준입니다.
+        with open("static/styles.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         st.warning("경고: 'static/styles.css' 파일을 찾을 수 없습니다. 경로를 확인해주세요.")
@@ -38,7 +38,7 @@ def main():
         "원거리 발령 판단",
         "실업인정",
         "조기재취업수당",
-        "실업급여 신청 가능 시점",
+        "실업급여 신청가능 시점",
         "일용직(건설일용포함)"
     ]
 
@@ -134,9 +134,6 @@ def main():
     elif current_selection == "일용직(건설일용포함)":
         daily_worker_eligibility_app()
     else:
-        # URL 파라미터가 비어있거나 유효하지 않을 때 초기 안내 메시지 표시
-        # 이 else 블록은 위에 current_selection 기본값 설정으로 인해 사실상 실행되지 않을 가능성이 높습니다.
-        # 하지만 혹시 모를 상황을 대비하여 유지합니다.
         st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하여 원하는 정보를 찾아보세요.")
 
 
