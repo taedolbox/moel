@@ -13,7 +13,6 @@ from app.questions import (
     get_wage_delay_questions,
     get_daily_worker_eligibility_questions
 )
-import urllib.parse
 
 def main():
     st.set_page_config(page_title="실업급여 지원 시스템", page_icon="💼", layout="centered")
@@ -67,21 +66,31 @@ def main():
 
         # Get selected menu from URL query params
         query_params = st.query_params
-        url_menu = query_params.get("menu", [None])[0]
-        if url_menu:
-            url_menu = urllib.parse.unquote(url_menu)
-            default_menu = url_menu if url_menu in all_menus else filtered_menus[0] if filtered_menus else None
-        else:
-            default_menu = filtered_menus[0] if filtered_menus else None
+        url_menu_id = query_params.get("menu", [None])[0]
+        default_menu = None
+        if url_menu_id:
+            try:
+                menu_idx = int(url_menu_id) - 1  # Convert to 0-based index
+                if 0 <= menu_idx < len(all_menus):
+                    default_menu = all_menus[menu_idx]
+            except ValueError:
+                pass
+        if not default_menu and filtered_menus:
+            default_menu = filtered_menus[0]
 
         # Menu selection
         selected_menu = None
         if filtered_menus:
-            selected_menu = st.radio("📋 메뉴", filtered_menus, index=filtered_menus.index(default_menu) if default_menu in filtered_menus else 0, key="selected_menu")
-            # Update URL when menu is selected
+            selected_menu = st.radio(
+                "📋 메뉴",
+                filtered_menus,
+                index=filtered_menus.index(default_menu) if default_menu in filtered_menus else 0,
+                key="selected_menu"
+            )
+            # Update URL with menu ID
             if selected_menu:
-                encoded_menu = urllib.parse.quote(selected_menu)
-                st.query_params["menu"] = encoded_menu
+                menu_id = all_menus.index(selected_menu) + 1  # 1-based index
+                st.query_params["menu"] = str(menu_id)
         else:
             st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
 
