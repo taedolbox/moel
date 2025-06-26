@@ -75,8 +75,10 @@ def render_calendar(apply_date):
                         elif i == 6:
                             class_name += " saturday"
                         
-                        # 체크박스와 날짜 원을 동일한 위치에 배치
+                        # 체크박스와 날짜 원을 동일한 컨테이너에 배치
                         with st.container():
+                            # 컨테이너를 relative로 설정하여 내부 요소 정렬
+                            st.markdown('<div style="position: relative; width: 40px; height: 40px;">', unsafe_allow_html=True)
                             checkbox_key = f"date_{date_obj}"
                             checkbox_value = st.checkbox(
                                 "",
@@ -89,6 +91,7 @@ def render_calendar(apply_date):
                                 f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
                                 unsafe_allow_html=True
                             )
+                            st.markdown('</div>', unsafe_allow_html=True)
                         
                         if not is_disabled and checkbox_value != is_selected:
                             if checkbox_value:
@@ -111,7 +114,7 @@ def daily_worker_eligibility_app():
     current_datetime = datetime.now(KST)
     current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
-    st.markdown(f"**오늘 날짜와 Facetime: 08:49 AM KST on Friday, June 27, 2025. 시간**: {current_time_korean}", unsafe_allow_html=True)
+    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
@@ -245,4 +248,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-
