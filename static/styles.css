@@ -70,13 +70,14 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #333 !important;
     cursor: pointer !important;
     transition: transform 0.2s, background-color 0.2s, border 0.2s !important;
-    position: relative !important;
+    position: absolute !important; /* 체크박스 위에 겹치도록 설정 */
+    top: 0 !important;
+    left: 0 !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
     z-index: 6000 !important;
-    pointer-events: auto !important;
-    touch-action: manipulation !important;
+    pointer-events: none !important; /* 클릭은 체크박스가 받음 */
 }
 
 .day.sunday {
@@ -106,17 +107,15 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     background-color: #f0f0f0 !important;
 }
 
-/* 클릭 시 애니메이션 효과 */
 .day:not(.disabled):active {
-    transform: scale(1.1) !important; /* 클릭 시 살짝 커짐 */
+    transform: scale(1.1) !important;
 }
 
-/* 선택 시 애니메이션 효과 */
 .day.selected {
     border: 2px solid #4444ff !important;
     font-weight: bold !important;
     background-color: #e6e6ff !important;
-    animation: pulse 0.3s ease-out !important; /* 선택 시 펄스 효과 */
+    animation: pulse 0.3s ease-out !important;
 }
 
 @keyframes pulse {
@@ -126,18 +125,20 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 
 .stCheckbox {
-    position: absolute !important;
+    position: relative !important;
     width: 40px !important;
     height: 40px !important;
-    left: 0 !important;
-    top: 0 !important;
-    z-index: 1 !important; /* .day보다 낮은 z-index로 완전히 숨김 */
-    opacity: 0 !important;
-    pointer-events: none !important; /* 체크박스는 클릭 이벤트를 받지 않음 */
+    margin: 0 auto !important;
+    z-index: 5000 !important; /* .day보다 낮은 z-index */
+    opacity: 0.01 !important; /* 완전히 투명하지 않도록 하여 클릭 가능 */
+    cursor: pointer !important;
 }
 
 .stCheckbox > div > div {
-    display: none !important; /* 체크박스 내부 요소 완전히 숨김 */
+    width: 40px !important;
+    height: 40px !important;
+    border: none !important;
+    background-color: transparent !important;
 }
 
 .result-text {
@@ -166,13 +167,16 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         aspect-ratio: 1/1 !important;
         line-height: 40px !important;
         font-size: 1em !important;
-        margin: 2px auto !important;
-        touch-action: manipulation !important;
+        margin: 0 auto !important;
     }
     .day.selected {
         border: 2px solid #4444ff !important;
         font-weight: bold !important;
         background-color: #e6e6ff !important;
+    }
+    .stCheckbox {
+        width: 40px !important;
+        height: 40px !important;
     }
 }
 
