@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, date
 import calendar
 import pytz
 import time
-import streamlit.components.v1 as components
 
 # 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
@@ -12,36 +11,10 @@ calendar.setfirstweekday(calendar.SUNDAY)
 # KST 시간대 설정
 KST = pytz.timezone('Asia/Seoul')
 
-# 스타일시트 로드 (캐시 방지 쿼리 추가)
+# 스타일시트 로드
 timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# JavaScript로 .day 요소 클릭 이벤트 처리
-click_handler_js = """
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const days = document.querySelectorAll('.day:not(.disabled)');
-    days.forEach(day => {
-        day.addEventListener('click', function() {
-            const date = this.getAttribute('data-date');
-            const checkbox = document.querySelector(`input[key="date_${date}"]`);
-            if (checkbox) {
-                checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
-                checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
-                // 선택 상태에 따라 .selected 클래스 토글
-                if (checkbox.checked) {
-                    this.classList.add('selected');
-                } else {
-                    this.classList.remove('selected');
-                }
-            }
-        });
-    });
-});
-</script>
-"""
-components.html(click_handler_js, height=0)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
@@ -102,19 +75,20 @@ def render_calendar(apply_date):
                         elif i == 6:
                             class_name += " saturday"
                         
-                        checkbox_key = f"date_{date_obj}"
-                        checkbox_value = st.checkbox(
-                            "",
-                            key=checkbox_key,
-                            value=is_selected,
-                            label_visibility="hidden",
-                            disabled=is_disabled
-                        )
-                        
-                        st.markdown(
-                            f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
-                            unsafe_allow_html=True
-                        )
+                        # 체크박스와 날짜 원을 동일한 위치에 배치
+                        with st.container():
+                            checkbox_key = f"date_{date_obj}"
+                            checkbox_value = st.checkbox(
+                                "",
+                                key=checkbox_key,
+                                value=is_selected,
+                                label_visibility="hidden",
+                                disabled=is_disabled
+                            )
+                            st.markdown(
+                                f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                unsafe_allow_html=True
+                            )
                         
                         if not is_disabled and checkbox_value != is_selected:
                             if checkbox_value:
@@ -122,7 +96,7 @@ def render_calendar(apply_date):
                             else:
                                 selected_dates.discard(date_obj)
                             st.session_state.selected_dates = selected_dates
-                            # st.rerun() # JavaScript에서 처리하므로 제거 가능
+                            st.rerun()
 
     if selected_dates:
         st.markdown("### ✅ 선택된 근무일자")
@@ -137,7 +111,7 @@ def daily_worker_eligibility_app():
     current_datetime = datetime.now(KST)
     current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
-    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
+    st.markdown(f"**오늘 날짜와 Facetime: 08:49 AM KST on Friday, June 27, 2025. 시간**: {current_time_korean}", unsafe_allow_html=True)
 
     st.markdown("### 📋 요건 조건")
     st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
