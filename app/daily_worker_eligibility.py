@@ -33,14 +33,14 @@ def render_calendar(apply_date):
     start_of_prev_month = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months_to_render = sorted(set((d.year, d.month) for d in pd.date_range(start=start_of_prev_month, end=apply_date)))
 
-    # 달력 렌der링
+    # 달력 렌더링
     for year, month in months_to_render:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
         
         with st.container():
             day_headers = ["일", "월", "화", "수", "목", "금", "토"]
-            cols = st.columns(7, gap="0")
+            cols = st.columns(7, gap=0)  # gap="0" -> gap=0으로 수정
             for i, day_name in enumerate(day_headers):
                 with cols[i]:
                     class_name = "day-header"
@@ -51,7 +51,7 @@ def render_calendar(apply_date):
                     st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
 
         with st.container():
-            cols = st.columns(7, gap="0")
+            cols = st.columns(7, gap=0)  # gap="0" -> gap=0으로 수정
             for week in cal:
                 for i, day in enumerate(week):
                     with cols[i]:
