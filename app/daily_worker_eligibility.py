@@ -59,3 +59,5 @@ if checkbox_value:
     st.write("21일이 선택되었습니다!")
 else:
     st.write("21일이 선택되지 않았습니다.")
+if __name__ == "__main__":
+    daily_worker_eligibility_app()
