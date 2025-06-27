@@ -262,3 +262,13 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     color: #888 !important;
     cursor: not-allowed !important;
 }
+/* 기존 CSS 유지 */
+.day:not(.disabled):hover::before {
+    content: '클릭하여 선택' !important;
+    /* ... */
+}
+
+.stCheckbox {
+    margin: 0 5px !important;
+    /* ... */
+}
