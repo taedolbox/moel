@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, date
 import calendar
 import pytz
 import time
+import streamlit.components.v1 as components
 
 # 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
@@ -15,6 +16,33 @@ KST = pytz.timezone('Asia/Seoul')
 timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# JavaScript로 .day 클릭 시 체크박스 토글
+click_handler_js = """
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const days = document.querySelectorAll('.day:not(.disabled)');
+    days.forEach(day => {
+        day.addEventListener('click', function(e) {
+            e.preventDefault(); // 기본 이벤트 방지
+            const date = this.getAttribute('data-date');
+            const checkbox = document.querySelector(`input[key="date_${date}"]`);
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
+                checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
+                // .selected 클래스 동기화
+                if (checkbox.checked) {
+                    this.classList.add('selected');
+                } else {
+                    this.classList.remove('selected');
+                }
+            }
+        });
+    });
+});
+</script>
+"""
+components.html(click_handler_js, height=0)
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
@@ -112,7 +140,7 @@ def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
     current_datetime = datetime.now(KST)
-    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
+    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
