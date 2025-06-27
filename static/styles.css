@@ -2,7 +2,7 @@
 div[data-testid="stHorizontalBlock"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
-    gap: 0px !important; /* 간격 제거 */
+    gap: 0px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important;
@@ -15,6 +15,7 @@ div[data-testid="stMarkdownContainer"] {
     width: 100% !important;
     height: 100% !important;
     text-align: left !important;
+    position: relative !important;
 }
 
 div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
@@ -26,7 +27,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 
 .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-    gap: 0px !important; /* 5월 간격도 0으로 조정 */
+    gap: 0px !important;
 }
 
 .day-header {
@@ -77,7 +78,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
     z-index: 6000 !important;
-    pointer-events: none !important;
+    pointer-events: auto !important; /* 클릭 가능하도록 설정 */
 }
 
 .day.sunday {
@@ -125,7 +126,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
 }
 
 .stCheckbox {
-    position: relative !important;
+    position: absolute !important;
     width: 40px !important;
     height: 40px !important;
     margin: 0 !important;
@@ -134,7 +135,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     background-color: rgba(255, 0, 0, 0.3) !important; /* 디버깅용 반투명 빨간색 */
     border: 1px dashed #ff0000 !important; /* 디버깅용 점선 테두리 */
     cursor: pointer !important;
-    box-sizing: border-box !important; /* 패딩/마진 포함 크기 계산 */
+    opacity: 0 !important; /* 디버깅 후 숨김 */
+    box-sizing: border-box !important;
 }
 
 .stCheckbox > div > div {
