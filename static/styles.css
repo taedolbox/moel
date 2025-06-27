@@ -3,35 +3,17 @@ div[data-testid="stHorizontalBlock"] {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
     gap: 0px !important;
-    width: 100% !important;
+    width: 100 !important;
     box-sizing: border-box !important;
     justify-content: flex-start !important;
 }
-/* 기존 CSS 유지, 필요 시 아래 부분만 확인 */
-.stCheckbox {
-    position: absolute !important;
-    width: 40px !important;
-    height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    z-index: 5000 !important;
-    background-color: rgba(255, 0, 0, 0.3) !important; /* 디버깅용 */
-    border: 1px dashed #ff0000 !important; /* 디버깅용 */
-    cursor: pointer !important;
-    opacity: 0 !important; /* 디버깅 후 숨김 */
-    box-sizing: border-box !important;
-}
 
-.day {
-    /* ... */
-    pointer-events: auto !important; /* 클릭 가능 유지 */
-}
 div[data-testid="stMarkdownContainer"] {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100 !important;
+    height: 100 !important;
     text-align: left !important;
     position: relative !important;
 }
@@ -96,7 +78,7 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     justify-content: center !important;
     align-items: center !important;
     z-index: 6000 !important;
-    pointer-events: auto !important; /* 클릭 가능하도록 설정 */
+    pointer-events: auto !important; /* 클릭 가능 유지 */
 }
 
 .day.sunday {
@@ -150,10 +132,10 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
     margin: 0 !important;
     padding: 0 !important;
     z-index: 5000 !important;
-    background-color: rgba(255, 0, 0, 0.3) !important; /* 디버깅용 반투명 빨간색 */
-    border: 1px dashed #ff0000 !important; /* 디버깅용 점선 테두리 */
+    background-color: rgba(0, 0, 255, 0.3) !important; /* 파란색 반투명으로 변경 */
+    border: 1px dashed #0000ff !important; /* 파란색 점선 테두리 */
     cursor: pointer !important;
-    opacity: 0 !important; /* 디버깅 후 숨김 */
+    opacity: 1 !important; /* 체크박스 보이게 설정 */
     box-sizing: border-box !important;
 }
 
@@ -259,8 +241,8 @@ div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
         border-left-color: #4CAF50 !important;
     }
     .stCheckbox {
-        background-color: rgba(255, 0, 0, 0.3) !important;
-        border: 1px dashed #ff0000 !important;
+        background-color: rgba(0, 0, 255, 0.3) !important;
+        border: 1px dashed #0000ff !important;
     }
 }
 
