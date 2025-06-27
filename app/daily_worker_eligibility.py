@@ -40,7 +40,7 @@ def render_calendar(apply_date):
         
         with st.container():
             day_headers = ["일", "월", "화", "수", "목", "금", "토"]
-            cols = st.columns(7, gap=0)  # gap="0" -> gap=0으로 수정
+            cols = st.columns(7)  # gap 매개변수 제거
             for i, day_name in enumerate(day_headers):
                 with cols[i]:
                     class_name = "day-header"
@@ -51,7 +51,7 @@ def render_calendar(apply_date):
                     st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
 
         with st.container():
-            cols = st.columns(7, gap=0)  # gap="0" -> gap=0으로 수정
+            cols = st.columns(7)  # gap 매개변수 제거
             for week in cal:
                 for i, day in enumerate(week):
                     with cols[i]:
@@ -193,7 +193,7 @@ def daily_worker_eligibility_app():
         else:
             st.markdown(
                 f'<div class="result-text">'
-                f'<p>이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
+                f'<p>이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
                 f'</div>',
                 unsafe_allow_html=True
             )
