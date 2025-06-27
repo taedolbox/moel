@@ -39,7 +39,7 @@ def render_calendar(apply_date):
         
         with st.container():
             day_headers = ["일", "월", "화", "수", "목", "금", "토"]
-            cols = st.columns(7, gap="small")
+            cols = st.columns(7, gap="0")  # gap을 0으로 설정
             for i, day_name in enumerate(day_headers):
                 with cols[i]:
                     class_name = "day-header"
@@ -51,7 +51,7 @@ def render_calendar(apply_date):
 
         for week in cal:
             with st.container():
-                cols = st.columns(7, gap="small")
+                cols = st.columns(7, gap="0")  # gap을 0으로 설정
                 for i, day in enumerate(week):
                     with cols[i]:
                         if day == 0:
@@ -75,10 +75,9 @@ def render_calendar(apply_date):
                         elif i == 6:
                             class_name += " saturday"
                         
-                        # 체크박스와 날짜 원을 동일한 컨테이너에 배치
+                        # 동일한 컨테이너 내에서 정렬
                         with st.container():
-                            # 컨테이너를 relative로 설정하여 내부 요소 정렬
-                            st.markdown('<div style="position: relative; width: 40px; height: 40px;">', unsafe_allow_html=True)
+                            st.markdown('<div style="position: relative; width: 40px; height: 40px; margin: 0; padding: 0;">', unsafe_allow_html=True)
                             checkbox_key = f"date_{date_obj}"
                             checkbox_value = st.checkbox(
                                 "",
