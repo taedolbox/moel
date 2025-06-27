@@ -32,25 +32,41 @@ st.markdown("""
 # JavaScript로 .day 클릭 시 체크박스 토글
 click_handler_js = """
 <script>
-window.onload = function() {
+function showPopup(message) {
+    alert(message);
+}
+
+function setupClickHandlers() {
     const day = document.querySelector('.day');
     if (day) {
-        alert('Day element found');
+        showPopup('Day element found');
         day.addEventListener('click', function(e) {
             e.preventDefault();
             const checkbox = document.querySelector('input[type="checkbox"]');
             if (checkbox) {
                 checkbox.checked = !checkbox.checked;
                 checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                alert('Checkbox toggled: ' + checkbox.checked);
+                showPopup('Checkbox toggled: ' + checkbox.checked);
             } else {
-                alert('Checkbox not found');
+                showPopup('Checkbox not found');
             }
         });
     } else {
-        alert('No .day element found');
+        showPopup('No .day element found');
     }
-};
+}
+
+// DOM이 완전히 로드된 후 실행
+document.addEventListener('DOMContentLoaded', function() {
+    showPopup('DOM loaded, setting up handlers');
+    setTimeout(setupClickHandlers, 100); // 100ms 대기 후 실행
+});
+
+// DOM 변경 감지
+new MutationObserver(() => {
+    showPopup('DOM mutated, re-applying handlers');
+    setTimeout(setupClickHandlers, 100);
+}).observe(document.body, { childList: true, subtree: true });
 </script>
 """
 components.html(click_handler_js, height=1)
