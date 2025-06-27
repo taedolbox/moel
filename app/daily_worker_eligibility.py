@@ -17,7 +17,7 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 토글
+# JavaScript로 .day 클릭 시 체크박스 클릭 트리거
 click_handler_js = """
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,11 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const date = this.getAttribute('data-date');
             const checkbox = document.querySelector(`input[key="date_${date}"]`);
             if (checkbox) {
-                const isChecked = checkbox.checked;
-                checkbox.checked = !isChecked; // 상태 토글
-                this.classList.toggle('selected', !isChecked); // .selected 클래스 동기화
-                checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
-                console.log('Clicked day:', date, 'Checkbox checked:', !isChecked);
+                checkbox.click(); // 체크박스 직접 클릭
+                this.classList.toggle('selected', checkbox.checked); // .selected 동기화
+                console.log('Clicked day:', date, 'Checkbox checked:', checkbox.checked);
             } else {
                 console.log('Checkbox not found for date:', date);
             }
@@ -60,6 +58,7 @@ def render_calendar(apply_date):
     start_of_prev_month = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
     months_to_render = sorted(set((d.year, d.month) for d in pd.date_range(start=start_of_prev_month, end=apply_date)))
 
+    # 달력 렌더링
     for year, month in months_to_render:
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
@@ -75,6 +74,12 @@ def render_calendar(apply_date):
                     elif i == 6:
                         class_name += " saturday"
                     st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
+
+        with st.container():
+            cols = st.columns(7, gap="0")
+            for i, day in enumerate(cal[0]):  # 첫 번째 주만 헤더로 사용
+                with cols[i]:
+                    st.empty()  # 헤더 아래 빈 공간
 
         for week in cal:
             with st.container():
@@ -102,31 +107,25 @@ def render_calendar(apply_date):
                         elif i == 6:
                             class_name += " saturday"
                         
-                        with st.container():
-                            st.markdown('<div style="position: relative; width: 40px; height: 40px; margin: 0; padding: 0;">', unsafe_allow_html=True)
-                            checkbox_key = f"date_{date_obj.strftime('%Y-%m-%d')}"  # date 형식 명확화
-                            checkbox_value = st.checkbox(
-                                "",
-                                key=checkbox_key,
-                                value=is_selected,
-                                label_visibility="hidden",
-                                disabled=is_disabled
-                            )
-                            st.markdown(
-                                f'<div class="{class_name}" data-date="{date_obj.strftime("%Y-%m-%d")}">{day}</div>',
-                                unsafe_allow_html=True
-                            )
-                            st.markdown('</div>', unsafe_allow_html=True)
-                        
-                        # 체크박스 상태 변경 시 세션 상태 업데이트 및 디버깅
-                        if not is_disabled and checkbox_value != is_selected:
-                            st.write(f"Checkbox changed: {checkbox_key}, Value: {checkbox_value}")  # 디버깅 로그
-                            if checkbox_value:
-                                selected_dates.add(date_obj)
-                            else:
-                                selected_dates.discard(date_obj)
-                            st.session_state.selected_dates = selected_dates
-                            st.experimental_rerun()
+                        st.markdown(
+                            f'<div class="{class_name}" data-date="{date_obj.strftime("%Y-%m-%d")}">{day}</div>',
+                            unsafe_allow_html=True
+                        )
+
+    # 체크박스 컨테이너 렌더링
+    st.markdown('<div class="checkbox-container">', unsafe_allow_html=True)
+    date_range, _ = get_date_range(apply_date)
+    for date_obj in date_range:
+        checkbox_key = f"date_{date_obj.strftime('%Y-%m-%d')}"
+        is_selected = date_obj in selected_dates
+        is_disabled = date_obj > apply_date
+        st.checkbox(
+            date_obj.strftime("%m/%d"),
+            key=checkbox_key,
+            value=is_selected,
+            disabled=is_disabled
+        )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # 선택된 날짜 수 표시
     selected_count = len(selected_dates)
