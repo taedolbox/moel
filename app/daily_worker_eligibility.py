@@ -17,7 +17,7 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 토글 및 Streamlit 재렌더링 트리거
+# JavaScript로 .day 클릭 시 체크박스 토글 및 Streamlit 재렌더링
 click_handler_js = """
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -32,8 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = !isChecked; // 상태 토글
                 this.classList.toggle('selected', !isChecked); // .selected 클래스 동기화
                 checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
-                // Streamlit 재렌더링 강제 트리거
-                window.dispatchEvent(new Event('streamlit:rerun'));
+                // Streamlit 재렌더링 트리거
+                window.parent.postMessage({ type: 'streamlit:rerun' }, '*');
+                console.log('Clicked day:', date, 'Checkbox checked:', !isChecked);
             } else {
                 console.log('Checkbox not found for date:', date);
             }
@@ -105,7 +106,7 @@ def render_calendar(apply_date):
                         
                         with st.container():
                             st.markdown('<div style="position: relative; width: 40px; height: 40px; margin: 0; padding: 0;">', unsafe_allow_html=True)
-                            checkbox_key = f"date_{date_obj}"
+                            checkbox_key = f"date_{date_obj.strftime('%Y-%m-%d')}"  # date 형식 명확화
                             checkbox_value = st.checkbox(
                                 "",
                                 key=checkbox_key,
@@ -114,7 +115,7 @@ def render_calendar(apply_date):
                                 disabled=is_disabled
                             )
                             st.markdown(
-                                f'<div class="{class_name}" data-date="{date_obj}">{day}</div>',
+                                f'<div class="{class_name}" data-date="{date_obj.strftime("%Y-%m-%d")}">{day}</div>',
                                 unsafe_allow_html=True
                             )
                             st.markdown('</div>', unsafe_allow_html=True)
@@ -126,7 +127,7 @@ def render_calendar(apply_date):
                             else:
                                 selected_dates.discard(date_obj)
                             st.session_state.selected_dates = selected_dates
-                            st.experimental_rerun()  # st.rerun() 대신 experimental_rerun 사용
+                            st.experimental_rerun()
 
     # 선택된 날짜 수 표시
     selected_count = len(selected_dates)
