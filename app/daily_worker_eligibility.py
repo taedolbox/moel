@@ -17,25 +17,25 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 토글
+# JavaScript로 .day 클릭 시 체크박스 토글 및 Streamlit 재렌더링 트리거
 click_handler_js = """
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const days = document.querySelectorAll('.day:not(.disabled)');
     days.forEach(day => {
         day.addEventListener('click', function(e) {
-            e.preventDefault(); // 기본 이벤트 방지
+            e.preventDefault();
             const date = this.getAttribute('data-date');
             const checkbox = document.querySelector(`input[key="date_${date}"]`);
             if (checkbox) {
-                checkbox.checked = !checkbox.checked; // 체크박스 상태 토글
+                const isChecked = checkbox.checked;
+                checkbox.checked = !isChecked; // 상태 토글
+                this.classList.toggle('selected', !isChecked); // .selected 클래스 동기화
                 checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
-                // .selected 클래스 동기화
-                if (checkbox.checked) {
-                    this.classList.add('selected');
-                } else {
-                    this.classList.remove('selected');
-                }
+                // Streamlit 재렌더링 강제 트리거
+                window.dispatchEvent(new Event('streamlit:rerun'));
+            } else {
+                console.log('Checkbox not found for date:', date);
             }
         });
     });
@@ -119,13 +119,14 @@ def render_calendar(apply_date):
                             )
                             st.markdown('</div>', unsafe_allow_html=True)
                         
+                        # 체크박스 상태 변경 시 세션 상태 업데이트
                         if not is_disabled and checkbox_value != is_selected:
                             if checkbox_value:
                                 selected_dates.add(date_obj)
                             else:
                                 selected_dates.discard(date_obj)
                             st.session_state.selected_dates = selected_dates
-                            st.rerun()
+                            st.experimental_rerun()  # st.rerun() 대신 experimental_rerun 사용
 
     # 선택된 날짜 수 표시
     selected_count = len(selected_dates)
