@@ -1,315 +1,61 @@
 import streamlit as st
-import pandas as pd
-from datetime import datetime, timedelta, date
-import calendar
-import pytz
-import time
 import streamlit.components.v1 as components
 
-# 달력 시작 요일 설정
-calendar.setfirstweekday(calendar.SUNDAY)
+# 스타일시트 (간소화)
+st.markdown("""
+    <style>
+    .day {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        cursor: pointer;
+        margin: 10px;
+    }
+    .day:hover {
+        background-color: #f0f0f0;
+    }
+    .checkbox-container {
+        margin-top: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# KST 시간대 설정
-KST = pytz.timezone('Asia/Seoul')
-
-# 스타일시트 로드
-timestamp = time.time()
-with open("static/styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# JavaScript로 .day 클릭 시 체크박스 상태 변경 및 팝업 출력
+# JavaScript로 .day 클릭 시 체크박스 토글
 click_handler_js = """
 <script>
-function showPopup(message) {
-    alert(message); // 콘솔 대신 팝업으로 출력
-}
-
-// 페이지 로드 완료 후 실행
 window.onload = function() {
-    showPopup('Page fully loaded, script executing');
-
-    function setupClickHandlers() {
-        showPopup('Setting up click handlers...');
-        const days = document.querySelectorAll('.day:not(.disabled)');
-        if (days.length === 0) {
-            showPopup('No .day elements found');
-            return;
-        }
-        showPopup('Found ' + days.length + ' .day elements');
-        days.forEach(day => {
-            day.addEventListener('click', function(e) {
-                e.preventDefault();
-                const date = this.getAttribute('data-date');
-                showPopup('Day clicked: ' + date);
-                const checkbox = document.querySelector(`input[key="date_${date}"]`);
-                if (checkbox) {
-                    const isChecked = checkbox.checked;
-                    checkbox.checked = !isChecked;
-                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                    day.classList.toggle('selected', !isChecked);
-                    showPopup('Checkbox toggled: ' + date + ', Checked: ' + !isChecked);
-                } else {
-                    showPopup('Checkbox not found for date: ' + date + ', Available keys: ' + Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')).join(', '));
-                }
-            });
+    const day = document.querySelector('.day');
+    if (day) {
+        alert('Day element found');
+        day.addEventListener('click', function(e) {
+            e.preventDefault();
+            const checkbox = document.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                alert('Checkbox toggled: ' + checkbox.checked);
+            } else {
+                alert('Checkbox not found');
+            }
         });
+    } else {
+        alert('No .day element found');
     }
-
-    // 초기 설정
-    setupClickHandlers();
-
-    // DOM 변경 감지
-    new MutationObserver(() => {
-        showPopup('DOM mutated, re-applying handlers');
-        setupClickHandlers();
-    }).observe(document.body, { childList: true, subtree: true });
 };
 </script>
 """
-components.html(click_handler_js, height=1)  # 높이를 1로 변경해 DOM 삽입 확인
+components.html(click_handler_js, height=1)
 
-def get_date_range(apply_date):
-    """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
-    start_of_apply_month = apply_date.replace(day=1)
-    start_date = (start_of_apply_month - pd.DateOffset(months=1)).replace(day=1).date()
-    return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
+# 간단한 UI
+st.markdown('<div class="day">21</div>', unsafe_allow_html=True)
+st.markdown('<div class="checkbox-container">', unsafe_allow_html=True)
+checkbox_value = st.checkbox("21일 선택", key="test_checkbox")
+st.markdown('</div>', unsafe_allow_html=True)
 
-def render_calendar(apply_date):
-    """달력을 렌더링하고 날짜 선택 기능을 제공합니다."""
-    if 'selected_dates' not in st.session_state:
-        st.session_state.selected_dates = set()
-
-    selected_dates = st.session_state.selected_dates
-    current_date = datetime.now(KST).date()
-    
-    start_of_prev_month = (apply_date.replace(day=1) - pd.DateOffset(months=1)).replace(day=1).date()
-    months_to_render = sorted(set((d.year, d.month) for d in pd.date_range(start=start_of_prev_month, end=apply_date)))
-
-    # 달력 렌더링
-    for year, month in months_to_render:
-        st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
-        cal = calendar.monthcalendar(year, month)
-        
-        with st.container():
-            day_headers = ["일", "월", "화", "수", "목", "금", "토"]
-            cols = st.columns(7, gap="0")
-            for i, day_name in enumerate(day_headers):
-                with cols[i]:
-                    class_name = "day-header"
-                    if i == 0:
-                        class_name += " sunday"
-                    elif i == 6:
-                        class_name += " saturday"
-                    st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
-
-        with st.container():
-            cols = st.columns(7, gap="0")
-            for i, day in enumerate(cal[0]):  # 첫 번째 주만 헤더로 사용
-                with cols[i]:
-                    st.empty()  # 헤더 아래 빈 공간
-
-        for week in cal:
-            with st.container():
-                cols = st.columns(7, gap="0")
-                for i, day in enumerate(week):
-                    with cols[i]:
-                        if day == 0:
-                            st.empty()
-                            continue
-                        
-                        date_obj = date(year, month, day)
-                        is_selected = date_obj in selected_dates
-                        is_current = date_obj == current_date
-                        is_disabled = date_obj > apply_date
-
-                        class_name = "day"
-                        if is_selected:
-                            class_name += " selected"
-                        if is_current:
-                            class_name += " current"
-                        if is_disabled:
-                            class_name += " disabled"
-                        if i == 0:
-                            class_name += " sunday"
-                        elif i == 6:
-                            class_name += " saturday"
-                        
-                        st.markdown(
-                            f'<div class="{class_name}" data-date="{date_obj.strftime("%Y-%m-%d")}">{day}</div>',
-                            unsafe_allow_html=True
-                        )
-
-    # 체크박스 컨테이너 렌더링
-    st.markdown('<div class="checkbox-container">', unsafe_allow_html=True)
-    date_range, _ = get_date_range(apply_date)
-    for date_obj in date_range:
-        checkbox_key = f"date_{date_obj.strftime('%Y-%m-%d')}"
-        is_selected = date_obj in selected_dates
-        is_disabled = date_obj > apply_date
-        checkbox_value = st.checkbox(
-            date_obj.strftime("%m/%d"),
-            key=checkbox_key,
-            value=is_selected,
-            disabled=is_disabled,
-            on_change=lambda: update_selected_dates(checkbox_key, st.session_state[checkbox_key], date_obj),
-            args=(date_obj,)
-        )
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # 선택된 날짜 수 표시
-    selected_count = len(selected_dates)
-    st.markdown(f"### ✅ 선택된 근무일자 수: **{selected_count}일**")
-    if selected_dates:
-        st.markdown("선택된 날짜: " + ", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
-
-    return st.session_state.selected_dates
-
-def update_selected_dates(checkbox_key, is_checked, date_obj):
-    """체크박스 상태 변경 시 selected_dates 업데이트"""
-    if is_checked:
-        st.session_state.selected_dates.add(date_obj)
-    else:
-        st.session_state.selected_dates.discard(date_obj)
-    st.experimental_rerun()
-
-def daily_worker_eligibility_app():
-    """일용근로자 수급자격 요건 모의계산 앱."""
-    st.header("일용근로자 수급자격 요건 모의계산")
-
-    current_datetime = datetime.now(KST)
-    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
-
-    st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
-
-    st.markdown("### 📋 요건 조건")
-    st.markdown("- **조건 1**: 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일의 1/3 미만이어야 합니다.")
-    st.markdown("- **조건 2 (건설일용근로자만 해당)**: 신청일 직전 14일간 근무 사실이 없어야 합니다 (신청일 제외).")
-    st.markdown("---")
-
-    apply_date = st.date_input("수급자격 신청일을 선택하세요", value=current_datetime.date(), key="apply_date_input")
-
-    date_range_objects, start_date = get_date_range(apply_date)
-
-    st.markdown("---")
-    st.markdown("#### 근무일 선택 달력")
-    selected_dates = render_calendar(apply_date)
-    st.markdown("---")
-
-    total_days = len(date_range_objects)
-    worked_days = len(selected_dates)
-    threshold = total_days / 3
-
-    st.markdown(f"- 총 기간 일수: **{total_days}일**")
-    st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
-
-    condition1 = worked_days < threshold
-    st.markdown(
-        f'<div class="result-text">'
-        f'<p>{"✅ 조건 1 충족: 근무일 수가 기준 미만입니다." if condition1 else "❌ 조건 1 불충족: 근무일 수가 기준 이상입니다."}</p>'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-
-    fourteen_days_prior_end = apply_date - timedelta(days=1)
-    fourteen_days_prior_start = fourteen_days_prior_end - timedelta(days=13)
-    fourteen_days_prior_range = [d.date() for d in pd.date_range(start=fourteen_days_prior_start, end=fourteen_days_prior_end)]
-    no_work_14_days = all(day not in selected_dates for day in fourteen_days_prior_range)
-    condition2 = no_work_14_days
-
-    st.markdown(
-        f'<div class="result-text">'
-        f'<p>{"✅ 조건 2 충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 근무내역이 없습니다." if no_work_14_days else "❌ 조건 2 불충족: 신청일 직전 14일간(" + fourteen_days_prior_start.strftime("%Y-%m-%d") + " ~ " + fourteen_days_prior_end.strftime("%Y-%m-%d") + ") 내 근무기록이 존재합니다."}</p>'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown("---")
-
-    if not condition1:
-        st.markdown("### 📅 조건 1을 충족하려면 언제 신청해야 할까요?")
-        found_suggestion = False
-        for i in range(1, 31):
-            future_date = apply_date + timedelta(days=i)
-            date_range_future_objects, _ = get_date_range(future_date)
-            total_days_future = len(date_range_future_objects)
-            threshold_future = total_days_future / 3
-            worked_days_future = sum(1 for d in selected_dates if d <= future_date)
-
-            if worked_days_future < threshold_future:
-                st.markdown(
-                    f'<div class="result-text">'
-                    f'<p>✅ <b>{future_date.strftime("%Y-%m-%d")}</b> 이후에 신청하면 요건을 충족할 수 있습니다.</p>'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-                found_suggestion = True
-                break
-        if not found_suggestion:
-            st.markdown(
-                f'<div class="result-text">'
-                f'<p>❗ 앞으로 30일 이내에는 요건을 충족할 수 없습니다. 근무일 수를 조정하거나 더 먼 날짜를 고려하세요.</p>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-
-    if not condition2:
-        st.markdown("### 📅 조건 2를 충족하려면 언제 신청해야 할까요?")
-        last_worked_day = max((d for d in selected_dates if d < apply_date), default=None)
-        if last_worked_day:
-            suggested_date = last_worked_day + timedelta(days=15)
-            st.markdown(
-                f'<div class="result-text">'
-                f'<p>✅ <b>{suggested_date.strftime("%Y-%m-%d")}</b> 이후에 신청하면 조건 2를 충족할 수 있습니다.</p>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        else:
-            st.markdown(
-                f'<div class="result-text">'
-                f'<p>이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-
-    st.subheader("📌 최종 판단")
-    if condition1:
-        st.markdown(
-            f'<div class="result-text">'
-            f'<p>✅ 일반일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 미만</b></p>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            f'<div class="result-text">'
-            f'<p>❌ 일반일용근로자: 신청 불가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b></p>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-
-    if condition1 and condition2:
-        st.markdown(
-            f'<div class="result-text">'
-            f'<p>✅ 건설일용근로자: 신청 가능<br>'
-            f'<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime("%Y-%m-%d")} ~ {apply_date.strftime("%Y-%m-%d")}) 근로일 수의 합이 총 일수의 3분의 1 미만이고, 신청일 직전 14일간({fourteen_days_prior_start.strftime("%Y-%m-%d")} ~ {fourteen_days_prior_end.strftime("%Y-%m-%d")}) 근무 사실이 없음을 확인합니다.</b></p>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    else:
-        error_message = "❌ 건설일용근로자: 신청 불가능<br>"
-        if not condition1:
-            error_message += f"<b>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지({start_date.strftime('%Y-%m-%d')} ~ {apply_date.strftime('%Y-%m-%d')}) 근로일 수의 합이 같은 기간 동안의 총 일수의 3분의 1 이상입니다.</b><br>"
-        if not condition2:
-            error_message += f"<b>신청일 직전 14일간({fourteen_days_prior_start.strftime('%Y-%m-%d')} ~ {fourteen_days_prior_end.strftime('%Y-%m-%d')}) 근무내역이 있습니다.</b>"
-        st.markdown(
-            f'<div class="result-text">'
-            f'<p>{error_message}</p>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-
-if __name__ == "__main__":
-    daily_worker_eligibility_app()
+if checkbox_value:
+    st.write("21일이 선택되었습니다!")
+else:
+    st.write("21일이 선택되지 않았습니다.")
