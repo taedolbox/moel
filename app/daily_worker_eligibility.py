@@ -17,7 +17,7 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 토글 및 Streamlit 재렌더링
+# JavaScript로 .day 클릭 시 체크박스 토글
 click_handler_js = """
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -32,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = !isChecked; // 상태 토글
                 this.classList.toggle('selected', !isChecked); // .selected 클래스 동기화
                 checkbox.dispatchEvent(new Event('change')); // Streamlit에 변경 이벤트 전파
-                // Streamlit 재렌더링 트리거
-                window.parent.postMessage({ type: 'streamlit:rerun' }, '*');
                 console.log('Clicked day:', date, 'Checkbox checked:', !isChecked);
             } else {
                 console.log('Checkbox not found for date:', date);
@@ -120,8 +118,9 @@ def render_calendar(apply_date):
                             )
                             st.markdown('</div>', unsafe_allow_html=True)
                         
-                        # 체크박스 상태 변경 시 세션 상태 업데이트
+                        # 체크박스 상태 변경 시 세션 상태 업데이트 및 디버깅
                         if not is_disabled and checkbox_value != is_selected:
+                            st.write(f"Checkbox changed: {checkbox_key}, Value: {checkbox_value}")  # 디버깅 로그
                             if checkbox_value:
                                 selected_dates.add(date_obj)
                             else:
