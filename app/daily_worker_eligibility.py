@@ -24,44 +24,49 @@ function showPopup(message) {
     alert(message); // 콘솔 대신 팝업으로 출력
 }
 
-showPopup('Script loaded successfully'); // 스크립트 로드 확인
+// 페이지 로드 완료 후 실행
+window.onload = function() {
+    showPopup('Page fully loaded, script executing');
 
-function setupClickHandlers() {
-    showPopup('Setting up click handlers...');
-    const days = document.querySelectorAll('.day:not(.disabled)');
-    if (days.length === 0) {
-        showPopup('No .day elements found');
-        return;
-    }
-    days.forEach(day => {
-        day.addEventListener('click', function(e) {
-            e.preventDefault();
-            const date = this.getAttribute('data-date');
-            showPopup('Day clicked: ' + date);
-            const checkbox = document.querySelector(`input[key="date_${date}"]`);
-            if (checkbox) {
-                const isChecked = checkbox.checked;
-                checkbox.checked = !isChecked;
-                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                day.classList.toggle('selected', !isChecked);
-                showPopup('Checkbox toggled: ' + date + ', Checked: ' + !isChecked);
-            } else {
-                showPopup('Checkbox not found for date: ' + date + ', Available keys: ' + Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')).join(', '));
-            }
+    function setupClickHandlers() {
+        showPopup('Setting up click handlers...');
+        const days = document.querySelectorAll('.day:not(.disabled)');
+        if (days.length === 0) {
+            showPopup('No .day elements found');
+            return;
+        }
+        showPopup('Found ' + days.length + ' .day elements');
+        days.forEach(day => {
+            day.addEventListener('click', function(e) {
+                e.preventDefault();
+                const date = this.getAttribute('data-date');
+                showPopup('Day clicked: ' + date);
+                const checkbox = document.querySelector(`input[key="date_${date}"]`);
+                if (checkbox) {
+                    const isChecked = checkbox.checked;
+                    checkbox.checked = !isChecked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    day.classList.toggle('selected', !isChecked);
+                    showPopup('Checkbox toggled: ' + date + ', Checked: ' + !isChecked);
+                } else {
+                    showPopup('Checkbox not found for date: ' + date + ', Available keys: ' + Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')).join(', '));
+                }
+            });
         });
-    });
-}
+    }
 
-// DOM 업데이트 감지
-new MutationObserver(() => {
-    showPopup('DOM mutated, re-applying handlers');
+    // 초기 설정
     setupClickHandlers();
-}).observe(document.body, { childList: true, subtree: true });
 
-setupClickHandlers(); // 초기 로드 시 실행
+    // DOM 변경 감지
+    new MutationObserver(() => {
+        showPopup('DOM mutated, re-applying handlers');
+        setupClickHandlers();
+    }).observe(document.body, { childList: true, subtree: true });
+};
 </script>
 """
-components.html(click_handler_js, height=0)
+components.html(click_handler_js, height=1)  # 높이를 1로 변경해 DOM 삽입 확인
 
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
@@ -134,7 +139,7 @@ def render_calendar(apply_date):
                             unsafe_allow_html=True
                         )
 
-    # 체크박스 컨테이너 렌der링
+    # 체크박스 컨테이너 렌더링
     st.markdown('<div class="checkbox-container">', unsafe_allow_html=True)
     date_range, _ = get_date_range(apply_date)
     for date_obj in date_range:
