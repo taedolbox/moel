@@ -17,10 +17,10 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 클릭 트리거
+# JavaScript로 .day 클릭 시 체크박스 상태 변경
 click_handler_js = """
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+function setupClickHandlers() {
     const days = document.querySelectorAll('.day:not(.disabled)');
     days.forEach(day => {
         day.addEventListener('click', function(e) {
@@ -28,15 +28,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const date = this.getAttribute('data-date');
             const checkbox = document.querySelector(`input[key="date_${date}"]`);
             if (checkbox) {
-                checkbox.click(); // 체크박스 직접 클릭
-                this.classList.toggle('selected', checkbox.checked); // .selected 동기화
-                console.log('Clicked day:', date, 'Checkbox checked:', checkbox.checked);
+                const isChecked = checkbox.checked;
+                checkbox.checked = !isChecked; // 상태 직접 변경
+                checkbox.dispatchEvent(new Event('change', { bubbles: true })); // 이벤트 전파 강화
+                day.classList.toggle('selected', !isChecked); // .selected 동기화
+                console.log('Clicked day:', date, 'Checkbox checked:', !isChecked, 'Checkbox found:', checkbox);
             } else {
-                console.log('Checkbox not found for date:', date);
+                console.log('Checkbox not found for date:', date, 'Available keys:', Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')));
             }
         });
     });
-});
+}
+
+// DOM 업데이트 후 이벤트 리스너 재설정
+new MutationObserver(() => {
+    setupClickHandlers();
+}).observe(document.body, { childList: true, subtree: true });
+
+setupClickHandlers(); // 초기 로드 시 실행
 </script>
 """
 components.html(click_handler_js, height=0)
@@ -119,11 +128,13 @@ def render_calendar(apply_date):
         checkbox_key = f"date_{date_obj.strftime('%Y-%m-%d')}"
         is_selected = date_obj in selected_dates
         is_disabled = date_obj > apply_date
-        st.checkbox(
+        checkbox_value = st.checkbox(
             date_obj.strftime("%m/%d"),
             key=checkbox_key,
             value=is_selected,
-            disabled=is_disabled
+            disabled=is_disabled,
+            on_change=lambda: update_selected_dates(checkbox_key, st.session_state[checkbox_key]),
+            args=(date_obj,)
         )
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -134,6 +145,14 @@ def render_calendar(apply_date):
         st.markdown("선택된 날짜: " + ", ".join([d.strftime("%m/%d") for d in sorted(selected_dates)]))
 
     return st.session_state.selected_dates
+
+def update_selected_dates(checkbox_key, is_checked, date_obj):
+    """체크박스 상태 변경 시 selected_dates 업데이트"""
+    if is_checked:
+        st.session_state.selected_dates.add(date_obj)
+    else:
+        st.session_state.selected_dates.discard(date_obj)
+    st.experimental_rerun()
 
 def daily_worker_eligibility_app():
     """일용근로자 수급자격 요건 모의계산 앱."""
