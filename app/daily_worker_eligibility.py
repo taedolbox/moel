@@ -17,32 +17,36 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# JavaScript로 .day 클릭 시 체크박스 상태 변경
+# JavaScript로 .day 클릭 시 체크박스 상태 변경 및 팝업 출력
 click_handler_js = """
 <script>
-console.log('Script loaded successfully'); // 스크립트 로드 확인
+function showPopup(message) {
+    alert(message); // 콘솔 대신 팝업으로 출력
+}
+
+showPopup('Script loaded successfully'); // 스크립트 로드 확인
 
 function setupClickHandlers() {
-    console.log('Setting up click handlers...');
+    showPopup('Setting up click handlers...');
     const days = document.querySelectorAll('.day:not(.disabled)');
     if (days.length === 0) {
-        console.log('No .day elements found');
+        showPopup('No .day elements found');
         return;
     }
     days.forEach(day => {
         day.addEventListener('click', function(e) {
             e.preventDefault();
             const date = this.getAttribute('data-date');
-            console.log('Day clicked:', date);
+            showPopup('Day clicked: ' + date);
             const checkbox = document.querySelector(`input[key="date_${date}"]`);
             if (checkbox) {
                 const isChecked = checkbox.checked;
                 checkbox.checked = !isChecked;
                 checkbox.dispatchEvent(new Event('change', { bubbles: true }));
                 day.classList.toggle('selected', !isChecked);
-                console.log('Checkbox toggled:', date, 'Checked:', !isChecked);
+                showPopup('Checkbox toggled: ' + date + ', Checked: ' + !isChecked);
             } else {
-                console.log('Checkbox not found for date:', date, 'Available keys:', Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')));
+                showPopup('Checkbox not found for date: ' + date + ', Available keys: ' + Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')).join(', '));
             }
         });
     });
@@ -50,7 +54,7 @@ function setupClickHandlers() {
 
 // DOM 업데이트 감지
 new MutationObserver(() => {
-    console.log('DOM mutated, re-applying handlers');
+    showPopup('DOM mutated, re-applying handlers');
     setupClickHandlers();
 }).observe(document.body, { childList: true, subtree: true });
 
@@ -130,7 +134,7 @@ def render_calendar(apply_date):
                             unsafe_allow_html=True
                         )
 
-    # 체크박스 컨테이너 렌더링
+    # 체크박스 컨테이너 렌der링
     st.markdown('<div class="checkbox-container">', unsafe_allow_html=True)
     date_range, _ = get_date_range(apply_date)
     for date_obj in date_range:
@@ -168,7 +172,7 @@ def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
     current_datetime = datetime.now(KST)
-    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
+    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
 
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
