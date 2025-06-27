@@ -7,6 +7,9 @@ import pytz
 import time
 import streamlit.components.v1 as components
 
+import streamlit as st
+import streamlit.components.v1 as components
+
 # 스타일시트 (간소화)
 st.markdown("""
     <style>
