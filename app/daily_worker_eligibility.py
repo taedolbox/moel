@@ -20,19 +20,27 @@ with open("static/styles.css") as f:
 # JavaScript로 .day 클릭 시 체크박스 상태 변경
 click_handler_js = """
 <script>
+console.log('Script loaded successfully'); // 스크립트 로드 확인
+
 function setupClickHandlers() {
+    console.log('Setting up click handlers...');
     const days = document.querySelectorAll('.day:not(.disabled)');
+    if (days.length === 0) {
+        console.log('No .day elements found');
+        return;
+    }
     days.forEach(day => {
         day.addEventListener('click', function(e) {
             e.preventDefault();
             const date = this.getAttribute('data-date');
+            console.log('Day clicked:', date);
             const checkbox = document.querySelector(`input[key="date_${date}"]`);
             if (checkbox) {
                 const isChecked = checkbox.checked;
-                checkbox.checked = !isChecked; // 상태 직접 변경
-                checkbox.dispatchEvent(new Event('change', { bubbles: true })); // 이벤트 전파 강화
-                day.classList.toggle('selected', !isChecked); // .selected 동기화
-                console.log('Clicked day:', date, 'Checkbox checked:', !isChecked, 'Checkbox found:', checkbox);
+                checkbox.checked = !isChecked;
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                day.classList.toggle('selected', !isChecked);
+                console.log('Checkbox toggled:', date, 'Checked:', !isChecked);
             } else {
                 console.log('Checkbox not found for date:', date, 'Available keys:', Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => cb.getAttribute('key')));
             }
@@ -40,8 +48,9 @@ function setupClickHandlers() {
     });
 }
 
-// DOM 업데이트 후 이벤트 리스너 재설정
+// DOM 업데이트 감지
 new MutationObserver(() => {
+    console.log('DOM mutated, re-applying handlers');
     setupClickHandlers();
 }).observe(document.body, { childList: true, subtree: true });
 
@@ -133,7 +142,7 @@ def render_calendar(apply_date):
             key=checkbox_key,
             value=is_selected,
             disabled=is_disabled,
-            on_change=lambda: update_selected_dates(checkbox_key, st.session_state[checkbox_key]),
+            on_change=lambda: update_selected_dates(checkbox_key, st.session_state[checkbox_key], date_obj),
             args=(date_obj,)
         )
     st.markdown('</div>', unsafe_allow_html=True)
