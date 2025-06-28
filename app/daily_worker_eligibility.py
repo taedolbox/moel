@@ -16,6 +16,41 @@ timestamp = time.time()
 with open("static/styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+# 추가 CSS: 원형 버튼과 시각적 효과
+st.markdown("""
+    <style>
+    .day-button {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ccc;
+        border-radius: 50%; /* 원형으로 변경 */
+        text-align: center;
+        line-height: 40px;
+        cursor: pointer;
+        margin: 2px;
+        background-color: white;
+        transition: background-color 0.3s; /* 부드러운 전환 효과 */
+    }
+    .day-button:hover {
+        background-color: #f0f0f0; /* 호버 시 회색 */
+    }
+    .day-button.selected {
+        background-color: #007bff; /* 선택 시 파란색 */
+        color: white; /* 선택 시 텍스트 색상 */
+    }
+    .day-button.disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+    .day-header {
+        text-align: center;
+        font-weight: bold;
+    }
+    .sunday { color: red; }
+    .saturday { color: blue; }
+    </style>
+    """, unsafe_allow_html=True)
+
 def get_date_range(apply_date):
     """신청일을 기준으로 이전 달 초일부터 신청일까지의 날짜 범위를 반환합니다."""
     start_of_apply_month = apply_date.replace(day=1)
@@ -40,7 +75,7 @@ def render_calendar(apply_date):
         
         with st.container():
             day_headers = ["일", "월", "화", "수", "목", "금", "토"]
-            cols = st.columns(7)  # gap 매개변수 제거
+            cols = st.columns(7)
             for i, day_name in enumerate(day_headers):
                 with cols[i]:
                     class_name = "day-header"
@@ -51,7 +86,7 @@ def render_calendar(apply_date):
                     st.markdown(f'<div class="{class_name}">{day_name}</div>', unsafe_allow_html=True)
 
         with st.container():
-            cols = st.columns(7)  # gap 매개변수 제거
+            cols = st.columns(7)
             for week in cal:
                 for i, day in enumerate(week):
                     with cols[i]:
@@ -64,27 +99,25 @@ def render_calendar(apply_date):
                         is_current = date_obj == current_date
                         is_disabled = date_obj > apply_date
 
-                        if not is_disabled:
-                            if st.button(str(day), key=f"day_{date_obj.strftime('%Y-%m-%d')}"):
-                                if date_obj in selected_dates:
-                                    selected_dates.remove(date_obj)
-                                else:
-                                    selected_dates.add(date_obj)
-                                st.rerun()
-
-                        class_name = "day"
+                        class_name = "day-button"
                         if is_selected:
                             class_name += " selected"
-                        if is_current:
-                            class_name += " current"
                         if is_disabled:
                             class_name += " disabled"
                         if i == 0:
                             class_name += " sunday"
                         elif i == 6:
                             class_name += " saturday"
-                        
-                        st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
+
+                        if not is_disabled:
+                            if st.button(str(day), key=f"day_{date_obj.strftime('%Y-%m-%d')}", help=date_obj.strftime('%Y-%m-%d')):
+                                if date_obj in selected_dates:
+                                    selected_dates.remove(date_obj)
+                                else:
+                                    selected_dates.add(date_obj)
+                                st.rerun()
+                        else:
+                            st.markdown(f'<div class="{class_name}">{day}</div>', unsafe_allow_html=True)
 
     # 선택된 날짜 수 표시
     selected_count = len(selected_dates)
@@ -103,7 +136,7 @@ def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
     current_datetime = datetime.now(KST)
-    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오후 %I:%M KST')
+    current_time_korean = current_datetime.strftime('%Y년 %m월 %d일 %A 오전 %I:%M KST')
 
     st.markdown(f"**오늘 날짜와 시간**: {current_time_korean}", unsafe_allow_html=True)
 
@@ -193,7 +226,7 @@ def daily_worker_eligibility_app():
         else:
             st.markdown(
                 f'<div class="result-text">'
-                f'<p>이미 최근 14일간 근무�내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
+                f'<p>이미 최근 14일간 근무내역이 없으므로, 신청일을 조정할 필요는 없습니다.</p>'
                 f'</div>',
                 unsafe_allow_html=True
             )
