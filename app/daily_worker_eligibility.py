@@ -15,8 +15,9 @@ def daily_worker_eligibility_app():
     if 'js_message' not in st.session_state:
         st.session_state.js_message = ""
 
-    # 기준 날짜 입력
-    input_date = st.date_input("📅 기준 날짜 선택", datetime.today())
+    # 한국표준시 현재 날짜
+    today_kst = datetime.utcnow() + timedelta(hours=9)
+    input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
     # 달력 날짜 생성
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
