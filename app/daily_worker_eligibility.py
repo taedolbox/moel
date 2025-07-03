@@ -53,7 +53,6 @@ def daily_worker_eligibility_app():
     )
 
     if not cond2:
-        # 조건 2만 안될 때 대안 제시
         last_worked = max((d for d in selected_dates if d < apply_date), default=None)
         if last_worked:
             suggested = last_worked + timedelta(days=15)
@@ -91,6 +90,3 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-
-
-
