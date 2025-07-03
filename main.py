@@ -20,7 +20,7 @@ def main():
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    st.title("💼 실업급여 도우미")
+    # st.title("💼 실업급여 도우미")
 
     # Menu definitions
     all_menus = [
