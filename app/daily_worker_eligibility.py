@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 
 KST = pytz.timezone('Asia/Seoul')
@@ -36,7 +36,11 @@ def daily_worker_eligibility_app():
 
     fourteen_end = apply_date - timedelta(days=1)
     fourteen_start = fourteen_end - timedelta(days=13)
-    worked_in_14 = any(d in selected_dates for d in pd.date_range(fourteen_start, fourteen_end))
+
+    # ✅ 타입 불일치 방지: date()로 맞춤
+    worked_in_14 = any(
+        d in selected_dates for d in [dt.date() for dt in pd.date_range(fourteen_start, fourteen_end)]
+    )
     cond2 = not worked_in_14
 
     st.markdown("---")
@@ -53,7 +57,10 @@ def daily_worker_eligibility_app():
     )
 
     if not cond2:
-        last_worked = max((d for d in selected_dates if d < apply_date), default=None)
+        # 조건 2 불충족 시, 대안 제시
+        last_worked = max(
+            (d for d in selected_dates if d < apply_date), default=None
+        )
         if last_worked:
             suggested = last_worked + timedelta(days=15)
             st.markdown(
@@ -67,27 +74,28 @@ def daily_worker_eligibility_app():
     if cond1:
         st.markdown(
             f"✅ 일반일용근로자: 신청 가능\n"
-            f"수급자격 인정신청일이 속한 달의 직전 달 1일부터 신청일까지({start_date} ~ {apply_date}) 근무일 수의 합이 총 일수의 1/3 미만으로 신청 가능합니다."
+            f"수급자격 인정신청일이 속한 달의 직전 달 초일부터 신청일까지({start_date} ~ {apply_date}) "
+            f"근무일 수의 합이 같은 기간 총 일수의 1/3 미만으로 신청 가능합니다."
         )
     else:
         st.markdown(
-            f"❌ 일반일용근로자: 신청 불가능\n"
+            f"❌ 일반일용근로자: 신청 불가\n"
             f"근무일 수가 총 일수의 1/3 이상으로 신청이 어렵습니다."
         )
 
-    # ✅ 건설일용근로자: 반드시 OR 로직으로 판정
     if cond1 or cond2:
-        msg = f"✅ 건설일용근로자: 신청 가능\n"
         if cond1 and cond2:
-            msg += f"조건 1과 조건 2 모두 충족하여 신청 가능합니다."
-        elif cond1 and not cond2:
-            msg += f"조건 1은 충족하였으나 신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역이 있어 조건 2는 불충족입니다. 그러나 조건 1로 신청 가능합니다."
-        elif not cond1 and cond2:
-            msg += f"조건 1은 불충족이나 신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역이 없어 조건 2로 신청 가능합니다."
-        st.markdown(msg)
+            reason = f"조건 1과 조건 2 모두 충족하여 신청 가능합니다."
+        elif cond1:
+            reason = f"신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무기록은 있으나 조건 1을 충족하여 신청 가능합니다."
+        else:
+            reason = f"조건 1은 불충족하였으나 조건 2를 충족하여 신청 가능합니다."
+        st.markdown(
+            f"✅ 건설일용근로자: 신청 가능\n{reason}"
+        )
     else:
         st.markdown(
-            f"❌ 건설일용근로자: 신청 불가능\n"
+            f"❌ 건설일용근로자: 신청 불가\n"
             f"조건 1과 조건 2 모두 충족하지 않아 신청이 어렵습니다."
         )
 
