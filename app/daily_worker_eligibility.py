@@ -1,20 +1,69 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import pytz
+import pdfkit
+import sqlite3
+from jinja2 import Template
+import smtplib
+from email.message import EmailMessage
 
-# ✅ 반드시 최상단에 위치!
+# ✅ 필수: set_page_config 최상단!
 st.set_page_config(page_title="일용근로자 수급자격 모의계산", page_icon="✅")
 
 KST = pytz.timezone('Asia/Seoul')
+
+# ✅ DB 연결
+conn = sqlite3.connect('eligibility_log.db', check_same_thread=False)
+c = conn.cursor()
+c.execute('''
+    CREATE TABLE IF NOT EXISTS logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        apply_date TEXT,
+        worked_days INTEGER,
+        total_days INTEGER,
+        cond1 INTEGER,
+        cond2 INTEGER,
+        email TEXT
+    )
+''')
+conn.commit()
+
+APP_VERSION = "v1.0.0"
 
 def get_date_range(apply_date):
     start_of_apply_month = apply_date.replace(day=1)
     start_date = (start_of_apply_month - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
+def render_pdf(result_text):
+    # HTML 템플릿
+    html_template = Template("""
+    <html><body>
+    <h2>일용근로자 수급자격 모의계산 결과</h2>
+    <pre>{{ result }}</pre>
+    </body></html>
+    """)
+    html_out = html_template.render(result=result_text)
+    pdf = pdfkit.from_string(html_out, False)
+    return pdf
+
+def send_email(receiver_email, result_text):
+    sender_email = "your_email@example.com"
+    sender_password = "your_password"
+    msg = EmailMessage()
+    msg['Subject'] = '일용근로자 수급자격 모의계산 결과'
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg.set_content(result_text)
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(sender_email, sender_password)
+        smtp.send_message(msg)
+
 def daily_worker_eligibility_app():
-    st.title("📌 일용근로자 수급자격 요건 모의계산")
+    st.title(f"📌 일용근로자 수급자격 요건 모의계산 ({APP_VERSION})")
 
     current_datetime = datetime.now(KST)
     st.caption(f"**오늘:** {current_datetime.strftime('%Y-%m-%d %A %H:%M')}")
@@ -114,19 +163,28 @@ def daily_worker_eligibility_app():
         construction_text
     ])
 
-    st.download_button(
-        label="📄 결과를 TXT로 다운로드",
-        data=result_text,
-        file_name="일용근로자_수급자격_모의계산결과.txt"
+    # ✅ DB에 저장
+    c.execute(
+        'INSERT INTO logs (timestamp, apply_date, worked_days, total_days, cond1, cond2, email) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (datetime.now(KST).isoformat(), str(apply_date), worked_days, total_days, int(cond1), int(cond2), None)
     )
+    conn.commit()
+
+    # ✅ PDF 다운로드
+    if st.button("📄 PDF로 저장"):
+        pdf = render_pdf(result_text)
+        st.download_button("📎 PDF 다운로드", data=pdf, file_name="result.pdf", mime="application/pdf")
+
+    # ✅ 이메일 전송
+    email = st.text_input("📧 결과를 이메일로 받을 이메일 주소")
+    if st.button("✉️ 이메일 발송") and email:
+        send_email(email, result_text)
+        st.success(f"{email} 로 발송되었습니다.")
 
     st.markdown("### 📋 결과 복사")
     st.code(result_text, language='markdown')
 
-    st.markdown("✅ [거주지 관할 고용센터 찾기](https://www.ei.go.kr)")
+    st.info(f"이 모의계산기는 참고용입니다. 현재 버전: {APP_VERSION}")
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
-
-
-
