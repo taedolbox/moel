@@ -1,103 +1,254 @@
+# app/daily_worker_eligibility.py
+
 import streamlit as st
-import pandas as pd
-from datetime import datetime, timedelta, date
-import pytz
-
-KST = pytz.timezone('Asia/Seoul')
-
-def get_date_range(apply_date):
-    start_of_apply_month = apply_date.replace(day=1)
-    start_date = (start_of_apply_month - pd.DateOffset(months=1)).replace(day=1).date()
-    return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
+from datetime import datetime, timedelta
+import json
 
 def daily_worker_eligibility_app():
-    st.header("일용근로자 수급자격 요건 모의계산")
+    st.header("🏗️ 일용직(건설일용 포함) 신청 가능 시점 판단")
 
-    current_datetime = datetime.now(KST)
-    st.markdown(f"**오늘:** {current_datetime.strftime('%Y-%m-%d %A %H:%M')}")
+    # 세션 상태 초기화
+    if 'selected_dates_list' not in st.session_state:
+        st.session_state.selected_dates_list = []
+    if 'js_message' not in st.session_state:
+        st.session_state.js_message = ""
 
-    st.markdown("### 📋 요건 조건")
-    st.markdown("- **조건 1**: 신청일이 속한 달의 직전 달 1일부터 신청일까지 근무일 수가 총 일수의 1/3 미만")
-    st.markdown("- **조건 2 (건설일용)**: 신청일 직전 14일간 근무 사실이 없어야 함 (신청일 제외)")
+    # 기준 날짜 입력
+    input_date = st.date_input("📅 기준 날짜 선택", datetime.today())
 
-    apply_date = st.date_input("신청일을 선택하세요", value=current_datetime.date())
-    date_range, start_date = get_date_range(apply_date)
+    # 달력 날짜 생성
+    first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
+    last_day = input_date
+    cal_dates = []
+    current_date = first_day_prev_month
+    while current_date <= last_day:
+        cal_dates.append(current_date)
+        current_date += timedelta(days=1)
 
-    st.markdown("### 근무일 선택 (콤보박스)")
-    date_options = [d.strftime("%Y-%m-%d (%a)") for d in date_range]
-    selected_strs = st.multiselect("근무한 날짜 선택", date_options)
-    selected_dates = set(datetime.strptime(s.split()[0], "%Y-%m-%d").date() for s in selected_strs)
+    calendar_groups = {}
+    for date in cal_dates:
+        year_month = date.strftime("%Y-%m")
+        if year_month not in calendar_groups:
+            calendar_groups[year_month] = []
+        calendar_groups[year_month].append(date)
 
-    total_days = len(date_range)
-    worked_days = len(selected_dates)
-    threshold = total_days / 3
+    # JavaScript 메시지 처리
+    def handle_js_message():
+        if st.session_state.js_message:
+            try:
+                data = json.loads(st.session_state.js_message)
+                if isinstance(data, list):
+                    st.session_state.selected_dates_list = list(set(data))
+                else:
+                    st.session_state.selected_dates_list = []
+            except json.JSONDecodeError:
+                st.session_state.selected_dates_list = []
 
-    cond1 = worked_days < threshold
-
-    fourteen_end = apply_date - timedelta(days=1)
-    fourteen_start = fourteen_end - timedelta(days=13)
-
-    # ✅ 타입 불일치 방지: date()로 맞춤
-    worked_in_14 = any(
-        d in selected_dates for d in [dt.date() for dt in pd.date_range(fourteen_start, fourteen_end)]
+    # 숨김 필드
+    st.text_input(
+        label="JavaScript 메시지 (숨김)",
+        value="",
+        key="js_message",
+        on_change=handle_js_message,
+        disabled=True
     )
-    cond2 = not worked_in_14
 
-    st.markdown("---")
-    st.markdown("### ✅ 조건별 판정")
+    # CSS로 입력 필드 숨김
+    st.markdown("""
+    <style>
+    input[data-testid="stTextInput"] {
+        display: none !important;
+    }
+    label[for="js_message"] {
+        display: none !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    st.markdown(
-        f"{'✅ 조건 1 충족: 근무일 수가 기준 미만입니다.' if cond1 else '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.'} "
-        f"(총 {worked_days}일 / 기간 {total_days}일, 기준 {threshold:.1f}일)"
-    )
+    # 달력 HTML 생성
+    calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
+    fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
+    fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
+    calendar_html = """
+    <div id="calendar-container">
+    """
+    for ym, dates in calendar_groups.items():
+        year, month = ym.split("-")
+        calendar_html += f"""
+        <h4>{year}년 {month}월</h4>
+        <div class="calendar">
+            <div class="day-header">일</div>
+            <div class="day-header">월</div>
+            <div class="day-header">화</div>
+            <div class="day-header">수</div>
+            <div class="day-header">목</div>
+            <div class="day-header">금</div>
+            <div class="day-header">토</div>
+        """
+        first_day_of_month = dates[0]
+        start_day_offset = (first_day_of_month.weekday() + 1) % 7
+        for _ in range(start_day_offset):
+            calendar_html += '<div class="empty-day"></div>'
+        for date in dates:
+            day_num = date.day
+            date_str = date.strftime("%Y-%m-%d")
+            is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
+            calendar_html += f'''
+            <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
+            '''
+        calendar_html += "</div>"
 
-    st.markdown(
-        f"{'✅ 조건 2 충족: 신청일 직전 14일간 근무 기록이 없습니다.' if cond2 else '❌ 조건 2 불충족: 신청일 직전 14일간'
-         f'({fourteen_start} ~ {fourteen_end}) 내 근무기록이 존재합니다.'}"
-    )
+    calendar_html += f"""
+    </div>
+    <p id="selectedDatesText"></p>
+    <div id="resultContainer"></div>
+    <style>
+    .calendar {{
+        display: grid;
+        grid-template-columns: repeat(7, 40px);
+        grid-gap: 5px;
+        margin-bottom: 20px;
+        background-color: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }}
+    .day-header, .empty-day {{
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-weight: bold;
+        color: #555;
+    }}
+    .day-header {{
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        font-size: 14px;
+    }}
+    .empty-day {{
+        background-color: transparent;
+        border: none;
+    }}
+    .day {{
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.1s ease, border 0.1s ease;
+        font-size: 16px;
+        color: #333;
+    }}
+    .day:hover {{
+        background-color: #f0f0f0;
+    }}
+    .day.selected {{
+        border: 2px solid #2196F3;
+        background-color: #2196F3;
+        color: white;
+        font-weight: bold;
+    }}
+    h4 {{
+        margin: 10px 0 5px 0;
+        font-size: 1.2em;
+        color: #333;
+        text-align: center;
+    }}
+    #selectedDatesText {{
+        margin-top: 15px;
+        font-size: 0.9em;
+        color: #666;
+    }}
+    #resultContainer {{
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        font-size: 1em;
+        color: #333;
+        overflow: hidden;
+    }}
+    #calendar-container {{
+        overflow: hidden;
+    }}
+    </style>
+    <script>
+    const CALENDAR_DATES = {calendar_dates_json};
+    const FOURTEEN_DAYS_START = "{fourteen_days_prior_start}";
+    const FOURTEEN_DAYS_END = "{fourteen_days_prior_end}";
 
-    if not cond2:
-        # 조건 2 불충족 시, 대안 제시
-        last_worked = max(
-            (d for d in selected_dates if d < apply_date), default=None
-        )
-        if last_worked:
-            suggested = last_worked + timedelta(days=15)
-            st.markdown(
-                f"📅 조건 2를 충족하려면 언제 신청해야 할까요?\n"
-                f"✅ {suggested} 이후에 신청하면 조건 2를 충족할 수 있습니다."
-            )
+    function saveToLocalStorage(data) {{
+        localStorage.setItem('selectedDates', JSON.stringify(data));
+        window.parent.postMessage(JSON.stringify(data), '*');
+    }}
 
-    st.markdown("---")
-    st.markdown("### 📌 최종 판단")
+    function calculateAndDisplayResult(selected) {{
+        const totalDays = CALENDAR_DATES.length;
+        const threshold = totalDays / 3;
+        const workedDays = selected.length;
 
-    if cond1:
-        st.markdown(
-            f"✅ 일반일용근로자: 신청 가능\n"
-            f"수급자격 인정신청일이 속한 달의 직전 달 초일부터 신청일까지({start_date} ~ {apply_date}) "
-            f"근무일 수의 합이 같은 기간 총 일수의 1/3 미만으로 신청 가능합니다."
-        )
-    else:
-        st.markdown(
-            f"❌ 일반일용근로자: 신청 불가\n"
-            f"근무일 수가 총 일수의 1/3 이상으로 신청이 어렵습니다."
-        )
+        const fourteenDays = CALENDAR_DATES.filter(date => 
+            date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
+        );
+        const noWork14Days = fourteenDays.every(date => !selected.includes(date));
 
-    if cond1 or cond2:
-        if cond1 and cond2:
-            reason = f"조건 1과 조건 2 모두 충족하여 신청 가능합니다."
-        elif cond1:
-            reason = f"신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무기록은 있으나 조건 1을 충족하여 신청 가능합니다."
-        else:
-            reason = f"조건 1은 불충족하였으나 조건 2를 충족하여 신청 가능합니다."
-        st.markdown(
-            f"✅ 건설일용근로자: 신청 가능\n{reason}"
-        )
-    else:
-        st.markdown(
-            f"❌ 건설일용근로자: 신청 불가\n"
-            f"조건 1과 조건 2 모두 충족하지 않아 신청이 어렵습니다."
-        )
+        const condition1Text = workedDays < threshold 
+            ? '✅ 조건 1 충족' : '❌ 조건 1 불충족';
+        const condition2Text = noWork14Days 
+            ? '✅ 조건 2 충족' : '❌ 조건 2 불충족';
 
-if __name__ == "__main__":
-    daily_worker_eligibility_app()
+        const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (workedDays < threshold && noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+
+        const resultHtml = [
+            '<p>총 기간 일수: ' + totalDays + '일</p>',
+            '<p>1/3 기준: ' + threshold.toFixed(1) + '일</p>',
+            '<p>근무일 수: ' + workedDays + '일</p>',
+            '<p>' + condition1Text + '</p>',
+            '<p>' + condition2Text + '</p>',
+            '<h3>최종 판단</h3>',
+            '<p>일반일용: ' + generalWorkerText + '</p>',
+            '<p>건설일용: ' + constructionWorkerText + '</p>'
+        ].join('');
+        document.getElementById('resultContainer').innerHTML = resultHtml;
+    }}
+
+    function toggleDate(element) {{
+        element.classList.toggle('selected');
+        const selected = [];
+        const days = document.getElementsByClassName('day');
+        for (let i = 0; i < days.length; i++) {{
+            if (days[i].classList.contains('selected')) {{
+                selected.push(days[i].getAttribute('data-date'));
+            }}
+        }}
+        saveToLocalStorage(selected);
+        calculateAndDisplayResult(selected);
+        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
+    }}
+
+    window.onload = function() {{
+        const initialDates = "{','.join(st.session_state.selected_dates_list)}";
+        let initialSelected = [];
+        if (initialDates) {{
+            initialSelected = initialDates.split(',').filter(date => date);
+            const days = document.getElementsByClassName('day');
+            for (let i = 0; i < days.length; i++) {{
+                if (initialSelected.includes(days[i].getAttribute('data-date'))) {{
+                    days[i].classList.add('selected');
+                }}
+            }}
+        }}
+        saveToLocalStorage(initialSelected);
+        calculateAndDisplayResult(initialSelected);
+        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + initialSelected.join(', ') + " (" + initialSelected.length + "일)";
+    }};
+    </script>
+    """
+
+    st.components.v1.html(calendar_html, height=800, scrolling=False)
+
