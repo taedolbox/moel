@@ -3,29 +3,18 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import calendar
 import pytz
-import time
 
-# 📌 달력 시작 요일 설정
 calendar.setfirstweekday(calendar.SUNDAY)
-
-# 📌 KST 시간대
 KST = pytz.timezone('Asia/Seoul')
-
-# 📌 CSS 로드 (캐시 방지 쿼리)
-timestamp = time.time()
-with open("static/styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
 def get_date_range(apply_date):
-    """신청일 기준 직전 달 초일부터 신청일까지 범위"""
     start_of_apply_month = apply_date.replace(day=1)
     start_date = (start_of_apply_month - pd.DateOffset(months=1)).replace(day=1).date()
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 
 def render_calendar(apply_date):
-    """달력 렌더링 + 날짜 선택"""
     if 'selected_dates' not in st.session_state:
         st.session_state.selected_dates = set()
 
@@ -41,14 +30,12 @@ def render_calendar(apply_date):
         st.markdown(f"### {year}년 {month}월", unsafe_allow_html=True)
         cal = calendar.monthcalendar(year, month)
 
-        # 요일 헤더
         day_headers = ["일", "월", "화", "수", "목", "금", "토"]
         cols = st.columns(7)
         for i, day_name in enumerate(day_headers):
             with cols[i]:
                 st.markdown(f'<div class="day-header">{day_name}</div>', unsafe_allow_html=True)
 
-        # 날짜 블록
         for week in cal:
             cols = st.columns(7)
             for i, day in enumerate(week):
@@ -97,71 +84,133 @@ def render_calendar(apply_date):
 
 
 def daily_worker_eligibility_app():
-    st.header("일용근로자 수급자격 요건 모의계산")
+    st.header("📋 일용근로자 수급자격 요건 모의계산")
 
     now_kst = datetime.now(KST)
     st.markdown(f"**오늘 날짜와 시간**: {now_kst.strftime('%Y년 %m월 %d일 %A %p %I:%M KST')}", unsafe_allow_html=True)
 
     st.markdown("""
-    ### 📋 요건 조건
-    - **조건 1**: 직전 달 초일부터 신청일까지 근무일 수가 총 일수의 1/3 미만
-    - **조건 2 (건설일용근로자만)**: 신청일 직전 14일간 근무내역 없음 (신청일 제외)
+    ### 📌 요건 조건
+    - **조건 1:** 수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일수의 **1/3 미만**이어야 합니다.
+    - **조건 2 (건설일용근로자만):** 신청일 직전 **14일간** 근무 사실이 없어야 합니다 (**신청일 제외**).
     """)
 
     st.markdown("---")
 
-    apply_date = st.date_input("수급자격 신청일 선택", value=now_kst.date(), key="apply_date_input")
-
+    apply_date = st.date_input("📅 수급자격 인정신청일 선택", value=now_kst.date(), key="apply_date_input")
     date_range_objects, start_date = get_date_range(apply_date)
 
-    st.markdown("#### 근무일 선택 달력")
+    st.markdown("### 근무일 선택 달력")
     selected_dates = render_calendar(apply_date)
+
+    st.markdown("""
+    <style>
+    .day {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin: 2px;
+        line-height: 40px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        cursor: pointer;
+        background: white;
+        user-select: none;
+    }
+    .day:hover {
+        background: #eee;
+    }
+    .day.selected {
+        background: #2196F3;
+        color: white;
+        border: 2px solid #2196F3;
+    }
+    .day.current {
+        border: 2px solid #4CAF50;
+    }
+    .day.disabled {
+        background: #f0f0f0;
+        color: #999;
+        cursor: not-allowed;
+    }
+    .day-header {
+        text-align: center;
+        font-weight: bold;
+    }
+    .result-text {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
 
     total_days = len(date_range_objects)
     worked_days = len(selected_dates)
     threshold = total_days / 3
 
-    st.markdown(f"- 총 기간 일수: **{total_days}일**")
-    st.markdown(f"- 기준 (총일수의 1/3): **{threshold:.1f}일**")
-    st.markdown(f"- 선택한 근무일 수: **{worked_days}일**")
+    st.markdown(f"- **총 기간 일수:** {total_days}일")
+    st.markdown(f"- **기준 (총일수의 1/3):** {threshold:.1f}일")
+    st.markdown(f"- **선택한 근무일 수:** {worked_days}일")
 
     condition1 = worked_days < threshold
-    condition1_msg = "✅ 조건 1 충족: 근무일 수 기준 미만입니다." if condition1 else "❌ 조건 1 불충족: 기준 이상입니다."
-    st.markdown(f"<p>{condition1_msg}</p>", unsafe_allow_html=True)
+    condition2 = True
 
     fourteen_end = apply_date - timedelta(days=1)
     fourteen_start = fourteen_end - timedelta(days=13)
     fourteen_range = [d.date() for d in pd.date_range(start=fourteen_start, end=fourteen_end)]
     no_work_14 = all(day not in selected_dates for day in fourteen_range)
 
-    condition2_msg = f"✅ 조건 2 충족: 신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역 없음." \
-        if no_work_14 else \
-        f"❌ 조건 2 불충족: 신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역 있음."
-    st.markdown(f"<p>{condition2_msg}</p>", unsafe_allow_html=True)
-
     st.markdown("---")
 
-    if not condition2_msg.startswith("✅"):
+    st.markdown("### ✅ 조건 결과")
+    st.write(
+        f"{'✅' if condition1 else '❌'} **조건 1:** "
+        f"{'수급자격 인정신청일의 직전 달 초일부터 신청일까지의 근무일 수가 총 일수의 1/3 미만입니다.' if condition1 else '근무일 수가 총 일수의 1/3 이상으로 조건을 충족하지 못했습니다.'}"
+    )
+
+    st.write(
+        f"{'✅' if no_work_14 else '❌'} **조건 2:** "
+        f"{'신청일 직전 14일간(' + fourteen_start.strftime('%Y-%m-%d') + ' ~ ' + fourteen_end.strftime('%Y-%m-%d') + ') 근무내역이 없습니다.' if no_work_14 else '신청일 직전 14일간(' + fourteen_start.strftime('%Y-%m-%d') + ' ~ ' + fourteen_end.strftime('%Y-%m-%d') + ') 근무내역이 존재합니다.'}"
+    )
+
+    if not no_work_14:
         last_work = max((d for d in selected_dates if d < apply_date), default=None)
         if last_work:
             suggestion = last_work + timedelta(days=15)
-            st.markdown(f"📅 조건 2 충족 예상 신청일: **{suggestion} 이후**")
+            st.markdown(f"✅ **조건 2 충족 예상 신청일:** {suggestion.strftime('%Y-%m-%d')} 이후에 신청하면 조건 2를 충족할 수 있습니다.")
         else:
-            st.markdown("신청일 직전 14일간 근무내역이 없으므로 따로 조정 필요 없음.")
+            st.markdown("조건 2는 이미 충족 상태입니다.")
+
+    st.markdown("---")
 
     st.subheader("📌 최종 판단")
-
     if condition1:
-        st.markdown("✅ **일반일용근로자: 신청 가능**")
+        st.write(
+            f"✅ **일반일용근로자:** 신청 가능. "
+            f"수급자격 인정신청일({apply_date})이 속한 달의 직전 달 초일부터 신청일까지({start_date} ~ {apply_date}) 근로일 수가 총 일수의 1/3 미만입니다."
+        )
     else:
-        st.markdown("❌ **일반일용근로자: 신청 불가능**")
+        st.write(
+            f"❌ **일반일용근로자:** 신청 불가능. "
+            f"근로일 수가 총 일수의 1/3 이상으로 조건을 충족하지 못합니다."
+        )
 
     if condition1 and no_work_14:
-        st.markdown("✅ **건설일용근로자: 신청 가능**")
+        st.write(
+            f"✅ **건설일용근로자:** 신청 가능. "
+            f"근로일 수가 총 일수의 1/3 미만이고 신청일 직전 14일간 근무내역이 없습니다."
+        )
     else:
-        st.markdown("❌ **건설일용근로자: 신청 불가능**")
+        st.write(
+            f"❌ **건설일용근로자:** 신청 불가능. "
+            f"{'근로일 수가 기준 이상입니다.' if not condition1 else ''} "
+            f"{'신청일 직전 14일간 근무내역이 있습니다.' if not no_work_14 else ''}"
+        )
 
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+
