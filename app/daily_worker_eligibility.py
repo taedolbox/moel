@@ -164,7 +164,7 @@ def daily_worker_eligibility_app():
         border-radius: 8px;
         font-size: 1em;
         color: #333;
-        overflow: hidden;
+        overflow: visible; /* 넘치면 자연스럽게 늘어남 */
     }}
     #calendar-container {{
         overflow: hidden;
