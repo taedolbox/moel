@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import pytz
 
+# 한국 표준시
 KST = pytz.timezone('Asia/Seoul')
 
 def get_date_range(apply_date):
@@ -13,6 +14,7 @@ def get_date_range(apply_date):
 def daily_worker_eligibility_app():
     st.header("일용근로자 수급자격 요건 모의계산")
 
+    # 현재 날짜/시간
     current_datetime = datetime.now(KST)
     st.markdown(f"**오늘:** {current_datetime.strftime('%Y-%m-%d %A %H:%M')}")
 
@@ -20,6 +22,7 @@ def daily_worker_eligibility_app():
     st.markdown("- **조건 1**: 신청일이 속한 달의 직전 달 1일부터 신청일까지 근무일 수가 총 일수의 1/3 미만")
     st.markdown("- **조건 2 (건설일용)**: 신청일 직전 14일간 근무 사실이 없어야 함 (신청일 제외)")
 
+    # 신청일 입력
     apply_date = st.date_input("신청일을 선택하세요", value=current_datetime.date())
     date_range, start_date = get_date_range(apply_date)
 
@@ -28,6 +31,7 @@ def daily_worker_eligibility_app():
     selected_strs = st.multiselect("근무한 날짜 선택", date_options)
     selected_dates = set(datetime.strptime(s.split()[0], "%Y-%m-%d").date() for s in selected_strs)
 
+    # 조건 계산
     total_days = len(date_range)
     worked_days = len(selected_dates)
     threshold = total_days / 3
@@ -39,6 +43,7 @@ def daily_worker_eligibility_app():
     worked_in_14 = any(d in selected_dates for d in pd.date_range(fourteen_start, fourteen_end))
     cond2 = not worked_in_14
 
+    # ✅ 조건별 결과
     st.markdown("---")
     st.markdown("### ✅ 조건별 판정")
 
@@ -61,13 +66,15 @@ def daily_worker_eligibility_app():
                 f"✅ {suggested} 이후에 신청하면 조건 2를 충족할 수 있습니다."
             )
 
+    # ✅ 최종 판단
     st.markdown("---")
     st.markdown("### 📌 최종 판단")
 
+    # 일반일용근로자
     if cond1:
         st.markdown(
             f"✅ 일반일용근로자: 신청 가능\n"
-            f"수급자격 인정신청일이 속한 달의 직전 달 초일부터 신청일까지({start_date} ~ {apply_date}) 근무일 수의 합이 같은 기간 동안의 총 일수의 1/3 미만으로 신청 가능합니다."
+            f"수급자격 인정신청일이 속한 달의 직전 달 1일부터 신청일까지({start_date} ~ {apply_date}) 근무일 수의 합이 총 일수의 1/3 미만으로 신청 가능합니다."
         )
     else:
         st.markdown(
@@ -75,12 +82,15 @@ def daily_worker_eligibility_app():
             f"근무일 수가 총 일수의 1/3 이상으로 신청이 어렵습니다."
         )
 
+    # 건설일용근로자 (조건1 또는 조건2 하나라도 충족하면 가능)
     if cond1 or cond2:
         msg = f"✅ 건설일용근로자: 신청 가능\n"
-        if cond2:
+        if cond2 and not cond1:
             msg += f"신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역이 없으므로 신청 가능합니다."
-        elif cond1:
-            msg += f"신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역이 있으나, 조건 1을 충족하여 신청 가능합니다."
+        elif cond1 and not cond2:
+            msg += f"신청일 직전 14일간({fourteen_start} ~ {fourteen_end}) 근무내역은 있으나 조건 1을 충족하여 신청 가능합니다."
+        elif cond1 and cond2:
+            msg += f"조건 1과 조건 2 모두 충족하여 신청 가능합니다."
         st.markdown(msg)
     else:
         st.markdown(
@@ -90,3 +100,4 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+
