@@ -47,27 +47,6 @@ def daily_worker_eligibility_app():
             except json.JSONDecodeError:
                 st.session_state.selected_dates_list = []
 
-    # 숨김용 필드
-    st.text_input(
-    label="JavaScript 메시지 (숨김)",
-    value="",
-    key="js_message",
-    on_change=handle_js_message,
-    disabled=True
-    )
-
-    # CSS로 필드 숨기기
-    st.markdown("""
-    <style>
-    input#js_message {
-      display: none !important;
-    }
-    label[for="js_message"] {
-      display: none !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
     # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
