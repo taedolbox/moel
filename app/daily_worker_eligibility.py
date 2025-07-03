@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 
 def daily_worker_eligibility_app():
-    st.header("🏗️ 일용직(건설일용 포함) 신청 가능 시점 판단")
+    st.header("🏗️ 일용직 신청 가능 시점 판단")
 
     # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
