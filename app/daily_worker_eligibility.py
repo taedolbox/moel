@@ -5,7 +5,11 @@ from datetime import datetime, timedelta
 import json
 
 def daily_worker_eligibility_app():
-    st.header("🏗️ 일용직 신청 가능 시점 판단")
+    st.markdown(
+    "<span style='font-size:22px; font-weight:600;'>🏗️ 일용직 신청 가능 시점 판단</span>",
+    unsafe_allow_html=True
+)
+    # st.header("🏗️ 일용직 신청 가능 시점 판단")
 
     # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
