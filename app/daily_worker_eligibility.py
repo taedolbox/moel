@@ -3,6 +3,9 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 import pytz
 
+# ✅ 반드시 최상단에 위치!
+st.set_page_config(page_title="일용근로자 수급자격 모의계산", page_icon="✅")
+
 KST = pytz.timezone('Asia/Seoul')
 
 def get_date_range(apply_date):
@@ -11,7 +14,6 @@ def get_date_range(apply_date):
     return [d.date() for d in pd.date_range(start=start_date, end=apply_date)], start_date
 
 def daily_worker_eligibility_app():
-    st.set_page_config(page_title="일용근로자 수급자격 모의계산", page_icon="✅")
     st.title("📌 일용근로자 수급자격 요건 모의계산")
 
     current_datetime = datetime.now(KST)
@@ -86,6 +88,7 @@ def daily_worker_eligibility_app():
         f"❌ 일반일용근로자: 신청 불가\n"
         f"근무일 수가 총 일수의 1/3 이상으로 신청이 어렵습니다."
     )
+
     if cond1 or cond2:
         if cond1 and cond2:
             reason = f"조건 1과 조건 2 모두 충족하여 신청 가능합니다."
@@ -103,7 +106,6 @@ def daily_worker_eligibility_app():
     st.markdown(general_text)
     st.markdown(construction_text)
 
-    # 최종 결과 텍스트 모음
     result_text = "\n\n".join([
         cond1_text,
         cond2_text,
@@ -111,9 +113,6 @@ def daily_worker_eligibility_app():
         general_text,
         construction_text
     ])
-
-    st.markdown("---")
-    st.markdown("### 📂 결과 내보내기")
 
     st.download_button(
         label="📄 결과를 TXT로 다운로드",
@@ -128,5 +127,6 @@ def daily_worker_eligibility_app():
 
 if __name__ == "__main__":
     daily_worker_eligibility_app()
+
 
 
