@@ -10,17 +10,12 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
-    if 'js_message' not in st.session_state:
-        st.session_state.js_message = ""
 
-    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성: 기준일 이전 달 1일부터 기준일까지
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -36,7 +31,6 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
-    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -48,7 +42,6 @@ def daily_worker_eligibility_app():
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 HTML 생성
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
@@ -71,7 +64,6 @@ def daily_worker_eligibility_app():
             <div class="day-header">토</div>
         """
         first_day_of_month = dates[0]
-        # 월 첫날 요일 보정 (일요일=0 기준)
         start_day_offset = (first_day_of_month.weekday() + 1) % 7
         for _ in range(start_day_offset):
             calendar_html += '<div class="empty-day"></div>'
@@ -201,7 +193,7 @@ def daily_worker_eligibility_app():
                 const lastWorkedDate = new Date(lastWorkedDateStr);
                 lastWorkedDate.setDate(lastWorkedDate.getDate() + 15);
                 const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible = `📅 조건 2를 충족하려면 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+                nextPossible = "📅 조건 2를 충족하려면 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
             }}
         }}
 
@@ -213,20 +205,20 @@ def daily_worker_eligibility_app():
             : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
 
         const condition2Text = condition2Met
-            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
-            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 내 근무기록이 존재합니다.`;
+            ? "✅ 조건 2 충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 무근무"
+            : "❌ 조건 2 불충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 내 근무기록이 존재합니다.";
 
         const finalHtml = [
-            `<p>총 기간 일수: ${totalDays}일</p>`,
-            `<p>1/3 기준: ${threshold.toFixed(1)}일</p>`,
-            `<p>근무일 수: ${workedDays}일</p>`,
-            `<p>${condition1Text}</p>`,
-            `<p>${condition2Text}</p>`,
-            `<p>${nextPossible}</p>`,
-            `<h3>📌 최종 판단</h3>`,
-            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
-            `<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(${CALENDAR_DATES[0]} ~ ${CALENDAR_DATES[CALENDAR_DATES.length - 1]}) 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>`,
-            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
+            "<p>총 기간 일수: " + totalDays + "일</p>",
+            "<p>1/3 기준: " + threshold.toFixed(1) + "일</p>",
+            "<p>근무일 수: " + workedDays + "일</p>",
+            "<p>" + condition1Text + "</p>",
+            "<p>" + condition2Text + "</p>",
+            "<p>" + nextPossible + "</p>",
+            "<h3>📌 최종 판단</h3>",
+            "<p>✅ 일반일용근로자: " + generalWorkerText + "</p>",
+            "<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(" + CALENDAR_DATES[0] + " ~ " + CALENDAR_DATES[CALENDAR_DATES.length - 1] + ") 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>",
+            "<p>✅ 건설일용근로자: " + constructionWorkerText + "</p>"
         ].join('');
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
@@ -244,8 +236,7 @@ def daily_worker_eligibility_app():
         saveToLocalStorage(selected);
         calculateAndDisplayResult(selected);
         document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
-        // Streamlit 세션 상태 갱신을 위한 메시지 전달
-        window.parent.postMessage(JSON.stringify({type: 'update_selected_dates', dates: selected}), '*');
+        window.parent.postMessage(JSON.stringify({{type: 'update_selected_dates', dates: selected}}), '*');
     }}
 
     window.onload = function() {{
