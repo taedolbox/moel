@@ -170,7 +170,7 @@ def daily_worker_eligibility_app():
             const nextAvailableDate = new Date(FOURTEEN_DAYS_END);
             nextAvailableDate.setDate(nextAvailableDate.getDate() + 15);
             const nextDateStr = nextAvailableDate.toISOString().split('T')[0];
-            nextPossible = `📅 조건 2를 충족하려면 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+            nextPossible = `📅 조건 2를 충족하려면 ${{nextDateStr}} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
         }}
 
         let generalResult = workedDays < threshold 
