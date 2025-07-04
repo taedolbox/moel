@@ -64,6 +64,10 @@ def daily_worker_eligibility_app():
     <div id="resultContainer"></div>
 
     <style>
+    body {
+        color: #111;
+    }
+
     .calendar {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -75,8 +79,8 @@ def daily_worker_eligibility_app():
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         width: 100%;
         box-sizing: border-box;
-        max-width: 100%;
     }
+
     .day-header, .empty-day, .day {
         aspect-ratio: 1/1;
         display: flex;
@@ -111,8 +115,22 @@ def daily_worker_eligibility_app():
     .day.selected {
         border: 2px solid #2196F3;
         background: #2196F3;
-        color: #fff; /* 다크모드에서도 보이도록 흰색 고정 */
+        color: #fff !important; /* ✅ 다크모드 대비 강제 */
         font-weight: bold;
+    }
+
+    #resultContainer {
+        color: #111;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        body {
+            color: #ddd;
+            background: #000;
+        }
+        #resultContainer {
+            color: #eee; /* ✅ 다크모드 텍스트 보이도록 */
+        }
     }
 
     @media (max-width: 768px) {
@@ -204,4 +222,4 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1800, scrolling=False)
+    st.components.v1.html(calendar_html, height=1500, scrolling=False)
