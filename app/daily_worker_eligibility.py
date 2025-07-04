@@ -8,17 +8,15 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태 초기화
-    if 'selected_dates_list' not in st.session_state:
+    # 세션 상태 초기화 (반드시 리스트 타입 보장)
+    if 'selected_dates_list' not in st.session_state or not isinstance(st.session_state.selected_dates_list, list):
         st.session_state.selected_dates_list = []
     if 'js_message' not in st.session_state:
         st.session_state.js_message = ""
 
-    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성 (전월 1일부터 기준일 까지)
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -34,7 +32,6 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
-    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -49,6 +46,9 @@ def daily_worker_eligibility_app():
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
+
+    # 안전한 selected_dates_list 문자열 (빈 리스트일 때도 "")
+    selected_dates_str = ",".join(st.session_state.selected_dates_list) if st.session_state.selected_dates_list else ""
 
     calendar_html = f"""
     <div id="calendar-container">
@@ -174,22 +174,17 @@ def daily_worker_eligibility_app():
         const threshold = totalDays / 3;
         const workedDays = selected.length;
 
-        // 신청일 직전 14일 기간 필터링
         const fourteenDays = CALENDAR_DATES.filter(date =>
             date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
         );
 
-        // 조건 2 관련: 신청일 직전 14일간 근무 여부 체크
         const workedIn14 = fourteenDays.some(date => selected.includes(date.substring(5).replace("-", "/")));
         const condition2Met = !workedIn14;
-
-        // 조건 1: 근무일 수가 1/3 미만인지
         const condition1Met = workedDays < threshold;
 
         let nextPossible = "";
 
         if (!condition2Met) {{
-            // 조건 2 불충족 시 메시지 생성 (근무한 마지막 날짜 이후 15일 뒤)
             let lastWorkedDateStr = null;
             for (let i = fourteenDays.length - 1; i >= 0; i--) {{
                 const d = fourteenDays[i];
@@ -227,7 +222,11 @@ def daily_worker_eligibility_app():
             `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
         ].join('');
 
-        document.getElementById('resultContainer').innerHTML = finalHtml;
+        try {{
+            document.getElementById('resultContainer').innerHTML = finalHtml;
+        }} catch (e) {{
+            console.error(e);
+        }}
     }}
 
     function toggleDate(element) {{
@@ -245,7 +244,7 @@ def daily_worker_eligibility_app():
     }}
 
     window.onload = function() {{
-        const initialDates = "{','.join(st.session_state.selected_dates_list)}";
+        const initialDates = "{selected_dates_str}";
         let initialSelected = [];
         if (initialDates) {{
             initialSelected = initialDates.split(',').filter(date => date);
