@@ -1,114 +1,64 @@
 import streamlit as st
 from datetime import datetime, timedelta
-import json
-
-from app.eligibility_logic import check_conditions
+from app.eligibility_logic import check_conditions  # 조건 판단 함수
 
 def daily_worker_eligibility_app():
-    st.markdown("<h2>🏗️ 일용직 신청 가능 시점 판단</h2>", unsafe_allow_html=True)
+    st.markdown("🏗️ 일용직 신청 가능 시점 판단")
 
-    # 오늘 KST 기준 날짜
+    # 현재 날짜 (KST)
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성 (직전달 1일부터 input_date까지)
+    # 기준 날짜의 직전 달 1일부터 기준일까지 날짜 리스트 (mm/dd)
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
+
     cal_dates = []
     current = first_day_prev_month
     while current <= last_day:
-        cal_dates.append(current)
+        cal_dates.append(current.strftime("%m/%d"))
         current += timedelta(days=1)
 
-    # 세션 상태 초기화
-    if 'selected_dates_list' not in st.session_state:
-        st.session_state.selected_dates_list = []
+    # 다중 선택 위젯으로 근무일 선택
+    selected_dates = st.multiselect(
+        "근무한 날짜 선택 (mm/dd)", 
+        options=cal_dates, 
+        default=st.session_state.get('selected_dates_list', [])
+    )
+    st.session_state['selected_dates_list'] = selected_dates
 
-    # 달력용 날짜 문자열 리스트 (yyyy-mm-dd)
-    calendar_dates_str = [d.strftime("%Y-%m-%d") for d in cal_dates]
-    fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
-    fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
+    # 조건 판단 호출
+    if st.button("조건 판단하기"):
+        # check_conditions 함수에 맞게 인자 넘기기
+        # YYYY-MM-DD 형식 달력 날짜 리스트로 변환
+        cal_dates_full = []
+        current = first_day_prev_month
+        while current <= last_day:
+            cal_dates_full.append(current.strftime("%Y-%m-%d"))
+            current += timedelta(days=1)
 
-    # 달력 HTML + JS 생성
-    calendar_dates_mmdd = [d.strftime("%m/%d") for d in cal_dates]
+        # 선택된 날짜(mm/dd)를 YYYY-MM-DD로 변환
+        selected_full_dates = []
+        for sel in selected_dates:
+            month_day = datetime.strptime(sel, "%m/%d")
+            # 연도는 input_date 연도로 설정
+            full_date = datetime(year=input_date.year, month=month_day.month, day=month_day.day)
+            # 이전 달에 해당하면 연도 조정 필요
+            if full_date > input_date:
+                full_date = full_date.replace(year=input_date.year - 1)
+            selected_full_dates.append(full_date.strftime("%Y-%m-%d"))
 
-    st.markdown("#### 달력에서 근무한 날짜를 클릭해 선택하세요.")
+        fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
+        fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # JS와 HTML 코드 (간단화)
-    calendar_html = """
-    <style>
-    .calendar {display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; margin-bottom: 20px;}
-    .day {width: 40px; height: 40px; line-height: 40px; text-align: center; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; user-select: none; font-size: 16px;}
-    .day.selected {background-color: #2196F3; color: white; font-weight: bold; border: 2px solid #1976D2;}
-    .day:hover {background-color: #bbdefb;}
-    .day-header {font-weight: bold; text-align: center; margin-bottom: 5px;}
-    </style>
-    <div>
-        <div class="calendar">
-            <div class="day-header">일</div><div class="day-header">월</div><div class="day-header">화</div>
-            <div class="day-header">수</div><div class="day-header">목</div><div class="day-header">금</div><div class="day-header">토</div>
-    """
-
-    # 달력 빈 칸 계산
-    start_weekday = (cal_dates[0].weekday() + 1) % 7  # 일요일=0, 월=1 ...
-    for _ in range(start_weekday):
-        calendar_html += '<div></div>'
-
-    # 날짜 div 생성
-    for d in cal_dates:
-        mmdd = d.strftime("%m/%d")
-        selected_class = "selected" if mmdd in st.session_state.selected_dates_list else ""
-        calendar_html += f'<div class="day {selected_class}" data-date="{mmdd}" onclick="toggleDate(this)">{d.day}</div>'
-
-    calendar_html += """
-        </div>
-    </div>
-    <script>
-    const selectedDates = new Set(%s);
-
-    function toggleDate(el) {
-        const date = el.getAttribute("data-date");
-        if (selectedDates.has(date)) {
-            selectedDates.delete(date);
-            el.classList.remove("selected");
-        } else {
-            selectedDates.add(date);
-            el.classList.add("selected");
-        }
-        // 선택 날짜 갱신
-        window.parent.postMessage({func: 'updateDates', dates: Array.from(selectedDates)}, "*");
-    }
-    </script>
-    """ % json.dumps(st.session_state.selected_dates_list)
-
-    # 달력 렌더링
-    st.components.v1.html(calendar_html, height=350)
-
-    # 선택 날짜 텍스트 출력
-    st.write("선택된 날짜들 (mm/dd):", st.session_state.selected_dates_list)
-
-    # 버튼 누르면 조건 판단 실행
-    if st.button("조건 및 결과 판단하기"):
+        # 조건 판단
         result = check_conditions(
-            st.session_state.selected_dates_list,
-            calendar_dates_str,
+            selected_full_dates,
+            cal_dates_full,
             fourteen_days_prior_start,
             fourteen_days_prior_end
         )
 
-        st.markdown("### 조건 결과")
-        st.write(f"조건 1 (근무일 수 1/3 미만): {'✅ 충족' if result['condition1'] else '❌ 불충족'}")
-        st.write(f"조건 2 (직전 14일간 무근무): {'✅ 충족' if result['condition2'] else '❌ 불충족'}")
-        if result['next_possible_date']:
-            st.write(f"📅 조건 2를 충족하려면 {result['next_possible_date']} 이후에 신청하세요.")
-
-        st.markdown("### 최종 판단")
-        st.write(f"✅ 일반일용근로자: {'신청 가능' if result['condition1'] else '신청 불가능'}")
-        st.write(f"✅ 건설일용근로자: {'신청 가능' if result['condition1'] or result['condition2'] else '신청 불가능'}")
-        st.write(f"기간: {result['calendar_start']} ~ {result['calendar_end']}")
-        st.write(f"총 기간 일수: {result['total_days']}일, 1/3 기준: {result['threshold']:.1f}일, 근무일 수: {result['worked_days']}일")
-        st.write(f"직전 14일 기간: {result['fourteen_days_start']} ~ {result['fourteen_days_end']}")
-
-# 하단에 메시지 수신 및 세션 상태 업데이트 코드 필요 (Streamlit 현재 제한적)
-# 별도 WebSocket 혹은 iframe postMessage 방식으로 구현 가능 (복잡도 증가)
-
+        # 결과 출력
+        st.markdown("---")
+        st.markdown(result, unsafe_allow_html=True)
