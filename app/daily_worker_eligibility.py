@@ -1,5 +1,3 @@
-# app/daily_worker_eligibility.py
-
 import streamlit as st
 from datetime import datetime, timedelta
 import json
@@ -48,12 +46,11 @@ def daily_worker_eligibility_app():
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 HTML 생성
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    calendar_html = """
+    calendar_html = f"""
     <div id="calendar-container">
     """
 
@@ -267,5 +264,3 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
-
-
