@@ -199,19 +199,19 @@ def daily_worker_eligibility_app():
         }}
 
         const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (workedDays < threshold && noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const finalHtml = [
-            `<p>총 기간 일수: ${totalDays}일</p>`,
-            `<p>1/3 기준: ${threshold.toFixed(1)}일</p>`,
-            `<p>근무일 수: ${workedDays}일</p>`,
-            `<p>${condition1Text}</p>`,
-            `<p>${condition2Text}</p>`,
+            `<p>총 기간 일수: ${{totalDays}}일</p>`,
+            `<p>1/3 기준: ${{threshold.toFixed(1)}}일</p>`,
+            `<p>근무일 수: ${{workedDays}}일</p>`,
+            `<p>${{condition1Text}}</p>`,
+            `<p>${{condition2Text}}</p>`,
             nextPossible,
             `<h3>📌 최종 판단</h3>`,
-            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
+            `<p>✅ 일반일용근로자: ${{generalWorkerText}}</p>`,
             `<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(${{CALENDAR_DATES[0]}} ~ ${{CALENDAR_DATES[CALENDAR_DATES.length - 1]}}) 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>`,
-            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
+            `<p>✅ 건설일용근로자: ${{constructionWorkerText}}</p>`
         ].join('');
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
@@ -251,5 +251,3 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1500, scrolling=False)
-
-
