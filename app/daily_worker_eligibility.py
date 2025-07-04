@@ -31,6 +31,10 @@ def daily_worker_eligibility_app():
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
+    # 조건 1 충족 기준 날짜 계산
+    next_possible1_date = (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+    next_possible1_str = next_possible1_date.strftime("%Y-%m-%d")
+
     calendar_html = "<div id='calendar-container'>"
 
     for ym, dates in calendar_groups.items():
@@ -85,6 +89,7 @@ def daily_worker_eligibility_app():
     const CALENDAR_DATES = """ + calendar_dates_json + """;
     const FOURTEEN_DAYS_START = '""" + fourteen_days_prior_start + """';
     const FOURTEEN_DAYS_END = '""" + fourteen_days_prior_end + """';
+    const NEXT_POSSIBLE1_DATE = '""" + next_possible1_str + """';
 
     function saveToLocalStorage(data) {
         localStorage.setItem('selectedDates', JSON.stringify(data));
@@ -100,7 +105,7 @@ def daily_worker_eligibility_app():
 
         let nextPossible1 = "";
         if (workedDays >= threshold) {
-            nextPossible1 = "📅 조건 1을 충족하려면 근로일 수(" + workedDays + ")를 줄이거나 다음 달 이후로 신청해야 합니다.";
+            nextPossible1 = "📅 조건 1을 충족하려면 오늘 이후에 근로제공이 없는 경우 " + NEXT_POSSIBLE1_DATE + " 이후에 신청하면 조건 1을 충족할 수 있습니다.";
         }
 
         let nextPossible2 = "";
@@ -124,8 +129,11 @@ def daily_worker_eligibility_app():
 
         const finalHtml = `
             <h3>📌 조건 기준</h3>
+            <p>조건 1: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 미만</p>
+            <p>조건 2: 건설일용근로자만 해당, 신청일 직전 14일간(신청일 제외) 근무 사실이 없어야 함</p>
             <p>총 기간 일수: ` + totalDays + `일</p>
             <p>1/3 기준: ` + threshold.toFixed(1) + `일</p>
+            <p>근무일 수: ` + workedDays + `일</p>
             <h3>📌 조건 판단</h3>
             <p>` + condition1Text + `</p>
             <p>` + condition2Text + `</p>
@@ -159,4 +167,4 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=False)
+    st.components.v1.html(calendar_html, height=1000, scrolling=False)
