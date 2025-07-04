@@ -1,3 +1,5 @@
+# app/daily_worker_eligibility.py
+
 import streamlit as st
 from datetime import datetime, timedelta
 import json
@@ -8,15 +10,17 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태 초기화 (반드시 리스트 타입 보장)
-    if 'selected_dates_list' not in st.session_state or not isinstance(st.session_state.selected_dates_list, list):
+    # 세션 상태 초기화
+    if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
     if 'js_message' not in st.session_state:
         st.session_state.js_message = ""
 
+    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
+    # 달력 날짜 생성: 신청일 기준 직전 달 1일부터 신청일까지
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -32,6 +36,7 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
+    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -47,10 +52,8 @@ def daily_worker_eligibility_app():
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    # 안전한 selected_dates_list 문자열 (빈 리스트일 때도 "")
-    selected_dates_str = ",".join(st.session_state.selected_dates_list) if st.session_state.selected_dates_list else ""
-
-    calendar_html = f"""
+    # 달력 HTML 생성
+    calendar_html = """
     <div id="calendar-container">
     """
 
@@ -84,6 +87,7 @@ def daily_worker_eligibility_app():
     </div>
     <p id="selectedDatesText"></p>
     <div id="resultContainer"></div>
+
     <style>
     .calendar {{
         display: grid;
@@ -152,7 +156,8 @@ def daily_worker_eligibility_app():
         border-radius: 8px;
         font-size: 1em;
         color: #333;
-        overflow: visible;
+        overflow: visible; 
+        white-space: pre-wrap;
     }}
     #calendar-container {{
         overflow: visible;
@@ -164,71 +169,88 @@ def daily_worker_eligibility_app():
     const FOURTEEN_DAYS_START = "{fourteen_days_prior_start}";
     const FOURTEEN_DAYS_END = "{fourteen_days_prior_end}";
 
+    // 선택 날짜 저장 (localStorage와 부모창에 postMessage)
     function saveToLocalStorage(data) {{
         localStorage.setItem('selectedDates', JSON.stringify(data));
         window.parent.postMessage(JSON.stringify(data), '*');
     }}
 
+    // 조건 판단 및 결과 표시 함수
     function calculateAndDisplayResult(selected) {{
         const totalDays = CALENDAR_DATES.length;
         const threshold = totalDays / 3;
         const workedDays = selected.length;
 
-        const fourteenDays = CALENDAR_DATES.filter(date =>
+        // 14일 범위 필터링
+        const fourteenDays = CALENDAR_DATES.filter(date => 
             date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
         );
 
-        const workedIn14 = fourteenDays.some(date => selected.includes(date.substring(5).replace("-", "/")));
-        const condition2Met = !workedIn14;
-        const condition1Met = workedDays < threshold;
+        // 조건 2 체크: 14일 동안 근무일 없음 확인
+        // selected에는 mm/dd 형태, fourteenDays는 yyyy-mm-dd
+        // 날짜 포맷 맞추기 위해 mm/dd로 변환 후 포함 여부 판단
+        const fourteenDays_mmdd = fourteenDays.map(d => {
+            const parts = d.split("-");
+            return (parts[1].padStart(2,"0") + "/" + parts[2].padStart(2,"0"));
+        });
+        const noWork14Days = fourteenDays_mmdd.every(date => !selected.includes(date));
 
-        let nextPossible = "";
+        // 조건 텍스트 상시 표시
+        const cond1Desc = "조건 1 → 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 미만이어야 함.";
+        const cond2Desc = "조건 2 → 건설일용근로자만 해당, 신청일 직전 14일간(신청일 제외) 근무 사실이 없어야 함.";
 
-        if (!condition2Met) {{
-            let lastWorkedDateStr = null;
-            for (let i = fourteenDays.length - 1; i >= 0; i--) {{
-                const d = fourteenDays[i];
-                if (selected.includes(d.substring(5).replace("-", "/"))) {{
-                    lastWorkedDateStr = d;
-                    break;
-                }}
-            }}
-            if (lastWorkedDateStr) {{
-                const lastWorkedDate = new Date(lastWorkedDateStr);
-                lastWorkedDate.setDate(lastWorkedDate.getDate() + 15);
-                const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible += "📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
-            }}
+        // 조건 1 충족 여부
+        const cond1Result = workedDays < threshold;
+        const cond1Text = cond1Result 
+            ? "✅ 조건 1 충족: 근무일 수가 기준 미만입니다." 
+            : "❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.";
+
+        // 조건 2 충족 여부
+        const cond2Text = noWork14Days
+            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
+            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 내 근무기록이 존재`;
+
+        // 조건 2 미충족 안내
+        let cond2Guide = "";
+        if (!noWork14Days) {{
+            const nextPossibleDate = new Date(FOURTEEN_DAYS_END);
+            nextPossibleDate.setDate(nextPossibleDate.getDate() + 14);
+            const nextDateStr = nextPossibleDate.toISOString().split('T')[0];
+            cond2Guide = `조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
         }}
 
-        const condition1Text = condition1Met
-            ? '✅ 조건 1 충족: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 미만입니다.'
-            : '❌ 조건 1 불충족: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 이상입니다.';
-
-        const condition2Text = condition2Met
-            ? '✅ 조건 2 충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 없습니다.'
-            : '❌ 조건 2 불충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 있습니다.';
-
-        const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (condition1Met && condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
-
-        const finalHtml = [
-            '<h3>조건 판단</h3>',
-            '<p>' + condition1Text + '</p>',
-            '<p>' + condition2Text + '</p>',
-            '<p>' + nextPossible + '</p>',
-            '<h3>📌 최종 판단</h3>',
-            '<p>✅ 일반일용근로자: ' + generalWorkerText + '</p>',
-            '<p>✅ 건설일용근로자: ' + constructionWorkerText + '</p>'
-        ].join('');
-
-        try {{
-            document.getElementById('resultContainer').innerHTML = finalHtml;
-        }} catch (e) {{
-            console.error(e);
+        // 최종 판단
+        const generalWorkerText = cond1Result ? "✅ 신청 가능" : "❌ 신청 불가능";
+        let constructionWorkerText = "";
+        if (cond1Result && noWork14Days) {{
+            constructionWorkerText = "✅ 신청 가능";
+        }} else if (!cond1Result && !noWork14Days) {{
+            constructionWorkerText = "❌ 신청 불가능 (조건 1, 2 모두 불충족)";
+        }} else if (!cond1Result) {{
+            constructionWorkerText = "❌ 신청 불가능 (조건 1 불충족)";
+        }} else {{
+            constructionWorkerText = "❌ 신청 불가능 (조건 2 불충족)";
         }}
+
+        // 결과 HTML 구성
+        const resultHtml = `
+조건 판단
+${cond1Desc}
+${cond2Desc}
+
+${cond1Text}
+${cond2Text}
+${cond2Guide ? cond2Guide + "\\n" : ""}
+
+📌 최종 판단
+일반일용근로자: ${generalWorkerText}
+건설일용근로자: ${constructionWorkerText}
+        `;
+
+        document.getElementById('resultContainer').innerText = resultHtml;
     }}
 
+    // 날짜 선택 토글
     function toggleDate(element) {{
         element.classList.toggle('selected');
         const selected = [];
@@ -243,8 +265,9 @@ def daily_worker_eligibility_app():
         document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
     }}
 
+    // 페이지 로드 시 초기화 및 선택 상태 표시
     window.onload = function() {{
-        const initialDates = "{selected_dates_str}";
+        const initialDates = "{','.join(st.session_state.selected_dates_list)}";
         let initialSelected = [];
         if (initialDates) {{
             initialSelected = initialDates.split(',').filter(date => date);
