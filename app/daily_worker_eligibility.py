@@ -30,7 +30,7 @@ def daily_worker_eligibility_app():
 
     calendar_groups = {}
     for date in cal_dates:
-        year_month = date.strftime("%Y/%m")
+        year_month = date.strftime("%Y-%m")
         if year_month not in calendar_groups:
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
