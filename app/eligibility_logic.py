@@ -1,47 +1,44 @@
-from datetime import datetime, timedelta
-
-def check_conditions(selected_dates_list, calendar_dates, fourteen_days_start_str, fourteen_days_end_str):
-    # 날짜 문자열 -> datetime 변환
-    cal_dates = [datetime.strptime(d, "%Y-%m-%d") for d in calendar_dates]
-    selected_dates = set()
-    for d in selected_dates_list:
-        try:
-            # 선택된 날짜는 mm/dd 형식이므로 yyyy- 앞부분은 calendar_dates에서 가져옴
-            for cd in cal_dates:
-                if cd.strftime("%m/%d") == d:
-                    selected_dates.add(cd)
-                    break
-        except:
-            pass
+def check_conditions(selected_dates, cal_dates, fourteen_start, fourteen_end):
+    """
+    - selected_dates: YYYY-MM-DD 형식 근무일 리스트
+    - cal_dates: YYYY-MM-DD 형식 달력 전체 날짜 리스트
+    - fourteen_start: YYYY-MM-DD 형식 14일간 시작일
+    - fourteen_end: YYYY-MM-DD 형식 14일간 종료일
+    """
 
     total_days = len(cal_dates)
     threshold = total_days / 3
     worked_days = len(selected_dates)
 
-    fourteen_start = datetime.strptime(fourteen_days_start_str, "%Y-%m-%d")
-    fourteen_end = datetime.strptime(fourteen_days_end_str, "%Y-%m-%d")
+    # 조건 1: 근무일 수가 총 일수 1/3 미만인가?
+    cond1 = worked_days < threshold
 
+    # 조건 2: 신청일 직전 14일간 근무 여부 (없어야 충족)
     fourteen_range = [d for d in cal_dates if fourteen_start <= d <= fourteen_end]
-    # 조건2: 14일간 근무없음 => selected_dates에 14일간 날짜가 하나도 없어야 True
-    condition2 = all(d not in selected_dates for d in fourteen_range)
-    # 조건1: 전체 기간 근무일수 < 1/3
-    condition1 = worked_days < threshold
+    cond2 = all(day not in selected_dates for day in fourteen_range)
 
-    # 조건2 충족하려면 언제부터 가능한지 계산 (14일 근무 없었을 때)
-    next_possible_date = None
-    if not condition2:
-        last_worked_date = max(d for d in selected_dates if fourteen_start <= d <= fourteen_end)
-        next_possible_date = (last_worked_date + timedelta(days=15)).strftime("%Y-%m-%d")
+    # 조건 2 충족 여부 및 다음 신청 가능 날짜 안내
+    if not cond2:
+        # 조건 2를 충족하려면 14일간 무근무 기간 종료 후 신청 가능
+        from datetime import datetime, timedelta
+        next_possible_date = datetime.strptime(fourteen_end, "%Y-%m-%d") + timedelta(days=14)
+        next_possible_str = next_possible_date.strftime("%Y-%m-%d")
+        next_msg = f"📅 조건 2를 충족하려면 {next_possible_str} 이후에 신청하면 조건 2를 충족할 수 있습니다."
+    else:
+        next_msg = ""
 
-    return {
-        "condition1": condition1,
-        "condition2": condition2,
-        "worked_days": worked_days,
-        "total_days": total_days,
-        "threshold": threshold,
-        "next_possible_date": next_possible_date,
-        "calendar_start": cal_dates[0].strftime("%Y-%m-%d"),
-        "calendar_end": cal_dates[-1].strftime("%Y-%m-%d"),
-        "fourteen_days_start": fourteen_days_start_str,
-        "fourteen_days_end": fourteen_days_end_str,
-    }
+    # 결과 메시지 작성 (HTML)
+    result_html = f"""
+    <p>총 기간 일수: {total_days}일</p>
+    <p>1/3 기준: {threshold:.1f}일</p>
+    <p>근무일 수: {worked_days}일</p>
+    <p>{'✅ 조건 1 충족: 근무일 수가 기준 미만입니다.' if cond1 else '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.'}</p>
+    <p>{'✅ 조건 2 충족: 신청일 직전 14일간 무근무' if cond2 else '❌ 조건 2 불충족: 신청일 직전 14일간 근무 기록이 존재합니다.'}</p>
+    <p>{next_msg}</p>
+
+    <h3>📌 최종 판단</h3>
+    <p>✅ 일반일용근로자: {'신청 가능' if cond1 else '신청 불가능'}</p>
+    <p>✅ 건설일용근로자: {'신청 가능' if (cond1 or cond2) else '신청 불가능'}</p>
+    """
+
+    return result_html
