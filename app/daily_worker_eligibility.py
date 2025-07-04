@@ -161,8 +161,9 @@ def daily_worker_eligibility_app():
             : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
 
         let condition2Text = !hasWorkIn14Days
-            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
-            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 근무기록이 존재`;
+            ? `✅ 조건 2 충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 무근무`
+            : `❌ 조건 2 불충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 근무기록이 존재`;
+
 
         let nextPossible = "";
         if (hasWorkIn14Days) {{
