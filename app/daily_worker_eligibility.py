@@ -10,17 +10,14 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
     if 'js_message' not in st.session_state:
         st.session_state.js_message = ""
 
-    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -36,7 +33,6 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
-    # 숨김필드 처리 CSS + 결과/선택 영역 자동 줄바꿈
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -45,30 +41,13 @@ def daily_worker_eligibility_app():
     label[for="js_message"] {
         display: none !important;
     }
-    #selectedDatesText {
-        margin-top: 15px;
-        font-size: 0.9em;
-        color: #666;
+    #selectedDatesText, #resultContainer {
         white-space: normal !important;
         word-break: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-    #resultContainer {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        font-size: 1em;
-        color: #333;
-        overflow: visible;
-        white-space: normal !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 HTML + JS
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
@@ -95,10 +74,10 @@ def daily_worker_eligibility_app():
             calendar_html += '<div class="empty-day"></div>'
         for date in dates:
             day_num = date.day
-            date_str = date.strftime("%m/%d")  # MM/DD 형식
+            date_str = date.strftime("%m/%d")
             is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
             calendar_html += f'''
-            <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
+            <div class="day{is_selected}" data-date="{date.strftime("%Y-%m-%d")}" onclick="toggleDate(this)">{day_num}</div>
             '''
         calendar_html += "</div>"
 
@@ -156,12 +135,6 @@ def daily_worker_eligibility_app():
         color: white;
         font-weight: bold;
     }}
-    h4 {{
-        margin: 10px 0 5px 0;
-        font-size: 1.2em;
-        color: #333;
-        text-align: center;
-    }}
     </style>
     <script>
     const CALENDAR_DATES = {calendar_dates_json};
@@ -181,25 +154,41 @@ def daily_worker_eligibility_app():
         const fourteenDays = CALENDAR_DATES.filter(date => 
             date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
         );
-        const noWork14Days = fourteenDays.every(date => !selected.includes(date));
+        const hasWorkIn14Days = fourteenDays.some(date => selected.includes(date));
 
-        const condition1Text = workedDays < threshold 
-            ? '✅ 조건 1 충족: 근무일 수가 기준 미만입니다.' : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
-        const condition2Text = noWork14Days 
-            ? '✅ 조건 2 충족: 14일 무근무.' : '❌ 조건 2 불충족: 14일 내 근무 있음.';
+        let condition1Text = workedDays < threshold 
+            ? '✅ 조건 1 충족: 근무일 수가 기준 미만입니다.'
+            : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
 
-        const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        let condition2Text = !hasWorkIn14Days
+            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
+            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 근무기록이 존재`;
+
+        let nextPossible = "";
+        if (hasWorkIn14Days) {{
+            const nextAvailableDate = new Date(FOURTEEN_DAYS_END);
+            nextAvailableDate.setDate(nextAvailableDate.getDate() + 15);
+            const nextDateStr = nextAvailableDate.toISOString().split('T')[0];
+            nextPossible = `📅 조건 2를 충족하려면 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+        }}
+
+        let generalResult = workedDays < threshold 
+            ? '✅ 일반일용근로자: 신청 가능'
+            : '❌ 일반일용근로자: 신청 불가능';
+
+        let constructionResult = (workedDays < threshold && !hasWorkIn14Days)
+            ? '✅ 건설일용근로자: 신청 가능'
+            : '❌ 건설일용근로자: 신청 불가능';
 
         const resultHtml = [
             '<h3>조건</h3>',
             '<p>' + condition1Text + '</p>',
             '<p>' + condition2Text + '</p>',
-            '<h3>결과</h3>',
-            '<p>총 기간: ' + totalDays + '일 | 1/3 기준: ' + threshold.toFixed(1) + '일 | 근무일 수: ' + workedDays + '일</p>',
-            '<h3>최종 판단</h3>',
-            '<p>일반일용: ' + generalWorkerText + '</p>',
-            '<p>건설일용: ' + constructionWorkerText + '</p>'
+            nextPossible ? '<p>' + nextPossible + '</p>' : '',
+            '<h3>📌 최종 판단</h3>',
+            '<p>' + generalResult + '</p>',
+            `<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(${CALENDAR_DATES[0]} ~ ${CALENDAR_DATES[CALENDAR_DATES.length - 1]}) 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>`,
+            '<p>' + constructionResult + '</p>'
         ].join('');
         document.getElementById('resultContainer').innerHTML = resultHtml;
     }}
@@ -237,6 +226,6 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1000, scrolling=False)
+    st.components.v1.html(calendar_html, height=1500, scrolling=False)
 
 
