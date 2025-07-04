@@ -8,9 +8,6 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    if 'selected_dates_list' not in st.session_state:
-        st.session_state.selected_dates_list = []
-
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
@@ -28,13 +25,6 @@ def daily_worker_eligibility_app():
         if ym not in calendar_groups:
             calendar_groups[ym] = []
         calendar_groups[ym].append(date)
-
-    st.markdown("""
-    <style>
-    input[data-testid="stTextInput"] { display: none !important; }
-    label[for="js_message"] { display: none !important; }
-    </style>
-    """, unsafe_allow_html=True)
 
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
@@ -61,8 +51,7 @@ def daily_worker_eligibility_app():
         for date in dates:
             day_num = date.day
             date_str = date.strftime("%m/%d")
-            is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
-            calendar_html += f'<div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
+            calendar_html += f'<div class="day" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
         calendar_html += "</div>"
 
     calendar_html += f"""
@@ -89,9 +78,6 @@ def daily_worker_eligibility_app():
     }}
     .day:hover {{ background: #f0f0f0; }}
     .day.selected {{ border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }}
-    h4 {{ margin: 10px 0 5px; font-size: 1.2em; text-align: center; color: #333; }}
-    #selectedDatesText {{ margin-top: 15px; font-size: 0.9em; color: #666; }}
-    #resultContainer {{ margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }}
     </style>
 
     <script>
@@ -101,7 +87,6 @@ def daily_worker_eligibility_app():
 
     function saveToLocalStorage(data) {{
         localStorage.setItem('selectedDates', JSON.stringify(data));
-        window.parent.postMessage(JSON.stringify(data), '*');
     }}
 
     function calculateAndDisplayResult(selected) {{
@@ -112,32 +97,29 @@ def daily_worker_eligibility_app():
         const fourteenDays = CALENDAR_DATES.filter(date => date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END);
         const noWork14Days = fourteenDays.every(date => !selected.includes(date.substring(5).replace("-", "/")));
 
-        const condition1Met = workedDays < threshold;
-        const condition2Met = noWork14Days;
-
-        var nextPossible1 = "";
-        if (!condition1Met) {{
+        let nextPossible1 = "";
+        if (workedDays >= threshold) {{
             nextPossible1 = `📅 조건 1을 충족하려면 근로일 수(${workedDays})를 줄이거나 다음 달 이후로 신청해야 합니다.`;
         }}
 
-        var nextPossible2 = "";
-        if (!condition2Met) {{
-            const nextPossibleDate2 = new Date(FOURTEEN_DAYS_END);
-            nextPossibleDate2.setDate(nextPossibleDate2.getDate() + 14);
-            const nextDateStr = nextPossibleDate2.toISOString().split('T')[0];
+        let nextPossible2 = "";
+        if (!noWork14Days) {{
+            const nextPossibleDate = new Date(FOURTEEN_DAYS_END);
+            nextPossibleDate.setDate(nextPossibleDate.getDate() + 14);
+            const nextDateStr = nextPossibleDate.toISOString().split('T')[0];
             nextPossible2 = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
         }}
 
-        const condition1Text = condition1Met
+        const condition1Text = workedDays < threshold
             ? `✅ 조건 1 충족: 근무일 수(${workedDays}) < 기준(${threshold.toFixed(1)})`
             : `❌ 조건 1 불충족: 근무일 수(${workedDays}) ≥ 기준(${threshold.toFixed(1)})`;
 
-        const condition2Text = condition2Met
+        const condition2Text = noWork14Days
             ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
             : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 내 근무기록이 존재`;
 
-        const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (condition1Met || condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const finalHtml = `
             <h3>📌 조건 기준</h3>
@@ -146,8 +128,8 @@ def daily_worker_eligibility_app():
             <h3>📌 조건 판단</h3>
             <p>${condition1Text}</p>
             <p>${condition2Text}</p>
-            <p>${nextPossible1}</p>
-            <p>${nextPossible2}</p>
+            ${nextPossible1 ? `<p>${nextPossible1}</p>` : ""}
+            ${nextPossible2 ? `<p>${nextPossible2}</p>` : ""}
             <h3>📌 최종 판단</h3>
             <p>✅ 일반일용근로자: ${generalWorkerText}</p>
             <p>✅ 건설일용근로자: ${constructionWorkerText}</p>
