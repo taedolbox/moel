@@ -1,5 +1,3 @@
-# app/daily_worker_eligibility.py
-
 import streamlit as st
 from datetime import datetime, timedelta
 import json
@@ -26,10 +24,10 @@ def daily_worker_eligibility_app():
 
     calendar_groups = {}
     for date in cal_dates:
-        year_month = date.strftime("%Y-%m")
-        if year_month not in calendar_groups:
-            calendar_groups[year_month] = []
-        calendar_groups[year_month].append(date)
+        ym = date.strftime("%Y-%m")
+        if ym not in calendar_groups:
+            calendar_groups[ym] = []
+        calendar_groups[ym].append(date)
 
     st.markdown("""
     <style>
@@ -42,9 +40,7 @@ def daily_worker_eligibility_app():
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    calendar_html = """
-    <div id="calendar-container">
-    """
+    calendar_html = "<div id='calendar-container'>"
 
     for ym, dates in calendar_groups.items():
         year, month = ym.split("-")
@@ -59,17 +55,14 @@ def daily_worker_eligibility_app():
             <div class="day-header">금</div>
             <div class="day-header">토</div>
         """
-        first_day_of_month = dates[0]
-        start_day_offset = (first_day_of_month.weekday() + 1) % 7
+        start_day_offset = (dates[0].weekday() + 1) % 7
         for _ in range(start_day_offset):
             calendar_html += '<div class="empty-day"></div>'
         for date in dates:
             day_num = date.day
             date_str = date.strftime("%m/%d")
             is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
-            calendar_html += f'''
-            <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
-            '''
+            calendar_html += f'<div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
         calendar_html += "</div>"
 
     calendar_html += f"""
@@ -79,11 +72,13 @@ def daily_worker_eligibility_app():
 
     <style>
     .calendar {{
-        display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; margin-bottom: 20px;
-        background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px;
+        margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }}
     .day-header, .empty-day {{
-        width: 40px; height: 40px; line-height: 40px; text-align: center; font-weight: bold; color: #555;
+        width: 40px; height: 40px; line-height: 40px; text-align: center;
+        font-weight: bold; color: #555;
     }}
     .day-header {{ background: #e0e0e0; border-radius: 5px; font-size: 14px; }}
     .empty-day {{ background: transparent; border: none; }}
@@ -114,20 +109,18 @@ def daily_worker_eligibility_app():
         const threshold = totalDays / 3;
         const workedDays = selected.length;
 
-        const fourteenDays = CALENDAR_DATES.filter(date => 
-            date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
-        );
+        const fourteenDays = CALENDAR_DATES.filter(date => date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END);
         const noWork14Days = fourteenDays.every(date => !selected.includes(date.substring(5).replace("-", "/")));
 
         const condition1Met = workedDays < threshold;
         const condition2Met = noWork14Days;
 
-        let nextPossible1 = "";
+        var nextPossible1 = "";
         if (!condition1Met) {{
-            nextPossible1 = `📅 조건 1을 충족하려면 현재 근로일 수(${workedDays})를 기준일 범위에서 줄이거나 다음 달 이후로 신청해야 합니다.`;
+            nextPossible1 = `📅 조건 1을 충족하려면 근로일 수(${workedDays})를 줄이거나 다음 달 이후로 신청해야 합니다.`;
         }}
 
-        let nextPossible2 = "";
+        var nextPossible2 = "";
         if (!condition2Met) {{
             const nextPossibleDate2 = new Date(FOURTEEN_DAYS_END);
             nextPossibleDate2.setDate(nextPossibleDate2.getDate() + 14);
@@ -146,19 +139,19 @@ def daily_worker_eligibility_app():
         const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
         const constructionWorkerText = (condition1Met || condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
-        const finalHtml = [
-            `<h3>📌 조건 기준</h3>`,
-            `<p>총 기간 일수: ${totalDays}일</p>`,
-            `<p>1/3 기준: ${threshold.toFixed(1)}일</p>`,
-            `<h3>📌 조건 판단</h3>`,
-            `<p>${condition1Text}</p>`,
-            `<p>${condition2Text}</p>`,
-            nextPossible1,
-            nextPossible2,
-            `<h3>📌 최종 판단</h3>`,
-            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
-            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
-        ].join('');
+        const finalHtml = `
+            <h3>📌 조건 기준</h3>
+            <p>총 기간 일수: ${totalDays}일</p>
+            <p>1/3 기준: ${threshold.toFixed(1)}일</p>
+            <h3>📌 조건 판단</h3>
+            <p>${condition1Text}</p>
+            <p>${condition2Text}</p>
+            <p>${nextPossible1}</p>
+            <p>${nextPossible2}</p>
+            <h3>📌 최종 판단</h3>
+            <p>✅ 일반일용근로자: ${generalWorkerText}</p>
+            <p>✅ 건설일용근로자: ${constructionWorkerText}</p>
+        `;
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
     }}
@@ -184,3 +177,4 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
+
