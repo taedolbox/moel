@@ -10,14 +10,17 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태
+    # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
+    if 'js_message' not in st.session_state:
+        st.session_state.js_message = ""
 
+    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 캘린더 날짜 계산
+    # 달력 날짜 생성: 직전 달 1일부터 기준일 까지
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -26,29 +29,30 @@ def daily_worker_eligibility_app():
         cal_dates.append(current_date)
         current_date += timedelta(days=1)
 
-    calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
-
-    fourteen_days_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
-    fourteen_days_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
-    next_possible_date = (input_date + timedelta(days=14)).strftime("%Y-%m-%d")
-
-    # 캘린더 그룹핑
     calendar_groups = {}
     for date in cal_dates:
-        ym = date.strftime("%Y-%m")
-        if ym not in calendar_groups:
-            calendar_groups[ym] = []
-        calendar_groups[ym].append(date)
+        year_month = date.strftime("%Y-%m")
+        if year_month not in calendar_groups:
+            calendar_groups[year_month] = []
+        calendar_groups[year_month].append(date)
 
-    # CSS 숨김
+    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
-    input[data-testid="stTextInput"] { display: none !important; }
-    label[for="js_message"] { display: none !important; }
+    input[data-testid="stTextInput"] {
+        display: none !important;
+    }
+    label[for="js_message"] {
+        display: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    # HTML + JS
+    # 날짜 JSON, 14일 기간 구간 문자열
+    calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
+    fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
+    fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
+
     calendar_html = """
     <div id="calendar-container">
     """
@@ -56,7 +60,7 @@ def daily_worker_eligibility_app():
     for ym, dates in calendar_groups.items():
         year, month = ym.split("-")
         calendar_html += f"""
-        <h4>{year}년 {month}월</h4>
+        <h4>{year}년 {int(month)}월</h4>
         <div class="calendar">
             <div class="day-header">일</div>
             <div class="day-header">월</div>
@@ -66,14 +70,17 @@ def daily_worker_eligibility_app():
             <div class="day-header">금</div>
             <div class="day-header">토</div>
         """
-        first_day = dates[0]
-        start_offset = (first_day.weekday() + 1) % 7
-        for _ in range(start_offset):
+        first_day_of_month = dates[0]
+        start_day_offset = (first_day_of_month.weekday() + 1) % 7
+        for _ in range(start_day_offset):
             calendar_html += '<div class="empty-day"></div>'
-        for d in dates:
-            day_num = d.day
-            date_str = d.strftime("%m/%d")
-            calendar_html += f'<div class="day" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
+        for date in dates:
+            day_num = date.day
+            date_str = date.strftime("%m/%d")  # 월/일 형태
+            is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
+            calendar_html += f'''
+            <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
+            '''
         calendar_html += "</div>"
 
     calendar_html += """
@@ -82,90 +89,189 @@ def daily_worker_eligibility_app():
     <div id="resultContainer"></div>
 
     <style>
-    .calendar { display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; margin-bottom: 20px; }
-    .day-header, .empty-day { width: 40px; height: 40px; line-height: 40px; text-align: center; font-weight: bold; }
-    .day { width: 40px; height: 40px; line-height: 40px; text-align: center; border: 1px solid #ddd; border-radius: 5px; cursor: pointer; user-select: none; }
-    .day:hover { background: #f0f0f0; }
-    .day.selected { background: #2196F3; color: white; font-weight: bold; border: 2px solid #2196F3; }
-    #resultContainer { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; font-size: 1em; overflow: visible; }
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 40px);
+        grid-gap: 5px;
+        margin-bottom: 20px;
+        background-color: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .day-header, .empty-day {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-weight: bold;
+        color: #555;
+    }
+    .day-header {
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    .empty-day {
+        background-color: transparent;
+        border: none;
+    }
+    .day {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.1s ease, border 0.1s ease;
+        font-size: 16px;
+        color: #333;
+    }
+    .day:hover {
+        background-color: #f0f0f0;
+    }
+    .day.selected {
+        border: 2px solid #2196F3;
+        background-color: #2196F3;
+        color: white;
+        font-weight: bold;
+    }
+    h4 {
+        margin: 10px 0 5px 0;
+        font-size: 1.2em;
+        color: #333;
+        text-align: center;
+    }
+    #selectedDatesText {
+        margin-top: 15px;
+        font-size: 0.9em;
+        color: #666;
+        word-break: break-word;
+    }
+    #resultContainer {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        font-size: 1em;
+        color: #333;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    #calendar-container {
+        overflow: visible;
+    }
     </style>
 
     <script>
-    const CALENDAR_DATES = {calendar_dates};
-    const FOURTEEN_DAYS_START = '{fds}';
-    const FOURTEEN_DAYS_END = '{fde}';
-    const NEXT_POSSIBLE = '{npd}';
+    const CALENDAR_DATES = {calendar_dates_json};
+    const FOURTEEN_DAYS_START = "{fourteen_days_prior_start}";
+    const FOURTEEN_DAYS_END = "{fourteen_days_prior_end}";
 
-    function saveSelected(selected) {
-        window.parent.postMessage(JSON.stringify(selected), '*');
-    }
+    // 날짜 형식 변환 (YYYY-MM-DD → MM/DD)
+    function formatDate(dateStr) {{
+        const parts = dateStr.split('-');
+        return parseInt(parts[1],10) + '/' + parseInt(parts[2],10);
+    }}
 
-    function calculateAndDisplayResult(selected) {
+    function saveToLocalStorage(data) {{
+        localStorage.setItem('selectedDates', JSON.stringify(data));
+        window.parent.postMessage(JSON.stringify(data), '*');
+    }}
+
+    function calculateAndDisplayResult(selected) {{
         const totalDays = CALENDAR_DATES.length;
         const threshold = totalDays / 3;
         const workedDays = selected.length;
 
-        const fourteenDays = CALENDAR_DATES.filter(d => d >= FOURTEEN_DAYS_START && d <= FOURTEEN_DAYS_END);
-        const noWork14Days = fourteenDays.every(fd => !selected.includes(fd.substring(5).replace("-", "/")));
+        // 14일 기간 필터링
+        const fourteenDays = CALENDAR_DATES.filter(date =>
+            date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
+        );
 
-        const cond1 = workedDays < threshold;
-        const cond2 = noWork14Days;
+        // 신청일 제외한 14일간 무근무 조건 체크
+        // selected는 MM/DD형태, fourteenDays는 YYYY-MM-DD이므로 형변환
+        const noWork14Days = fourteenDays.every(d => !selected.includes(formatDate(d)));
 
-        const cond1Txt = cond1
-            ? `✅ 조건 1 충족: 근무일 수가 기준 미만입니다.`
-            : `❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.`;
+        // 조건1 메시지
+        const condition1Text = workedDays < threshold
+            ? "✅ 조건 1 충족: 근무일 수가 기준 미만입니다."
+            : "❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.";
 
-        const cond2Txt = cond2
-            ? `✅ 조건 2 충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 무근무`
-            : `❌ 조건 2 불충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 내 근무기록이 존재합니다.`;
+        // 조건2 메시지
+        let condition2Text = "";
+        if (noWork14Days) {{
+            condition2Text = "✅ 조건 2 충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 무근무";
+        }} else {{
+            condition2Text = "❌ 조건 2 불충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 내 근무기록이 존재합니다.";
+        }}
 
-        const cond2Next = !cond2
-            ? `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${NEXT_POSSIBLE} 이후에 신청하면 조건 2를 충족할 수 있습니다.`
-            : '';
+        // 조건2 충족 시점 계산
+        let nextPossible = "";
+        if (!noWork14Days) {{
+            let nextDate = new Date(FOURTEEN_DAYS_END);
+            nextDate.setDate(nextDate.getDate() + 1);
+            let year = nextDate.getFullYear();
+            let month = nextDate.getMonth() + 1;
+            let day = nextDate.getDate();
+            let nextDateStr = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
+            nextPossible = "📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
+        }}
 
-        const cond1Next = !cond1
-            ? `📅 조건 1을 충족하려면 근무일 수가 1/3 기준 이하로 줄어드는 시점에 신청해야 합니다.`
-            : '';
+        // 최종 판단
+        const generalWorkerText = workedDays < threshold ? "✅ 신청 가능" : "❌ 신청 불가능";
+        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? "✅ 신청 가능" : "❌ 신청 불가능";
 
-        const resultGeneral = cond1 ? '✅ 일반일용근로자: 신청 가능' : '❌ 일반일용근로자: 신청 불가능';
-        const resultConstruction = (cond1 || cond2) ? '✅ 건설일용근로자: 신청 가능' : '❌ 건설일용근로자: 신청 불가능';
+        // 결과 HTML 조합
+        const finalHtml = ""
+            + "<p>총 기간 일수: " + totalDays + "일</p>"
+            + "<p>1/3 기준: " + threshold.toFixed(1) + "일</p>"
+            + "<p>근무일 수: " + workedDays + "일</p>"
+            + "<p>" + condition1Text + "</p>"
+            + "<p>" + condition2Text + "</p>"
+            + (nextPossible ? ("<p>" + nextPossible + "</p>") : "")
+            + "<h3>📌 최종 판단</h3>"
+            + "<p>✅ 일반일용근로자: " + generalWorkerText + "</p>"
+            + "<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(" + CALENDAR_DATES[0] + " ~ " + CALENDAR_DATES[CALENDAR_DATES.length - 1] + ") 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>"
+            + "<p>✅ 건설일용근로자: " + constructionWorkerText + "</p>";
 
-        const html = [
-            `<p>총 기간 일수: ${totalDays}일</p>`,
-            `<p>1/3 기준: ${threshold.toFixed(1)}일</p>`,
-            `<p>근무일 수: ${workedDays}일</p>`,
-            `<p>${cond1Txt}</p>`,
-            `<p>${cond2Txt}</p>`,
-            cond1Next ? `<p>${cond1Next}</p>` : '',
-            cond2Next ? `<p>${cond2Next}</p>` : '',
-            `<h3>📌 최종 판단</h3>`,
-            `<p>${resultGeneral}</p>`,
-            `<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(${CALENDAR_DATES[0]} ~ ${CALENDAR_DATES[CALENDAR_DATES.length - 1]}) 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>`,
-            `<p>${resultConstruction}</p>`,
-            cond2Txt.includes('무근무') ? '' : `<p>신청일 직전 14일간 근무내역이 있습니다.</p>`
-        ].join('');
+        document.getElementById("resultContainer").innerHTML = finalHtml;
+    }}
 
-        document.getElementById('resultContainer').innerHTML = html;
-    }
-
-    function toggleDate(el) {
-        el.classList.toggle('selected');
+    function toggleDate(element) {{
+        element.classList.toggle('selected');
         const selected = [];
-        document.querySelectorAll('.day.selected').forEach(e => selected.push(e.getAttribute('data-date')));
-        saveSelected(selected);
+        const days = document.getElementsByClassName('day');
+        for (let i = 0; i < days.length; i++) {{
+            if (days[i].classList.contains('selected')) {{
+                selected.push(days[i].getAttribute('data-date'));
+            }}
+        }}
+        saveToLocalStorage(selected);
         calculateAndDisplayResult(selected);
-        document.getElementById('selectedDatesText').innerText = `선택한 날짜: ${selected.join(', ')} (${selected.length}일)`;
-    }
+        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
+    }}
 
-    window.onload = function() {
-        calculateAndDisplayResult([]);
-    }
+    window.onload = function() {{
+        const initialDates = "{','.join(st.session_state.selected_dates_list)}";
+        let initialSelected = [];
+        if (initialDates) {{
+            initialSelected = initialDates.split(',').filter(date => date);
+            const days = document.getElementsByClassName('day');
+            for (let i = 0; i < days.length; i++) {{
+                if (initialSelected.includes(days[i].getAttribute('data-date'))) {{
+                    days[i].classList.add('selected');
+                }}
+            }}
+        }}
+        saveToLocalStorage(initialSelected);
+        calculateAndDisplayResult(initialSelected);
+        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + initialSelected.join(', ') + " (" + initialSelected.length + "일)";
+    }};
     </script>
-    """.format(
-        calendar_dates=calendar_dates_json,
-        fds=fourteen_days_start,
-        fde=fourteen_days_end,
-        npd=next_possible_date
-    )
+    """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=True)
+    st.components.v1.html(calendar_html, height=1000, scrolling=False)
+
