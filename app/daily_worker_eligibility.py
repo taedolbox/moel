@@ -6,9 +6,10 @@ import json
 
 def daily_worker_eligibility_app():
     st.markdown(
-    "<span style='font-size:22px; font-weight:600;'>🏗️ 일용직 신청 가능 시점 판단</span>",
-    unsafe_allow_html=True
+        "<span style='font-size:22px; font-weight:600;'>🏗️ 일용직 신청 가능 시점 판단</span>",
+        unsafe_allow_html=True
     )
+
     # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
@@ -47,7 +48,7 @@ def daily_worker_eligibility_app():
             except json.JSONDecodeError:
                 st.session_state.selected_dates_list = []
 
-    # CSS로 입력 필드 숨김
+    # CSS로 입력 필드 숨김 + 결과/선택 텍스트 자동 줄바꿈
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -56,6 +57,26 @@ def daily_worker_eligibility_app():
     label[for="js_message"] {
         display: none !important;
     }
+    #selectedDatesText {
+        margin-top: 15px;
+        font-size: 0.9em;
+        color: #666;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    #resultContainer {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        font-size: 1em;
+        color: #333;
+        overflow: visible; /* 자동으로 늘어나게 */
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -63,6 +84,7 @@ def daily_worker_eligibility_app():
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
+
     calendar_html = """
     <div id="calendar-container">
     """
@@ -85,7 +107,7 @@ def daily_worker_eligibility_app():
             calendar_html += '<div class="empty-day"></div>'
         for date in dates:
             day_num = date.day
-            date_str = date.strftime("%m-%d")
+            date_str = date.strftime("%m/%d")  # MM/DD 형식으로 변경
             is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
             calendar_html += f'''
             <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
@@ -151,23 +173,6 @@ def daily_worker_eligibility_app():
         font-size: 1.2em;
         color: #333;
         text-align: center;
-    }}
-    #selectedDatesText {{
-        margin-top: 15px;
-        font-size: 0.9em;
-        color: #666;
-    }}
-    #resultContainer {{
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        font-size: 1em;
-        color: #333;
-        overflow: visible; /* 넘치면 자연스럽게 늘어남 */
-    }}
-    #calendar-container {{
-        overflow: hidden;
     }}
     </style>
     <script>
@@ -244,5 +249,5 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=False)
+    st.components.v1.html(calendar_html, height=1000, scrolling=False)
 
