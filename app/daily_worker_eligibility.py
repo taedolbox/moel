@@ -31,7 +31,6 @@ def daily_worker_eligibility_app():
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    # 조건 1 충족 기준 날짜 계산
     next_possible1_date = (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
     next_possible1_str = next_possible1_date.strftime("%Y-%m-%d")
 
@@ -66,23 +65,36 @@ def daily_worker_eligibility_app():
 
     <style>
     .calendar {
-        display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px;
+        display: grid; grid-template-columns: repeat(7, 1fr); grid-gap: 5px;
         margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 100%;
     }
     .day-header, .empty-day {
-        width: 40px; height: 40px; line-height: 40px; text-align: center;
+        width: 100%; aspect-ratio: 1/1; line-height: 40px; text-align: center;
         font-weight: bold; color: #555;
     }
     .day-header { background: #e0e0e0; border-radius: 5px; font-size: 14px; }
     .empty-day { background: transparent; border: none; }
     .day {
-        width: 40px; height: 40px; line-height: 40px; text-align: center;
+        width: 100%; aspect-ratio: 1/1; text-align: center;
         border: 1px solid #ddd; border-radius: 5px; cursor: pointer; user-select: none;
         transition: background 0.1s ease, border 0.1s ease; font-size: 16px; color: #333;
+        display: flex; align-items: center; justify-content: center;
     }
     .day:hover { background: #f0f0f0; }
-    .day.selected { border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }
+    .day.selected {
+        border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold;
+    }
+    #resultContainer {
+        overflow-wrap: break-word;
+        word-break: keep-all;
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    #calendar-container { overflow-x: auto; }
     </style>
 
     <script>
@@ -125,23 +137,23 @@ def daily_worker_eligibility_app():
             : "❌ 조건 2 불충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 내 근무기록이 존재";
 
         const generalWorkerText = workedDays < threshold ? "✅ 신청 가능" : "❌ 신청 불가능";
-        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? "✅ 신청 가능" : "❌ 신청 불가능";
+        const constructionWorkerText = (workedDays < threshold && noWork14Days) ? "✅ 신청 가능" : "❌ 신청 불가능";
 
         const finalHtml = `
             <h3>📌 조건 기준</h3>
             <p>조건 1: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 미만</p>
             <p>조건 2: 건설일용근로자만 해당, 신청일 직전 14일간(신청일 제외) 근무 사실이 없어야 함</p>
-            <p>총 기간 일수: ` + totalDays + `일</p>
-            <p>1/3 기준: ` + threshold.toFixed(1) + `일</p>
-            <p>근무일 수: ` + workedDays + `일</p>
+            <p>총 기간 일수: ${totalDays}일</p>
+            <p>1/3 기준: ${threshold.toFixed(1)}일</p>
+            <p>근무일 수: ${workedDays}일</p>
             <h3>📌 조건 판단</h3>
-            <p>` + condition1Text + `</p>
-            <p>` + condition2Text + `</p>
-            ` + (nextPossible1 ? "<p>" + nextPossible1 + "</p>" : "") + `
-            ` + (nextPossible2 ? "<p>" + nextPossible2 + "</p>" : "") + `
+            <p>${condition1Text}</p>
+            <p>${condition2Text}</p>
+            ${nextPossible1 ? "<p>" + nextPossible1 + "</p>" : ""}
+            ${nextPossible2 ? "<p>" + nextPossible2 + "</p>" : ""}
             <h3>📌 최종 판단</h3>
-            <p>✅ 일반일용근로자: ` + generalWorkerText + `</p>
-            <p>✅ 건설일용근로자: ` + constructionWorkerText + `</p>
+            <p>✅ 일반일용근로자: ${generalWorkerText}</p>
+            <p>✅ 건설일용근로자: ${constructionWorkerText}</p>
         `;
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
@@ -167,4 +179,5 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=False)
+    st.components.v1.html(calendar_html, height=1200, scrolling=False)
+
