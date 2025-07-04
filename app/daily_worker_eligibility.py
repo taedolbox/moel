@@ -36,19 +36,7 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
-    # JavaScript 메시지 처리
-    def handle_js_message():
-        if st.session_state.js_message:
-            try:
-                data = json.loads(st.session_state.js_message)
-                if isinstance(data, list):
-                    st.session_state.selected_dates_list = list(set(data))
-                else:
-                    st.session_state.selected_dates_list = []
-            except json.JSONDecodeError:
-                st.session_state.selected_dates_list = []
-
-    # CSS로 입력 필드 숨김 + 결과/선택 텍스트 자동 줄바꿈
+    # 숨김필드 처리 CSS + 결과/선택 영역 자동 줄바꿈
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -72,7 +60,7 @@ def daily_worker_eligibility_app():
         border-radius: 8px;
         font-size: 1em;
         color: #333;
-        overflow: visible; /* 자동으로 늘어나게 */
+        overflow: visible;
         white-space: normal !important;
         word-break: break-word !important;
         overflow-wrap: break-word !important;
@@ -80,7 +68,7 @@ def daily_worker_eligibility_app():
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 HTML 생성
+    # 달력 HTML + JS
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
@@ -107,7 +95,7 @@ def daily_worker_eligibility_app():
             calendar_html += '<div class="empty-day"></div>'
         for date in dates:
             day_num = date.day
-            date_str = date.strftime("%m/%d")  # MM/DD 형식으로 변경
+            date_str = date.strftime("%m/%d")  # MM/DD 형식
             is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
             calendar_html += f'''
             <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
@@ -196,19 +184,19 @@ def daily_worker_eligibility_app():
         const noWork14Days = fourteenDays.every(date => !selected.includes(date));
 
         const condition1Text = workedDays < threshold 
-            ? '✅ 조건 1 충족' : '❌ 조건 1 불충족';
+            ? '✅ 조건 1 충족: 근무일 수가 기준 미만입니다.' : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
         const condition2Text = noWork14Days 
-            ? '✅ 조건 2 충족' : '❌ 조건 2 불충족';
+            ? '✅ 조건 2 충족: 14일 무근무.' : '❌ 조건 2 불충족: 14일 내 근무 있음.';
 
         const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (workedDays < threshold && noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const resultHtml = [
-            '<p>총 기간 일수: ' + totalDays + '일</p>',
-            '<p>1/3 기준: ' + threshold.toFixed(1) + '일</p>',
-            '<p>근무일 수: ' + workedDays + '일</p>',
+            '<h3>조건</h3>',
             '<p>' + condition1Text + '</p>',
             '<p>' + condition2Text + '</p>',
+            '<h3>결과</h3>',
+            '<p>총 기간: ' + totalDays + '일 | 1/3 기준: ' + threshold.toFixed(1) + '일 | 근무일 수: ' + workedDays + '일</p>',
             '<h3>최종 판단</h3>',
             '<p>일반일용: ' + generalWorkerText + '</p>',
             '<p>건설일용: ' + constructionWorkerText + '</p>'
@@ -250,4 +238,5 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
+
 
