@@ -35,8 +35,8 @@ def daily_worker_eligibility_app():
 
     for ym, dates in calendar_groups.items():
         year, month = ym.split("-")
-        calendar_html += f"""
-        <h4>{year}년 {month}월</h4>
+        calendar_html += "<h4>" + year + "년 " + month + "월</h4>"
+        calendar_html += """
         <div class="calendar">
             <div class="day-header">일</div>
             <div class="day-header">월</div>
@@ -52,45 +52,45 @@ def daily_worker_eligibility_app():
         for date in dates:
             day_num = date.day
             date_str = date.strftime("%m/%d")
-            calendar_html += f'<div class="day" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
+            calendar_html += '<div class="day" data-date="' + date_str + '" onclick="toggleDate(this)">' + str(day_num) + '</div>'
         calendar_html += "</div>"
 
-    calendar_html += f"""
+    calendar_html += """
     </div>
     <p id="selectedDatesText"></p>
     <div id="resultContainer"></div>
 
     <style>
-    .calendar {{
+    .calendar {
         display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px;
         margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }}
-    .day-header, .empty-day {{
+    }
+    .day-header, .empty-day {
         width: 40px; height: 40px; line-height: 40px; text-align: center;
         font-weight: bold; color: #555;
-    }}
-    .day-header {{ background: #e0e0e0; border-radius: 5px; font-size: 14px; }}
-    .empty-day {{ background: transparent; border: none; }}
-    .day {{
+    }
+    .day-header { background: #e0e0e0; border-radius: 5px; font-size: 14px; }
+    .empty-day { background: transparent; border: none; }
+    .day {
         width: 40px; height: 40px; line-height: 40px; text-align: center;
         border: 1px solid #ddd; border-radius: 5px; cursor: pointer; user-select: none;
         transition: background 0.1s ease, border 0.1s ease; font-size: 16px; color: #333;
-    }}
-    .day:hover {{ background: #f0f0f0; }}
-    .day.selected {{ border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }}
+    }
+    .day:hover { background: #f0f0f0; }
+    .day.selected { border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }
     </style>
 
     <script>
-    const CALENDAR_DATES = {calendar_dates_json};
-    const FOURTEEN_DAYS_START = "{fourteen_days_prior_start}";
-    const FOURTEEN_DAYS_END = "{fourteen_days_prior_end}";
+    const CALENDAR_DATES = """ + calendar_dates_json + """;
+    const FOURTEEN_DAYS_START = '""" + fourteen_days_prior_start + """';
+    const FOURTEEN_DAYS_END = '""" + fourteen_days_prior_end + """';
 
-    function saveToLocalStorage(data) {{
+    function saveToLocalStorage(data) {
         localStorage.setItem('selectedDates', JSON.stringify(data));
-    }}
+    }
 
-    function calculateAndDisplayResult(selected) {{
+    function calculateAndDisplayResult(selected) {
         const totalDays = CALENDAR_DATES.length;
         const threshold = totalDays / 3;
         const workedDays = selected.length;
@@ -99,65 +99,64 @@ def daily_worker_eligibility_app():
         const noWork14Days = fourteenDays.every(date => !selected.includes(date.substring(5).replace("-", "/")));
 
         let nextPossible1 = "";
-        if (workedDays >= threshold) {{
-            nextPossible1 = `📅 조건 1을 충족하려면 근로일 수(${workedDays})를 줄이거나 다음 달 이후로 신청해야 합니다.`;
-        }}
+        if (workedDays >= threshold) {
+            nextPossible1 = "📅 조건 1을 충족하려면 근로일 수(" + workedDays + ")를 줄이거나 다음 달 이후로 신청해야 합니다.";
+        }
 
         let nextPossible2 = "";
-        if (!noWork14Days) {{
+        if (!noWork14Days) {
             const nextPossibleDate = new Date(FOURTEEN_DAYS_END);
             nextPossibleDate.setDate(nextPossibleDate.getDate() + 14);
             const nextDateStr = nextPossibleDate.toISOString().split('T')[0];
-            nextPossible2 = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
-        }}
+            nextPossible2 = "📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
+        }
 
         const condition1Text = workedDays < threshold
-            ? `✅ 조건 1 충족: 근무일 수(${workedDays}) < 기준(${threshold.toFixed(1)})`
-            : `❌ 조건 1 불충족: 근무일 수(${workedDays}) ≥ 기준(${threshold.toFixed(1)})`;
+            ? "✅ 조건 1 충족: 근무일 수(" + workedDays + ") < 기준(" + threshold.toFixed(1) + ")"
+            : "❌ 조건 1 불충족: 근무일 수(" + workedDays + ") ≥ 기준(" + threshold.toFixed(1) + ")";
 
         const condition2Text = noWork14Days
-            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
-            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 내 근무기록이 존재`;
+            ? "✅ 조건 2 충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 무근무"
+            : "❌ 조건 2 불충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 내 근무기록이 존재";
 
-        const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const generalWorkerText = workedDays < threshold ? "✅ 신청 가능" : "❌ 신청 불가능";
+        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? "✅ 신청 가능" : "❌ 신청 불가능";
 
         const finalHtml = `
             <h3>📌 조건 기준</h3>
-            <p>총 기간 일수: ${totalDays}일</p>
-            <p>1/3 기준: ${threshold.toFixed(1)}일</p>
+            <p>총 기간 일수: ` + totalDays + `일</p>
+            <p>1/3 기준: ` + threshold.toFixed(1) + `일</p>
             <h3>📌 조건 판단</h3>
-            <p>${condition1Text}</p>
-            <p>${condition2Text}</p>
-            ${nextPossible1 ? `<p>${nextPossible1}</p>` : ""}
-            ${nextPossible2 ? `<p>${nextPossible2}</p>` : ""}
+            <p>` + condition1Text + `</p>
+            <p>` + condition2Text + `</p>
+            ` + (nextPossible1 ? "<p>" + nextPossible1 + "</p>" : "") + `
+            ` + (nextPossible2 ? "<p>" + nextPossible2 + "</p>" : "") + `
             <h3>📌 최종 판단</h3>
-            <p>✅ 일반일용근로자: ${generalWorkerText}</p>
-            <p>✅ 건설일용근로자: ${constructionWorkerText}</p>
+            <p>✅ 일반일용근로자: ` + generalWorkerText + `</p>
+            <p>✅ 건설일용근로자: ` + constructionWorkerText + `</p>
         `;
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
-    }}
+    }
 
-    function toggleDate(element) {{
+    function toggleDate(element) {
         element.classList.toggle('selected');
         const selected = [];
         const days = document.getElementsByClassName('day');
-        for (let i = 0; i < days.length; i++) {{
-            if (days[i].classList.contains('selected')) {{
+        for (let i = 0; i < days.length; i++) {
+            if (days[i].classList.contains('selected')) {
                 selected.push(days[i].getAttribute('data-date'));
-            }}
-        }}
+            }
+        }
         saveToLocalStorage(selected);
         calculateAndDisplayResult(selected);
         document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
-    }}
+    }
 
-    window.onload = function() {{
+    window.onload = function() {
         calculateAndDisplayResult([]);
-    }};
+    };
     </script>
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
-
