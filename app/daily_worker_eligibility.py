@@ -1,5 +1,3 @@
-# app/daily_worker_eligibility.py
-
 import streamlit as st
 from datetime import datetime, timedelta
 import json
@@ -117,23 +115,26 @@ def daily_worker_eligibility_app():
         let cond2 = noWork14;
 
         let cond1Text = cond1 ? '✅ 조건 1 충족: 근무일 수 기준 미만' : '❌ 조건 1 불충족: 근무일 수 기준 이상';
-        let cond2Text = cond2 ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START}~${FOURTEEN_DAYS_END}) 무근무`
-                              : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START}~${FOURTEEN_DAYS_END}) 근무 내역 있음`;
+        let cond2Text = cond2 ? `✅ 조건 2 충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}}~${{FOURTEEN_DAYS_END}}) 무근무`
+                              : `❌ 조건 2 불충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}}~${{FOURTEEN_DAYS_END}}) 근무 내역 있음`;
 
         let cond1Next = '';
         let cond2Next = '';
         if (!cond1) {{
             const nextDate = new Date(CALENDAR_DATES[0]);
             nextDate.setDate(nextDate.getDate() + Math.ceil(threshold - workedDays) + 1);
-            cond1Next = `📅 조건 1을 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDate.toISOString().slice(0,10)} 이후에 신청하면 조건 1을 충족할 수 있습니다.`;
+            cond1Next = `📅 조건 1을 충족하려면 오늘 이후에 근로제공이 없는 경우 ${{nextDate.toISOString().slice(0,10)}} 이후에 신청하면 조건 1을 충족할 수 있습니다.`;
         }}
         if (!cond2) {{
             const nextDate2 = new Date(FOURTEEN_DAYS_END);
             nextDate2.setDate(nextDate2.getDate() + 15);
-            cond2Next = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDate2.toISOString().slice(0,10)} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+            cond2Next = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${{nextDate2.toISOString().slice(0,10)}} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
         }}
 
         let resultHTML = `
+            <p>총 기간 일수: ${{totalDays}}일</p>
+            <p>1/3 기준: ${{threshold.toFixed(1)}}일</p>
+            <p>근무일 수: ${{workedDays}}일</p>
             <p>${{cond1Text}}</p>
             ${cond1Next ? '<p>' + cond1Next + '</p>' : ''}
             <p>${{cond2Text}}</p>
