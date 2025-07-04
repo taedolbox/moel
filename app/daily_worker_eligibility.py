@@ -85,7 +85,7 @@ def daily_worker_eligibility_app():
             calendar_html += '<div class="empty-day"></div>'
         for date in dates:
             day_num = date.day
-            date_str = date.strftime("%Y-%m-%d")
+            date_str = date.strftime("%m-%d")
             is_selected = " selected" if date_str in st.session_state.selected_dates_list else ""
             calendar_html += f'''
             <div class="day{is_selected}" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>
