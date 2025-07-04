@@ -20,7 +20,7 @@ def daily_worker_eligibility_app():
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성: 기준일 전달 1일 ~ 기준일
+    # 달력 날짜 생성 (전월 1일부터 기준일 까지)
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -155,7 +155,7 @@ def daily_worker_eligibility_app():
         border-radius: 8px;
         font-size: 1em;
         color: #333;
-        overflow: visible; 
+        overflow: visible;
     }}
     #calendar-container {{
         overflow: visible;
@@ -177,39 +177,22 @@ def daily_worker_eligibility_app():
         const threshold = totalDays / 3;
         const workedDays = selected.length;
 
+        // 신청일 직전 14일 기간 필터링
         const fourteenDays = CALENDAR_DATES.filter(date =>
             date >= FOURTEEN_DAYS_START && date <= FOURTEEN_DAYS_END
         );
 
+        // 조건 2 관련: 신청일 직전 14일간 근무 여부 체크
         const workedIn14 = fourteenDays.some(date => selected.includes(date.substring(5).replace("-", "/")));
         const condition2Met = !workedIn14;
 
+        // 조건 1: 근무일 수가 1/3 미만인지
         const condition1Met = workedDays < threshold;
 
         let nextPossible = "";
 
-        if (!condition1Met) {{
-            // 조건 1 불충족: 언제 가능한지 (근무일 수 기준)
-            let maxDateStr = null;
-            selected.forEach(selDate => {{
-                CALENDAR_DATES.forEach(cd => {{
-                    if (cd.endsWith(selDate.replace("/", "-"))) {{
-                        if (!maxDateStr || cd > maxDateStr) {{
-                            maxDateStr = cd;
-                        }}
-                    }}
-                }});
-            }});
-            if (maxDateStr) {{
-                let lastWorkedDate = new Date(maxDateStr);
-                lastWorkedDate.setDate(lastWorkedDate.getDate() + 1);
-                const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible += "📅 조건 1을 충족하려면 " + nextDateStr + " 이후에 신청하세요.<br>";
-            }}
-        }}
-
         if (!condition2Met) {{
-            // 조건 2 불충족: 기존 로직 유지 (14일 무근무 조건)
+            // 조건 2 불충족 시 메시지 생성 (근무한 마지막 날짜 이후 15일 뒤)
             let lastWorkedDateStr = null;
             for (let i = fourteenDays.length - 1; i >= 0; i--) {{
                 const d = fourteenDays[i];
@@ -222,32 +205,29 @@ def daily_worker_eligibility_app():
                 const lastWorkedDate = new Date(lastWorkedDateStr);
                 lastWorkedDate.setDate(lastWorkedDate.getDate() + 15);
                 const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible += "📅 조건 2를 충족하려면 " + nextDateStr + " 이후에 신청하세요.";
+                nextPossible += `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
             }}
         }}
 
-        const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (condition1Met || condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
-
         const condition1Text = condition1Met
-            ? '✅ 조건 1 충족: 근무일 수가 기준 미만입니다.'
-            : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
+            ? '✅ 조건 1 충족: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 미만입니다.'
+            : '❌ 조건 1 불충족: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 이상입니다.';
 
         const condition2Text = condition2Met
-            ? "✅ 조건 2 충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 무근무"
-            : "❌ 조건 2 불충족: 신청일 직전 14일간(" + FOURTEEN_DAYS_START + " ~ " + FOURTEEN_DAYS_END + ") 내 근무기록이 존재합니다.";
+            ? `✅ 조건 2 충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 없습니다.`
+            : `❌ 조건 2 불충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 있습니다.`;
+
+        const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (condition1Met && condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const finalHtml = [
-            "<p>총 기간 일수: " + totalDays + "일</p>",
-            "<p>1/3 기준: " + threshold.toFixed(1) + "일</p>",
-            "<p>근무일 수: " + workedDays + "일</p>",
-            "<p>" + condition1Text + "</p>",
-            "<p>" + condition2Text + "</p>",
-            "<p>" + nextPossible + "</p>",
-            "<h3>📌 최종 판단</h3>",
-            "<p>✅ 일반일용근로자: " + generalWorkerText + "</p>",
-            "<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(" + CALENDAR_DATES[0] + " ~ " + CALENDAR_DATES[CALENDAR_DATES.length - 1] + ") 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>",
-            "<p>✅ 건설일용근로자: " + constructionWorkerText + "</p>"
+            `<h3>조건 판단</h3>`,
+            `<p>${condition1Text}</p>`,
+            `<p>${condition2Text}</p>`,
+            `<p>${nextPossible}</p>`,
+            `<h3>📌 최종 판단</h3>`,
+            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
+            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
         ].join('');
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
@@ -287,4 +267,5 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
+
 
