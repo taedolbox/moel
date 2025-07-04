@@ -13,6 +13,7 @@ def daily_worker_eligibility_app():
 
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
+
     cal_dates = []
     current_date = first_day_prev_month
     while current_date <= last_day:
@@ -159,3 +160,4 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1000, scrolling=False)
+
