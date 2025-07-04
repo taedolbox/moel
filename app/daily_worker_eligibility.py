@@ -124,10 +124,7 @@ def daily_worker_eligibility_app():
 
         let nextPossible1 = "";
         if (!condition1Met) {{
-            const extraDaysNeeded = workedDays - threshold;
-            const nextPossibleDate1 = new Date(CALENDAR_DATES[0]);
-            nextPossibleDate1.setDate(nextPossibleDate1.getDate() + totalDays + 1);
-            nextPossible1 = `📅 조건 1을 충족하려면 ${nextPossibleDate1.toISOString().split('T')[0]} 이후에 신청하거나 근로일 수를 줄여야 합니다.`;
+            nextPossible1 = `📅 조건 1을 충족하려면 현재 근로일 수(${workedDays})를 기준일 범위에서 줄이거나 다음 달 이후로 신청해야 합니다.`;
         }}
 
         let nextPossible2 = "";
@@ -181,23 +178,9 @@ def daily_worker_eligibility_app():
     }}
 
     window.onload = function() {{
-        const initialDates = "{','.join(st.session_state.selected_dates_list)}";
-        let initialSelected = [];
-        if (initialDates) {{
-            initialSelected = initialDates.split(',').filter(date => date);
-            const days = document.getElementsByClassName('day');
-            for (let i = 0; i < days.length; i++) {{
-                if (initialSelected.includes(days[i].getAttribute('data-date'))) {{
-                    days[i].classList.add('selected');
-                }}
-            }}
-        }}
-        saveToLocalStorage(initialSelected);
-        calculateAndDisplayResult(initialSelected);
-        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + initialSelected.join(', ') + " (" + initialSelected.length + "일)";
+        calculateAndDisplayResult([]);
     }};
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=False)
-
+    st.components.v1.html(calendar_html, height=1000, scrolling=False)
