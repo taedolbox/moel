@@ -64,102 +64,78 @@ def daily_worker_eligibility_app():
     <div id="resultContainer"></div>
 
     <style>
-    /* 달력 테이블 형태, 꽉 채우기 */
+    body {
+        color: #111;
+    }
+
     .calendar {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        grid-gap: 2px;
+        gap: 5px;
         margin-bottom: 20px;
         background: #fff;
-        padding: 5px;
+        padding: 10px;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         width: 100%;
-        max-width: 420px;
         box-sizing: border-box;
     }
-    .day-header, .empty-day {
-        width: 100%;
-        height: 40px;
-        line-height: 40px;
+
+    .day-header, .empty-day, .day {
+        aspect-ratio: 1/1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         text-align: center;
-        font-weight: bold;
-        color: #555;
+    }
+    .day-header {
+        background: #444;
+        color: #fff;
         border-radius: 5px;
-        background: #e0e0e0;
+        font-weight: bold;
         font-size: 14px;
-        box-sizing: border-box;
     }
     .empty-day {
         background: transparent;
         border: none;
     }
     .day {
-        width: 100%;
-        height: 40px;
-        line-height: 40px;
-        text-align: center;
         border: 1px solid #ddd;
         border-radius: 5px;
         cursor: pointer;
         user-select: none;
         transition: background 0.1s ease, border 0.1s ease;
         font-size: 16px;
-        color: #333;
-        box-sizing: border-box;
+        color: #222;
+        background: #fdfdfd;
     }
     .day:hover {
-        background: #f0f0f0;
+        background: #eee;
     }
     .day.selected {
         border: 2px solid #2196F3;
         background: #2196F3;
-        color: #fff !important;
+        color: #fff !important; /* ✅ 다크모드 대비 강제 */
         font-weight: bold;
     }
 
-    /* 다크모드: 달력 배경, 텍스트, 선택 날짜, 결과 텍스트 모두 흰색 */
+    #resultContainer {
+        color: #111;
+    }
+
     @media (prefers-color-scheme: dark) {
-        .calendar {
-            background: #222;
-            box-shadow: none;
-        }
-        .day-header {
-            background: #444;
+        body {
             color: #ddd;
+            background: #000;
         }
-        .day {
-            border-color: #555;
-            color: #ddd;
-        }
-        .day:hover {
-            background: #333;
-        }
-        .day.selected {
-            background: #2196F3;
-            border-color: #2196F3;
-            color: #fff !important;
-        }
-        #selectedDatesText, #resultContainer {
-            color: #fff !important;
+        #resultContainer {
+            color: #eee; /* ✅ 다크모드 텍스트 보이도록 */
         }
     }
 
-    /* 모바일에서 스크롤 없이 보이도록 조정 */
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
         .calendar {
-            max-width: 100%;
-            padding: 3px;
-            grid-gap: 2px;
-        }
-        .day-header, .empty-day, .day {
-            height: 32px;
-            line-height: 32px;
-            font-size: 12px;
-        }
-        .day.selected {
-            border-width: 1.8px;
-            font-size: 12px;
+            grid-template-columns: repeat(7, 1fr);
         }
     }
     </style>
@@ -247,4 +223,3 @@ def daily_worker_eligibility_app():
     """
 
     st.components.v1.html(calendar_html, height=1500, scrolling=False)
-
