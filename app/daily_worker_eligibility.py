@@ -222,7 +222,4 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1500, scrolling=False) 
-
-이것을 토대로 다크모드 글자색만 변경해줘
-지금 현재 "일용직 신청 가능 시점 판단 이건 흰색이 맞거덩? 이것과 같이 해주면 안되는거야?
+    st.components.v1.html(calendar_html, height=1200, scrolling=False)
