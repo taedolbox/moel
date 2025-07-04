@@ -38,10 +38,10 @@ def daily_worker_eligibility_app():
     fourteen_days_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
 
-    # HTML + JS 코드
     calendar_html = """
     <div id="calendar-container">
     """
+
     for ym, dates in calendar_groups.items():
         y, m = ym.split("-")
         calendar_html += f"""
@@ -71,25 +71,25 @@ def daily_worker_eligibility_app():
     <div id="resultContainer"></div>
 
     <style>
-    .calendar {
+    .calendar {{
         display: grid;
         grid-template-columns: repeat(7, 40px);
         grid-gap: 5px;
         margin-bottom: 20px;
-    }
-    .day-header, .empty-day {
+    }}
+    .day-header, .empty-day {{
         width: 40px; height: 40px; line-height: 40px;
         text-align: center; font-weight: bold; color: #555;
-    }
-    .day-header { background: #e0e0e0; border-radius: 5px; }
-    .empty-day { background: transparent; }
-    .day {
+    }}
+    .day-header {{ background: #e0e0e0; border-radius: 5px; }}
+    .empty-day {{ background: transparent; }}
+    .day {{
         width: 40px; height: 40px; line-height: 40px; text-align: center;
         border: 1px solid #ddd; border-radius: 5px; cursor: pointer;
-    }
-    .day:hover { background: #f0f0f0; }
-    .day.selected { border: 2px solid #2196F3; background: #2196F3; color: #fff; }
-    #resultContainer { margin-top:20px; padding:15px; background:#f9f9f9; border-radius:8px; }
+    }}
+    .day:hover {{ background: #f0f0f0; }}
+    .day.selected {{ border: 2px solid #2196F3; background: #2196F3; color: #fff; }}
+    #resultContainer {{ margin-top:20px; padding:15px; background:#f9f9f9; border-radius:8px; }}
     </style>
 
     <script>
@@ -97,12 +97,12 @@ def daily_worker_eligibility_app():
     const FOURTEEN_DAYS_START = '{fds}';
     const FOURTEEN_DAYS_END = '{fde}';
 
-    function toggleDate(el) {
+    function toggleDate(el) {{
         el.classList.toggle('selected');
         updateResult();
-    }
+    }}
 
-    function updateResult() {
+    function updateResult() {{
         const selected = [];
         document.querySelectorAll('.day.selected').forEach(el => selected.push(el.dataset.date));
 
@@ -122,29 +122,29 @@ def daily_worker_eligibility_app():
 
         let cond1Next = '';
         let cond2Next = '';
-        if (!cond1) {
+        if (!cond1) {{
             const nextDate = new Date(CALENDAR_DATES[0]);
             nextDate.setDate(nextDate.getDate() + Math.ceil(threshold - workedDays) + 1);
             cond1Next = `📅 조건 1을 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDate.toISOString().slice(0,10)} 이후에 신청하면 조건 1을 충족할 수 있습니다.`;
-        }
-        if (!cond2) {
+        }}
+        if (!cond2) {{
             const nextDate2 = new Date(FOURTEEN_DAYS_END);
             nextDate2.setDate(nextDate2.getDate() + 15);
             cond2Next = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDate2.toISOString().slice(0,10)} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
-        }
+        }}
 
         let resultHTML = `
-            <p>${cond1Text}</p>
+            <p>${{cond1Text}}</p>
             ${cond1Next ? '<p>' + cond1Next + '</p>' : ''}
-            <p>${cond2Text}</p>
+            <p>${{cond2Text}}</p>
             ${cond2Next ? '<p>' + cond2Next + '</p>' : ''}
             <h3>📌 최종 판단</h3>
-            <p>✅ 일반일용근로자: ${cond1 ? '신청 가능' : '신청 불가능'}</p>
-            <p>✅ 건설일용근로자: ${(cond1 || cond2) ? '신청 가능' : '신청 불가능'}</p>
+            <p>✅ 일반일용근로자: ${{cond1 ? '신청 가능' : '신청 불가능'}}</p>
+            <p>✅ 건설일용근로자: ${{(cond1 && cond2) ? '신청 가능' : '신청 불가능'}}</p>
         `;
         document.getElementById('resultContainer').innerHTML = resultHTML;
         document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ');
-    }
+    }}
 
     window.onload = updateResult;
     </script>
@@ -155,5 +155,3 @@ def daily_worker_eligibility_app():
     )
 
     st.components.v1.html(calendar_html, height=1600, scrolling=False)
-
-
