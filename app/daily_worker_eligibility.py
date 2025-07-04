@@ -10,17 +10,12 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
-    # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
-    if 'js_message' not in st.session_state:
-        st.session_state.js_message = ""
 
-    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
-    # 달력 날짜 생성
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -36,19 +31,13 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
-    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
-    input[data-testid="stTextInput"] {
-        display: none !important;
-    }
-    label[for="js_message"] {
-        display: none !important;
-    }
+    input[data-testid="stTextInput"] { display: none !important; }
+    label[for="js_message"] { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
-    # 달력 HTML 생성
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
@@ -87,79 +76,27 @@ def daily_worker_eligibility_app():
     </div>
     <p id="selectedDatesText"></p>
     <div id="resultContainer"></div>
+
     <style>
     .calendar {{
-        display: grid;
-        grid-template-columns: repeat(7, 40px);
-        grid-gap: 5px;
-        margin-bottom: 20px;
-        background-color: #ffffff;
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; margin-bottom: 20px;
+        background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }}
     .day-header, .empty-day {{
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        text-align: center;
-        font-weight: bold;
-        color: #555;
+        width: 40px; height: 40px; line-height: 40px; text-align: center; font-weight: bold; color: #555;
     }}
-    .day-header {{
-        background-color: #e0e0e0;
-        border-radius: 5px;
-        font-size: 14px;
-    }}
-    .empty-day {{
-        background-color: transparent;
-        border: none;
-    }}
+    .day-header {{ background: #e0e0e0; border-radius: 5px; font-size: 14px; }}
+    .empty-day {{ background: transparent; border: none; }}
     .day {{
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        cursor: pointer;
-        user-select: none;
-        transition: background-color 0.1s ease, border 0.1s ease;
-        font-size: 16px;
-        color: #333;
+        width: 40px; height: 40px; line-height: 40px; text-align: center;
+        border: 1px solid #ddd; border-radius: 5px; cursor: pointer; user-select: none;
+        transition: background 0.1s ease, border 0.1s ease; font-size: 16px; color: #333;
     }}
-    .day:hover {{
-        background-color: #f0f0f0;
-    }}
-    .day.selected {{
-        border: 2px solid #2196F3;
-        background-color: #2196F3;
-        color: white;
-        font-weight: bold;
-    }}
-    h4 {{
-        margin: 10px 0 5px 0;
-        font-size: 1.2em;
-        color: #333;
-        text-align: center;
-    }}
-    #selectedDatesText {{
-        margin-top: 15px;
-        font-size: 0.9em;
-        color: #666;
-    }}
-    #resultContainer {{
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        font-size: 1em;
-        color: #333;
-        overflow: visible; 
-    }}
-    #calendar-container {{
-        overflow: visible;
-    }}
+    .day:hover {{ background: #f0f0f0; }}
+    .day.selected {{ border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }}
+    h4 {{ margin: 10px 0 5px; font-size: 1.2em; text-align: center; color: #333; }}
+    #selectedDatesText {{ margin-top: 15px; font-size: 0.9em; color: #666; }}
+    #resultContainer {{ margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }}
     </style>
 
     <script>
@@ -182,36 +119,48 @@ def daily_worker_eligibility_app():
         );
         const noWork14Days = fourteenDays.every(date => !selected.includes(date.substring(5).replace("-", "/")));
 
-        const condition1Text = workedDays < threshold 
-            ? '✅ 조건 1 충족: 근무일 수가 기준 미만입니다.'
-            : '❌ 조건 1 불충족: 근무일 수가 기준 이상입니다.';
+        const condition1Met = workedDays < threshold;
+        const condition2Met = noWork14Days;
 
-        const condition2Text = noWork14Days 
-            ? `✅ 조건 2 충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 무근무`
-            : `❌ 조건 2 불충족: 신청일 직전 14일간(${{FOURTEEN_DAYS_START}} ~ ${{FOURTEEN_DAYS_END}}) 내 근무기록이 존재`;
-
-        let nextPossible = "";
-        if (!noWork14Days) {{
-            const nextPossibleDate = new Date(FOURTEEN_DAYS_END);
-            nextPossibleDate.setDate(nextPossibleDate.getDate() + 14);
-            const nextDateStr = nextPossibleDate.toISOString().split('T')[0];
-            nextPossible = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${{nextDateStr}} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+        let nextPossible1 = "";
+        if (!condition1Met) {{
+            const extraDaysNeeded = workedDays - threshold;
+            const nextPossibleDate1 = new Date(CALENDAR_DATES[0]);
+            nextPossibleDate1.setDate(nextPossibleDate1.getDate() + totalDays + 1);
+            nextPossible1 = `📅 조건 1을 충족하려면 ${nextPossibleDate1.toISOString().split('T')[0]} 이후에 신청하거나 근로일 수를 줄여야 합니다.`;
         }}
 
-        const generalWorkerText = workedDays < threshold ? '✅ 신청 가능' : '❌ 신청 불가능';
-        const constructionWorkerText = (workedDays < threshold || noWork14Days) ? '✅ 신청 가능' : '❌ 신청 불가능';
+        let nextPossible2 = "";
+        if (!condition2Met) {{
+            const nextPossibleDate2 = new Date(FOURTEEN_DAYS_END);
+            nextPossibleDate2.setDate(nextPossibleDate2.getDate() + 14);
+            const nextDateStr = nextPossibleDate2.toISOString().split('T')[0];
+            nextPossible2 = `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+        }}
+
+        const condition1Text = condition1Met
+            ? `✅ 조건 1 충족: 근무일 수(${workedDays}) < 기준(${threshold.toFixed(1)})`
+            : `❌ 조건 1 불충족: 근무일 수(${workedDays}) ≥ 기준(${threshold.toFixed(1)})`;
+
+        const condition2Text = condition2Met
+            ? `✅ 조건 2 충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 무근무`
+            : `❌ 조건 2 불충족: 신청일 직전 14일간(${FOURTEEN_DAYS_START} ~ ${FOURTEEN_DAYS_END}) 내 근무기록이 존재`;
+
+        const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
+        const constructionWorkerText = (condition1Met || condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const finalHtml = [
-            `<p>총 기간 일수: ${{totalDays}}일</p>`,
-            `<p>1/3 기준: ${{threshold.toFixed(1)}}일</p>`,
-            `<p>근무일 수: ${{workedDays}}일</p>`,
-            `<p>${{condition1Text}}</p>`,
-            `<p>${{condition2Text}}</p>`,
-            nextPossible,
+            `<h3>📌 조건 기준</h3>`,
+            `<p>총 기간 일수: ${totalDays}일</p>`,
+            `<p>1/3 기준: ${threshold.toFixed(1)}일</p>`,
+            `<h3>📌 조건 판단</h3>`,
+            `<p>${condition1Text}</p>`,
+            `<p>${condition2Text}</p>`,
+            nextPossible1,
+            nextPossible2,
             `<h3>📌 최종 판단</h3>`,
-            `<p>✅ 일반일용근로자: ${{generalWorkerText}}</p>`,
-            `<p>수급자격 인정신청일이 속한 달의 직전 달 초일부터 수급자격 인정신청일까지(${{CALENDAR_DATES[0]}} ~ ${{CALENDAR_DATES[CALENDAR_DATES.length - 1]}}) 근로일 수의 합이 같은 기간 총 일수의 3분의 1 미만</p>`,
-            `<p>✅ 건설일용근로자: ${{constructionWorkerText}}</p>`
+            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
+            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
         ].join('');
 
         document.getElementById('resultContainer').innerHTML = finalHtml;
@@ -250,5 +199,5 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    st.components.v1.html(calendar_html, height=1000, scrolling=False)
+    st.components.v1.html(calendar_html, height=1500, scrolling=False)
 
