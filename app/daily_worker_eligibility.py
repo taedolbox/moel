@@ -10,12 +10,17 @@ def daily_worker_eligibility_app():
         unsafe_allow_html=True
     )
 
+    # 세션 상태 초기화
     if 'selected_dates_list' not in st.session_state:
         st.session_state.selected_dates_list = []
+    if 'js_message' not in st.session_state:
+        st.session_state.js_message = ""
 
+    # 한국표준시 현재 날짜
     today_kst = datetime.utcnow() + timedelta(hours=9)
     input_date = st.date_input("📅 기준 날짜 선택", today_kst.date())
 
+    # 달력 날짜 생성: 기준일 전달 1일 ~ 기준일
     first_day_prev_month = (input_date.replace(day=1) - timedelta(days=1)).replace(day=1)
     last_day = input_date
     cal_dates = []
@@ -31,6 +36,7 @@ def daily_worker_eligibility_app():
             calendar_groups[year_month] = []
         calendar_groups[year_month].append(date)
 
+    # CSS로 입력 필드 숨김
     st.markdown("""
     <style>
     input[data-testid="stTextInput"] {
@@ -42,6 +48,7 @@ def daily_worker_eligibility_app():
     </style>
     """, unsafe_allow_html=True)
 
+    # 달력 HTML 생성
     calendar_dates_json = json.dumps([d.strftime("%Y-%m-%d") for d in cal_dates])
     fourteen_days_prior_end = (input_date - timedelta(days=1)).strftime("%Y-%m-%d")
     fourteen_days_prior_start = (input_date - timedelta(days=14)).strftime("%Y-%m-%d")
@@ -180,7 +187,29 @@ def daily_worker_eligibility_app():
         const condition1Met = workedDays < threshold;
 
         let nextPossible = "";
+
+        if (!condition1Met) {{
+            // 조건 1 불충족: 언제 가능한지 (근무일 수 기준)
+            let maxDateStr = null;
+            selected.forEach(selDate => {{
+                CALENDAR_DATES.forEach(cd => {{
+                    if (cd.endsWith(selDate.replace("/", "-"))) {{
+                        if (!maxDateStr || cd > maxDateStr) {{
+                            maxDateStr = cd;
+                        }}
+                    }}
+                }});
+            }});
+            if (maxDateStr) {{
+                let lastWorkedDate = new Date(maxDateStr);
+                lastWorkedDate.setDate(lastWorkedDate.getDate() + 1);
+                const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
+                nextPossible += "📅 조건 1을 충족하려면 " + nextDateStr + " 이후에 신청하세요.<br>";
+            }}
+        }}
+
         if (!condition2Met) {{
+            // 조건 2 불충족: 기존 로직 유지 (14일 무근무 조건)
             let lastWorkedDateStr = null;
             for (let i = fourteenDays.length - 1; i >= 0; i--) {{
                 const d = fourteenDays[i];
@@ -193,7 +222,7 @@ def daily_worker_eligibility_app():
                 const lastWorkedDate = new Date(lastWorkedDateStr);
                 lastWorkedDate.setDate(lastWorkedDate.getDate() + 15);
                 const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible = "📅 조건 2를 충족하려면 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
+                nextPossible += "📅 조건 2를 충족하려면 " + nextDateStr + " 이후에 신청하세요.";
             }}
         }}
 
@@ -236,7 +265,6 @@ def daily_worker_eligibility_app():
         saveToLocalStorage(selected);
         calculateAndDisplayResult(selected);
         document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
-        window.parent.postMessage(JSON.stringify({{type: 'update_selected_dates', dates: selected}}), '*');
     }}
 
     window.onload = function() {{
