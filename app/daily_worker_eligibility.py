@@ -197,7 +197,7 @@ def daily_worker_eligibility_app():
                 const lastWorkedDate = new Date(lastWorkedDateStr);
                 lastWorkedDate.setDate(lastWorkedDate.getDate() + 15);
                 const nextDateStr = lastWorkedDate.toISOString().split('T')[0];
-                nextPossible += `📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 ${nextDateStr} 이후에 신청하면 조건 2를 충족할 수 있습니다.`;
+                nextPossible += "📅 조건 2를 충족하려면 오늘 이후에 근로제공이 없는 경우 " + nextDateStr + " 이후에 신청하면 조건 2를 충족할 수 있습니다.";
             }}
         }}
 
@@ -206,20 +206,20 @@ def daily_worker_eligibility_app():
             : '❌ 조건 1 불충족: 신청일이 속한 달의 직전 달 첫날부터 신청일까지 근무일 수가 전체 기간의 1/3 이상입니다.';
 
         const condition2Text = condition2Met
-            ? `✅ 조건 2 충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 없습니다.`
-            : `❌ 조건 2 불충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 있습니다.`;
+            ? '✅ 조건 2 충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 없습니다.'
+            : '❌ 조건 2 불충족: 건설일용근로자는 신청일 직전 14일간(신청일 제외) 근무 사실이 있습니다.';
 
         const generalWorkerText = condition1Met ? '✅ 신청 가능' : '❌ 신청 불가능';
         const constructionWorkerText = (condition1Met && condition2Met) ? '✅ 신청 가능' : '❌ 신청 불가능';
 
         const finalHtml = [
-            `<h3>조건 판단</h3>`,
-            `<p>${condition1Text}</p>`,
-            `<p>${condition2Text}</p>`,
-            `<p>${nextPossible}</p>`,
-            `<h3>📌 최종 판단</h3>`,
-            `<p>✅ 일반일용근로자: ${generalWorkerText}</p>`,
-            `<p>✅ 건설일용근로자: ${constructionWorkerText}</p>`
+            '<h3>조건 판단</h3>',
+            '<p>' + condition1Text + '</p>',
+            '<p>' + condition2Text + '</p>',
+            '<p>' + nextPossible + '</p>',
+            '<h3>📌 최종 판단</h3>',
+            '<p>✅ 일반일용근로자: ' + generalWorkerText + '</p>',
+            '<p>✅ 건설일용근로자: ' + constructionWorkerText + '</p>'
         ].join('');
 
         try {{
