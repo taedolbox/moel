@@ -102,6 +102,9 @@ def main():
             st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
             st.session_state.selected_menu = None
 
+        st.markdown("---")
+        st.markdown("[📌 고용센터 찾기](https://www.work24.go.kr/cm/c/d/0190/retrieveInstSrchLst.do)")
+
     st.markdown("---")
 
     if st.session_state.selected_menu:
