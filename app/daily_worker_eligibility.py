@@ -1,5 +1,4 @@
 import streamlit as st
-from components.footer import render_footer
 from datetime import datetime, timedelta
 import json
 
@@ -7,6 +6,12 @@ def daily_worker_eligibility_app():
     st.markdown(
         "<span style='font-size:22px; font-weight:600;'>🏗️ 일용직 신청 가능 시점 판단</span>",
         unsafe_allow_html=True
+    )
+    
+    # 상단 고지문
+    st.markdown(
+    "<p style='font-size:18px; font-weight:700; margin-bottom:10px;'>ⓘ 실업급여 도우미는 참고용입니다. 실제 가능 여부는 고용센터 판단을 따릅니다.</p>",
+    unsafe_allow_html=True
     )
 
     today_kst = datetime.utcnow() + timedelta(hours=9)
@@ -55,12 +60,11 @@ def daily_worker_eligibility_app():
         for date in dates:
             day_num = date.day
             date_str = date.strftime("%m/%d")
-            calendar_html += '<div class="day" data-date="' + date_str + '" onclick="toggleDate(this)">' + str(day_num) + '</div>'
+            calendar_html += f'<div class="day" data-date="{date_str}" onclick="toggleDate(this)">{day_num}</div>'
         calendar_html += "</div>"
 
     calendar_html += """
     </div>
-    <p id="selectedDatesText" style="display:none;"></p>  <!-- 숨김 처리 -->
     <div id="resultContainer"></div>
 
     <style>
@@ -83,12 +87,6 @@ def daily_worker_eligibility_app():
     .day:hover { background: #f0f0f0; }
     .day.selected { border: 2px solid #2196F3; background: #2196F3; color: #fff; font-weight: bold; }
 
-    #selectedDatesText {
-        color: #121212;
-        font-weight: 600;
-        margin-bottom: 15px;
-        font-size: 16px;
-    }
     #resultContainer {
         color: #121212;
         background: #fff;
@@ -181,8 +179,6 @@ def daily_worker_eligibility_app():
         }
         saveToLocalStorage(selected);
         calculateAndDisplayResult(selected);
-        // 선택한 날짜 텍스트 숨김 처리 중이라 업데이트는 하지만 화면에는 안 보임
-        document.getElementById('selectedDatesText').innerText = "선택한 날짜: " + selected.join(', ') + " (" + selected.length + "일)";
     }
 
     window.onload = function() {
@@ -191,9 +187,4 @@ def daily_worker_eligibility_app():
     </script>
     """
 
-    # height는 너무 크지 않게 적당히 주고, 내부 내용은 늘어날 수 있도록 설정
-    st.components.v1.html(calendar_html, height=800, scrolling=False)
-
-    # 페이지 하단 고용센터 찾기 포함 푸터 출력
-    render_footer()
-
+    st.components.v1.html(calendar_html, height=1500, scrolling=False)
