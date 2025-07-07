@@ -14,13 +14,6 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # CSS 적용 (static/styles.css 파일이 존재해야 합니다)
-    try:
-        with open("static/styles.css", encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    except FileNotFoundError:
-        # static/styles.css 파일이 없을 경우를 대비하여 직접 CSS를 삽입합니다.
-        # 사용자가 제공한 Bmain.py의 콤보박스 선택 영역 디자인으로 변경했습니다.
         st.markdown("""
         <style>
         /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
