@@ -20,7 +20,7 @@ def main():
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         # static/styles.css 파일이 없을 경우를 대비하여 직접 CSS를 삽입합니다.
-        # 이 CSS는 콤보박스와 다크 모드 스타일을 포함합니다.
+        # 이 CSS는 콤보박스와 다크 모드 스타일을 포함하며, 파란색 테두리/텍스트 스타일이 포함되어 있습니다.
         st.markdown("""
         <style>
         /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
