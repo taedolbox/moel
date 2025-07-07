@@ -20,20 +20,20 @@ def main():
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         # static/styles.css 파일이 없을 경우를 대비하여 직접 CSS를 삽입합니다.
-        # 이 CSS는 콤보박스와 다크 모드 스타일을 포함하며, 파란색 테두리/텍스트 스타일이 포함되어 있습니다.
+        # 콤보박스 선택 영역의 배경색과 글씨색을 두 번째 이미지처럼 진하게 변경했습니다.
         st.markdown("""
         <style>
         /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
         div[data-baseweb="select"] > div:first-child {
             border: 2px solid #2196F3 !important; /* 기존 테두리 유지 */
-            color: #2196F3 !important;            /* 기존 텍스트 색상 유지 */
+            color: white !important;              /* 텍스트 색상을 흰색으로 변경 */
             font-weight: 600 !important;
-            background-color: #E3F2FD !important; /* 콤보박스 배경색 변경 (밝은 파랑) */
+            background-color: #2196F3 !important; /* 배경색을 진한 파랑으로 변경 */
         }
 
         /* 콤보박스 내부 텍스트 (현재 선택된 값) */
         div[data-baseweb="select"] span {
-            color: #2196F3 !important;
+            color: white !important; /* 텍스트 색상을 흰색으로 변경 */
             font-weight: 600 !important;
         }
 
@@ -73,12 +73,12 @@ def main():
 
         /* 다크 모드 스타일 (추가) */
         html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
-            background-color: #31333F !important;
-            color: #FAFAFA !important;
+            background-color: #31333F !important; /* 다크 모드 시 배경 */
+            color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
             border: 2px solid #4B4B4B !important;
         }
         html[data-theme="dark"] div[data-baseweb="select"] span {
-            color: #FAFAFA !important;
+            color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
         }
         html[data-theme="dark"] div[data-baseweb="popover"] {
             background-color: #262730 !important;
