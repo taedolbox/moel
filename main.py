@@ -27,7 +27,7 @@ def main():
         layout="centered"
     )
 
-    # CSS 적용 (콤보박스 테두리 및 선택 텍스트 색상)
+    # CSS 적용
     with open("static/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -86,11 +86,11 @@ def main():
             st.session_state.selected_menu = default_menu if default_menu in all_menus else filtered_menus[0] if filtered_menus else None
 
         if filtered_menus:
-            selected_index = filtered_menus.index(st.session_state.selected_menu) if st.session_state.selected_menu in filtered_menus else 0
-            selected_menu = st.selectbox(
-                "📋 메뉴 선택",
+            selected_menu = st.radio(
+                "📋 메뉴",
                 filtered_menus,
-                index=selected_index,
+                index=filtered_menus.index(st.session_state.selected_menu)
+                if st.session_state.selected_menu in filtered_menus else 0,
                 key="menu_selector",
                 on_change=lambda: update_selected_menu(filtered_menus, all_menus)
             )
@@ -117,3 +117,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+이게 기존 메뉴야 여기서 콤보박스로 변경을 해줘
