@@ -1,274 +1,54 @@
-/* div[data-testid="stHorizontalBlock"] 전체 그리드 컨테이너 */
-div[data-testid="stHorizontalBlock"] {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 0px !important;
-    width: 100 !important;
-    box-sizing: border-box !important;
-    justify-content: flex-start !important;
+/* 달력 그리드 */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  width: 100%;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
 }
 
-div[data-testid="stMarkdownContainer"] {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100 !important;
-    height: 100 !important;
-    text-align: left !important;
-    position: relative !important;
-}
-
-div[data-testid="stMarkdownContainer"]:not(:has(.day-header)):not(:has(.day)) {
-    justify-content: flex-start !important;
-}
-
-.month-container {
-    margin-bottom: 2rem !important;
-}
-
-.month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-    gap: 0px !important;
-}
-
+/* 요일 헤더 */
 .day-header {
-    text-align: center !important;
-    font-weight: bold !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    color: #333 !important;
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    aspect-ratio: 1/1 !important;
-    line-height: 40px !important;
-    border: 1px solid #ccc !important;
-    border-radius: 50% !important;
-    background-color: #f8f8f8 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
 }
 .day-header.sunday {
-    color: red !important;
+  color: red;
 }
 .day-header.saturday {
-    color: blue !important;
+  color: blue;
 }
 
+/* 날짜 */
 .day {
-    text-align: center !important;
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    aspect-ratio: 1/1 !important;
-    line-height: 40px !important;
-    border: 1px solid #ccc !important;
-    border-radius: 50% !important;
-    margin: 0 !important;
-    background-color: #fff !important;
-    color: #333 !important;
-    cursor: pointer !important;
-    transition: transform 0.2s, background-color 0.2s, border 0.2s !important;
-    position: relative !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    z-index: 6000 !important;
-    pointer-events: auto !important;
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #333;
 }
 
 .day.sunday {
-    color: red !important;
+  color: red;
 }
 .day.saturday {
-    color: blue !important;
+  color: blue;
 }
 
-.day:not(.disabled):hover::before {
-    content: '클릭하여 선택' !important;
-    position: absolute !important;
-    right: 50px !important;
-    top: 0 !important;
-    background-color: #333 !important;
-    color: #fff !important;
-    padding: 5px 10px !important;
-    border-radius: 4px !important;
-    font-size: 12px !important;
-    white-space: nowrap !important;
-    z-index: 7000 !important;
-    opacity: 0.9 !important;
-    pointer-events: none !important;
-}
-
-.day:not(.disabled):hover {
-    background-color: #f0f0f0 !important;
-}
-
-.day:not(.disabled):active {
-    transform: scale(1.1) !important;
-}
-
-.day.selected {
-    border: 2px solid #4444ff !important;
-    font-weight: bold !important;
-    background-color: #e6e6ff !important;
-    animation: pulse 0.3s ease-out !important;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-    100% { transform: scale(1); }
-}
-
-.checkbox-container {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    margin-top: 20px !important;
-    justify-content: center !important;
-}
-
-.stCheckbox {
-    margin: 0 5px !important;
-    padding: 0 !important;
-    background-color: rgba(0, 0, 255, 0.3) !important; /* 파란색 반투명 */
-    border: 1px dashed #0000ff !important; /* 파란색 점선 */
-    cursor: pointer !important;
-    opacity: 1 !important; /* 체크박스 보이게 */
-    box-sizing: border-box !important;
-    width: 40px !important;
-    height: 40px !important;
-}
-
-.stCheckbox > div > div {
-    width: 40px !important;
-    height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background-color: transparent !important;
-}
-
-.result-text {
-    margin: 10px 0 !important;
-    padding: 10px !important;
-    border-left: 4px solid #36A2EB !important;
-    background-color: #f9f9f9 !important;
-}
-
-/* 반응형 디자인 */
-@media (max-width: 767px) {
-    div[data-testid="stHorizontalBlock"] {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 0px !important;
-        justify-content: flex-start !important;
-        margin-left: 0 !important;
-    }
-    .month-container:nth-child(2) div[data-testid="stHorizontalBlock"] {
-        gap: 0px !important;
-    }
-    .day {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        aspect-ratio: 1/1 !important;
-        line-height: 40px !important;
-        font-size: 1em !important;
-        margin: 0 !important;
-    }
-    .day.selected {
-        border: 2px solid #4444ff !important;
-        font-weight: bold !important;
-        background-color: #e6e6ff !important;
-    }
-    .stCheckbox {
-        width: 40px !important;
-        height: 40px !important;
-        margin: 0 5px !important;
-    }
-    .checkbox-container {
-        flex-direction: column !important;
-        align-items: center !important;
-    }
-}
-
-@media (min-width: 768px) {
-    div[data-testid="stHorizontalBlock"] {
-        max-width: 600px !important;
-        margin: 0 !important;
-        justify-content: flex-start !important;
-    }
-    .checkbox-container {
-        flex-direction: row !important;
-    }
-}
-
-.stMarkdown, .stText, .stHeader {
-    text-align: left !important;
-}
-
-@media (prefers-color-scheme: dark), [data-theme="dark"] {
-    .day-header {
-        color: #ddd !important;
-        background-color: #444 !important;
-    }
-    .day-header.sunday {
-        color: red !important;
-    }
-    .day-header.saturday {
-        color: blue !important;
-    }
-    .day {
-        background-color: #333 !important;
-        color: #ddd !important;
-        border-color: #888 !important;
-    }
-    .day:hover:not(.disabled) {
-        background-color: #444 !important;
-    }
-    .day:not(.disabled):hover::before {
-        background-color: #555 !important;
-        color: #fff !important;
-    }
-    .day.disabled {
-        background-color: #555 !important;
-        color: #888 !important;
-    }
-    .day.selected {
-        border: 2px solid #6666ff !important;
-        font-weight: bold !important;
-        background-color: #4a2a2a !important;
-    }
-    .day.current {
-        border-color: #6666ff !important;
-    }
-    .result-text {
-        background-color: #2a2a2a !important;
-        border-left-color: #4CAF50 !important;
-    }
-    .stCheckbox {
-        background-color: rgba(0, 0, 255, 0.3) !important;
-        border: 1px dashed #0000ff !important;
-    }
-}
-
-.day.disabled {
-    background-color: #e0e0e0 !important;
-    color: #888 !important;
-    cursor: not-allowed !important;
-}
-/* 기존 CSS 유지 */
-.day:not(.disabled):hover::before {
-    content: '클릭하여 선택' !important;
-    /* ... */
-}
-
-.stCheckbox {
-    margin: 0 5px !important;
-    /* ... */
+/* 빈칸 */
+.day.empty {
+  border: none;
+  background: none;
 }
