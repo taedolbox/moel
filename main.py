@@ -7,23 +7,6 @@ from app.remote_assignment import remote_assignment_app
 from app.wage_delay import wage_delay_app
 from app.unemployment_recognition import unemployment_recognition_app
 
-# app.questions 관련 import는 사이드바 검색 기능에 필요했으므로 제거합니다.
-# from app.questions import (
-#     get_employment_questions,
-#     get_self_employment_questions,
-#     get_remote_assignment_questions,
-#     get_wage_delay_questions,
-#     get_daily_worker_eligibility_questions
-# )
-
-# update_selected_menu 함수는 사이드바 라디오 버튼에 필요했으므로 제거합니다.
-# def update_selected_menu(filtered_menus, all_menus):
-#     selected_menu = st.session_state.menu_selector
-#     if selected_menu in filtered_menus:
-#         st.session_state.selected_menu = selected_menu
-#         menu_id = all_menus.index(selected_menu) + 1
-#         st.query_params["menu"] = str(menu_id)
-
 def main():
     st.set_page_config(
         page_title="실업급여 지원 시스템",
@@ -167,6 +150,9 @@ def main():
         key="main_menu_select_key", # 콜백 함수를 위한 키
         on_change=on_menu_change # 값 변경 시 on_change 콜백 함수 호출
     )
+
+    # --- 콤보박스와 아래 콘텐츠를 구분하는 시각적 구분선 추가 ---
+    st.markdown("---")
 
     # --- ★여기에 요청하신 공통 문구를 추가합니다 (모든 페이지에 고정)★ ---
     st.markdown(
