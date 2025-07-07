@@ -20,20 +20,20 @@ def main():
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         # static/styles.css 파일이 없을 경우를 대비하여 직접 CSS를 삽입합니다.
-        # 콤보박스 선택 영역의 배경색과 글씨색을 두 번째 이미지처럼 진하게 변경했습니다.
+        # 사용자가 제공한 Bmain.py의 콤보박스 선택 영역 디자인으로 변경했습니다.
         st.markdown("""
         <style>
         /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
         div[data-baseweb="select"] > div:first-child {
             border: 2px solid #2196F3 !important; /* 기존 테두리 유지 */
-            color: white !important;              /* 텍스트 색상을 흰색으로 변경 */
+            color: #2196F3 !important;            /* 텍스트 색상을 파란색으로 변경 */
             font-weight: 600 !important;
-            background-color: #2196F3 !important; /* 배경색을 진한 파랑으로 변경 */
+            background-color: #E3F2FD !important; /* 배경색을 밝은 파랑으로 변경 */
         }
 
         /* 콤보박스 내부 텍스트 (현재 선택된 값) */
         div[data-baseweb="select"] span {
-            color: white !important; /* 텍스트 색상을 흰색으로 변경 */
+            color: #2196F3 !important; /* 텍스트 색상을 파란색으로 변경 */
             font-weight: 600 !important;
         }
 
