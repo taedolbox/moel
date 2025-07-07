@@ -14,79 +14,136 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-        st.markdown("""
-        <style>
-        /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
-        div[data-baseweb="select"] > div:first-child {
-            border: 2px solid #2196F3 !important; /* 기존 테두리 유지 */
-            color: #2196F3 !important;            /* 텍스트 색상을 파란색으로 변경 */
-            font-weight: 600 !important;
-            background-color: #E3F2FD !important; /* 배경색을 밝은 파랑으로 변경 */
-        }
+    # 모든 CSS 스타일을 여기에 직접 삽입합니다.
+    # 콤보박스 디자인, 다크 모드, 달력 디자인이 모두 포함되어 있습니다.
+    st.markdown("""
+    <style>
+    /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
+    div[data-baseweb="select"] > div:first-child {
+        border: 2px solid #2196F3 !important; /* 기존 테두리 유지 */
+        color: #2196F3 !important;            /* 텍스트 색상을 파란색으로 변경 */
+        font-weight: 600 !important;
+        background-color: #E3F2FD !important; /* 배경색을 밝은 파랑으로 변경 */
+    }
 
-        /* 콤보박스 내부 텍스트 (현재 선택된 값) */
-        div[data-baseweb="select"] span {
-            color: #2196F3 !important; /* 텍스트 색상을 파란색으로 변경 */
-            font-weight: 600 !important;
-        }
+    /* 콤보박스 내부 텍스트 (현재 선택된 값) */
+    div[data-baseweb="select"] span {
+        color: #2196F3 !important; /* 텍스트 색상을 파란색으로 변경 */
+        font-weight: 600 !important;
+    }
 
-        /* 드롭다운 리스트 컨테이너 */
-        div[data-baseweb="popover"] {
-            z-index: 9999 !important; /* 다른 요소 위에 오도록 z-index 높임 */
-            background-color: #FFFFFF !important; /* 드롭다운 배경색 하얀색으로 명확하게 */
-            border: 1px solid #2196F3 !important; /* 테두리 추가 */
-            border-radius: 8px !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important; /* 그림자 추가 */
-        }
+    /* 드롭다운 리스트 컨테이너 */
+    div[data-baseweb="popover"] {
+        z-index: 9999 !important; /* 다른 요소 위에 오도록 z-index 높임 */
+        background-color: #FFFFFF !important; /* 드롭다운 배경색 하얀색으로 명확하게 */
+        border: 1px solid #2196F3 !important; /* 테두리 추가 */
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important; /* 그림자 추가 */
+    }
 
-        /* 드롭다운 리스트 항목 */
-        div[data-baseweb="select"] ul[role="listbox"] li {
-            color: #2196F3 !important;
-            font-weight: 600 !important;
-            padding: 10px 15px !important; /* 패딩 조정 */
-        }
+    /* 드롭다운 리스트 항목 */
+    div[data-baseweb="select"] ul[role="listbox"] li {
+        color: #2196F3 !important;
+        font-weight: 600 !important;
+        padding: 10px 15px !important; /* 패딩 조정 */
+    }
 
-        /* 드롭다운 리스트 항목 호버 시 */
-        div[data-baseweb="select"] ul[role="listbox"] li:hover {
-            background-color: #2196F3 !important;
-            color: white !important;
-        }
+    /* 드롭다운 리스트 항목 호버 시 */
+    div[data-baseweb="select"] ul[role="listbox"] li:hover {
+        background-color: #2196F3 !important;
+        color: white !important;
+    }
 
-        /* 스크롤바 스타일링 (선택 사항, 깔끔하게 보이게) */
-        div[data-baseweb="popover"]::-webkit-scrollbar {
-            width: 8px;
-        }
-        div[data-baseweb="popover"]::-webkit-scrollbar-thumb {
-            background-color: #bbdefb; /* 연한 파랑 */
-            border-radius: 4px;
-        }
-        div[data-baseweb="popover"]::-webkit-scrollbar-track {
-            background-color: #f1f1f1;
-        }
+    /* 스크롤바 스타일링 (선택 사항, 깔끔하게 보이게) */
+    div[data-baseweb="popover"]::-webkit-scrollbar {
+        width: 8px;
+    }
+    div[data-baseweb="popover"]::-webkit-scrollbar-thumb {
+        background-color: #bbdefb; /* 연한 파랑 */
+        border-radius: 4px;
+    }
+    div[data-baseweb="popover"]::-webkit-scrollbar-track {
+        background-color: #f1f1f1;
+    }
 
-        /* 다크 모드 스타일 (추가) */
-        html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
-            background-color: #31333F !important; /* 다크 모드 시 배경 */
-            color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
-            border: 2px solid #4B4B4B !important;
-        }
-        html[data-theme="dark"] div[data-baseweb="select"] span {
-            color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
-        }
-        html[data-theme="dark"] div[data-baseweb="popover"] {
-            background-color: #262730 !important;
-            border: 1px solid #4B4B4B !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-        }
-        html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
-            color: #FAFAFA !important;
-        }
-        html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
-            background-color: #45475A !important;
-            color: white !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    /* 다크 모드 스타일 */
+    html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
+        background-color: #31333F !important; /* 다크 모드 시 배경 */
+        color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
+        border: 2px solid #4B4B4B !important;
+    }
+    html[data-theme="dark"] div[data-baseweb="select"] span {
+        color: #FAFAFA !important; /* 다크 모드 시 텍스트 */
+    }
+    html[data-theme="dark"] div[data-baseweb="popover"] {
+        background-color: #262730 !important;
+        border: 1px solid #4B4B4B !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+    }
+    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
+        color: #FAFAFA !important;
+    }
+    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
+        background-color: #45475A !important;
+        color: white !important;
+    }
+
+    /* 달력 그리드 */
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        width: 100%;
+        background: #fff;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    /* 요일 헤더 */
+    .day-header {
+        aspect-ratio: 1/1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+    .day-header.sunday {
+        color: red;
+    }
+    .day-header.saturday {
+        color: blue;
+    }
+
+    /* 날짜 */
+    .day {
+        aspect-ratio: 1/1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .day.sunday {
+        color: red;
+    }
+    .day.saturday {
+        color: blue;
+    }
+
+    /* 빈칸 */
+    .day.empty {
+        border: none;
+        background: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 
     # 모든 메뉴 목록 (순서 중요)
