@@ -6,29 +6,23 @@ from app.early_reemployment import early_reemployment_app
 from app.remote_assignment import remote_assignment_app
 from app.wage_delay import wage_delay_app
 from app.unemployment_recognition import unemployment_recognition_app
-from app.questions import (
-    get_employment_questions,
-    get_self_employment_questions,
-    get_remote_assignment_questions,
-    get_wage_delay_questions,
-    get_daily_worker_eligibility_questions
-)
 
-def update_selected_menu(filtered_menus, all_menus):
-    """
-    사이드바 라디오 버튼 선택 시 세션 상태 및 쿼리 파라미터 업데이트
-    """
-    selected_menu = st.session_state.menu_selector
-    if selected_menu in filtered_menus:
-        st.session_state.selected_menu = selected_menu
-        # URL 쿼리 파라미터 업데이트 (메뉴 ID는 1부터 시작)
-        menu_id = all_menus.index(selected_menu) + 1
-        st.query_params["menu"] = str(menu_id)
-    else:
-        # 검색 등으로 인해 선택된 메뉴가 필터링된 목록에 없을 경우 처리
-        st.session_state.selected_menu = None
-        if "menu" in st.query_params:
-            del st.query_params["menu"]
+# app.questions 관련 import는 사이드바 검색 기능에 필요했으므로 제거합니다.
+# from app.questions import (
+#     get_employment_questions,
+#     get_self_employment_questions,
+#     get_remote_assignment_questions,
+#     get_wage_delay_questions,
+#     get_daily_worker_eligibility_questions
+# )
+
+# update_selected_menu 함수는 사이드바 라디오 버튼에 필요했으므로 제거합니다.
+# def update_selected_menu(filtered_menus, all_menus):
+#     selected_menu = st.session_state.menu_selector
+#     if selected_menu in filtered_menus:
+#         st.session_state.selected_menu = selected_menu
+#         menu_id = all_menus.index(selected_menu) + 1
+#         st.query_params["menu"] = str(menu_id)
 
 def main():
     st.set_page_config(
@@ -119,9 +113,8 @@ def main():
         """, unsafe_allow_html=True)
 
 
-    # 전체 메뉴 목록 (순서 중요)
-    # "메뉴 선택"을 포함하여 총 7개의 메뉴 항목을 콤보박스에 표시합니다.
-    all_menus = [
+    # 모든 메뉴 목록 (순서 중요)
+    menus = [
         "메뉴 선택", # 초기 화면을 위한 메뉴
         "임금 체불 판단",
         "원거리 발령 판단",
@@ -141,65 +134,41 @@ def main():
         "일용직(건설일용포함)": daily_worker_eligibility_app
     }
 
-    # 검색 기능 및 질문 데이터 (questions.py에 정의되어야 함)
-    all_questions = {
-        "임금 체불 판단": get_wage_delay_questions(),
-        "원거리 발령 판단": get_remote_assignment_questions(),
-        "실업인정": [], # 실업인정 관련 질문이 있다면 여기에 추가
-        "조기재취업수당": get_employment_questions() + get_self_employment_questions(),
-        "실업급여 신청 가능 시점": [], # 일반 실업급여 질문이 있다면 여기에 추가
-        "일용직(건설일용포함)": get_daily_worker_eligibility_questions()
-    }
+    # 1. 초기 메뉴 인덱스 결정 (URL 또는 세션 상태)
+    menu_param_from_url = st.query_params.get("menu", None)
 
-    # --- 사이드바 시작 ---
-    with st.sidebar:
-        st.markdown("### 🔍 검색")
-        search_query = st.text_input("메뉴 또는 질문을 검색하세요", key="search_query")
-
-        filtered_menus = all_menus
-        if search_query:
-            search_query = search_query.lower()
-            filtered_menus = [
-                menu for menu in all_menus
-                if search_query in menu.lower() or
-                any(search_query in q.lower() for q in all_questions.get(menu, []))
-            ]
-
-        # 세션 상태 초기화 및 URL 쿼리 파라미터 처리
-        if "selected_menu" not in st.session_state:
-            url_menu_id = st.query_params.get("menu", None)
-            default_menu = None
-            if url_menu_id and url_menu_id.isdigit():
-                try:
-                    menu_idx = int(url_menu_id) - 1
-                    if 0 <= menu_idx < len(all_menus):
-                        default_menu = all_menus[menu_idx]
-                except ValueError:
-                    pass
-            # URL 파라미터가 유효하면 해당 메뉴로, 아니면 필터링된 메뉴의 첫 번째 항목으로 설정
-            st.session_state.selected_menu = default_menu if default_menu in all_menus else (filtered_menus[0] if filtered_menus else None)
-
-        if filtered_menus:
-            # st.radio는 기본적으로 on_change를 통해 값을 즉시 업데이트하므로,
-            # 별도의 if selected_menu != st.session_state.selected_menu: 로직은 필요 없습니다.
-            st.radio(
-                "📋 메뉴", # 사이드바의 라디오 버튼 메뉴
-                filtered_menus,
-                index=filtered_menus.index(st.session_state.selected_menu)
-                if st.session_state.selected_menu in filtered_menus else 0, # 현재 선택된 메뉴가 필터링된 목록에 없으면 첫 항목 선택
-                key="menu_selector",
-                on_change=lambda: update_selected_menu(filtered_menus, all_menus) # 콜백 함수 호출
-            )
+    if "current_menu_idx" not in st.session_state:
+        if menu_param_from_url and menu_param_from_url.isdigit():
+            parsed_menu_idx = int(menu_param_from_url) - 1
+            if 0 <= parsed_menu_idx < len(menus):
+                st.session_state.current_menu_idx = parsed_menu_idx
+            else:
+                st.session_state.current_menu_idx = 0
         else:
-            st.warning("검색 결과에 해당하는 메뉴가 없습니다.")
-            st.session_state.selected_menu = None # 검색 결과 없으면 선택된 메뉴 초기화
+            st.session_state.current_menu_idx = 0
 
-        st.markdown("---")
-        st.markdown("[📌 고용센터 찾기](https://www.work24.go.kr/cm/c/d/0190/retrieveInstSrchLst.do)")
-    # --- 사이드바 끝 ---
+    # 2. st.selectbox에서 값 변경 시 세션 상태 및 URL 업데이트
+    def on_menu_change():
+        selected_menu_name = st.session_state.main_menu_select_key
+        st.session_state.current_menu_idx = menus.index(selected_menu_name)
+
+        if st.session_state.current_menu_idx == 0:
+            if "menu" in st.query_params:
+                del st.query_params["menu"] # "메뉴 선택" 시 URL 파라미터 제거
+        else:
+            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장 (사람에게 친숙한 1부터 시작)
+            st.query_params["menu"] = str(st.session_state.current_menu_idx + 1)
+
+    # 메인 화면에 메뉴 선택 콤보박스 배치
+    st.selectbox(
+        "📋 메뉴 선택",
+        menus,
+        index=st.session_state.current_menu_idx, # 현재 세션 상태의 인덱스 사용
+        key="main_menu_select_key", # 콜백 함수를 위한 키
+        on_change=on_menu_change # 값 변경 시 on_change 콜백 함수 호출
+    )
 
     # --- ★여기에 요청하신 공통 문구를 추가합니다 (모든 페이지에 고정)★ ---
-    # 사이드바 아래, 메인 콘텐츠 시작 부분에 고정적으로 표시됩니다.
     st.markdown(
         "<span style='font-size:22px; font-weight:600;'>🏗️ 조기재취업수당 요건 판단</span>",
         unsafe_allow_html=True
@@ -211,16 +180,19 @@ def main():
     st.markdown("---") # 공통 문구 아래 시각적 구분선 추가
     # --- 공통 문구 추가 종료 ---
 
-    # 선택된 메뉴에 따라 해당 함수 호출하여 내용 표시
-    if st.session_state.selected_menu == "메뉴 선택":
-        # "메뉴 선택" 시 보여줄 초기 화면 내용 (이전에 요청하셨던 상세 환영 메시지)
+    # 3. 세션 상태의 current_menu_idx에 따라 화면 출력
+    selected_idx = st.session_state.current_menu_idx
+    selected_menu_name = menus[selected_idx] # 현재 선택된 메뉴의 이름
+
+    if selected_idx == 0:
+        # "메뉴 선택" 시 보여줄 초기 화면 내용
         st.markdown(
             """
             <div style="padding: 20px; border-radius: 10px; background-color: #f0f8ff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                 <h3 style="color: #0d47a1; margin-bottom: 15px;">🌟 실업급여 지원 시스템에 오신 것을 환영합니다!</h3>
                 <p style="font-size: 16px; line-height: 1.6; color: #333333;">  이 시스템은 <b>실업급여 수급 자격</b> 및 <b>조기재취업수당</b>과 관련된 정보를 쉽고 빠르게 확인하실 수 있도록 돕습니다.
                     <br><br>
-                    궁금한 기능을 왼쪽에 있는 <b>'📋 메뉴' 라디오 버튼에서 선택</b>해 주세요.
+                    궁금한 기능을 위에 있는 <b>'📋 메뉴 선택' 콤보박스에서 선택</b>해 주세요.
                 </p>
                 <ul style="font-size: 15px; line-height: 1.8; margin-top: 15px; color: #333333;">
                     <li>🔹 <b>임금 체불 판단:</b> 임금 체불로 인한 이직 사유 가능성을 판단합니다.</li>
@@ -237,14 +209,13 @@ def main():
             """, unsafe_allow_html=True
         )
         st.markdown("---") # 또 다른 시각적 구분선
-    elif st.session_state.selected_menu:
-        # 선택된 메뉴에 해당하는 함수를 호출합니다.
-        menu_functions[st.session_state.selected_menu]()
     else:
-        # 메뉴가 선택되지 않았거나 검색 결과가 없는 경우의 기본 화면
-        # 이 경우는 '메뉴 선택' 초기 화면과 유사하게 처리하거나, 간략한 안내를 할 수 있습니다.
-        st.info("왼쪽 사이드바에서 메뉴를 선택하거나 검색어를 입력하세요.")
-
+        # 선택된 메뉴에 해당하는 함수 호출 (menu_functions 딕셔너리 사용)
+        if selected_menu_name in menu_functions:
+            menu_functions[selected_menu_name]()
+        else:
+            st.error("선택된 메뉴에 해당하는 페이지를 찾을 수 없습니다.")
+            st.info("다시 메뉴를 선택해주세요.")
 
 if __name__ == "__main__":
     main()
