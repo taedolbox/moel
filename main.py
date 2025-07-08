@@ -14,8 +14,7 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 모든 CSS 스타일을 여기에 직접 삽입합니다.
-    # 콤보박스 디자인, 다크 모드, 달력 디자인이 모두 포함되어 있습니다.
+    # 모든 CSS 스타일을 여기에 직접 삽입합니다. (이 부분은 변경 없음)
     st.markdown("""
     <style>
     /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
@@ -146,17 +145,6 @@ def main():
     """, unsafe_allow_html=True)
 
 
-    # 모든 메뉴 목록 (순서 중요)
-    menus = [
-        "메뉴 선택", # 초기 화면을 위한 메뉴
-        "임금 체불 판단",
-        "원거리 발령 판단",
-        "실업인정",
-        "조기재취업수당",
-        "실업급여 신청 가능 시점",
-        "일용직(건설일용포함)"
-    ]
-
     # 각 메뉴에 연결될 함수 매핑
     menu_functions = {
         "임금 체불 판단": wage_delay_app,
@@ -166,6 +154,20 @@ def main():
         "실업급여 신청 가능 시점": lambda: st.info("이곳은 일반 실업급여 신청 가능 시점 안내 페이지입니다. 관련 기능이 구현되면 이곳에 표시됩니다."),
         "일용직(건설일용포함)": daily_worker_eligibility_app
     }
+
+    # ★ 변경된 부분: 메뉴와 표시될 제목을 한 곳에서 관리 ★
+    # '메뉴 선택'은 첫 번째 항목이므로 별도로 처리합니다.
+    menu_display_names = {
+        "임금 체불 판단": "💸 임금 체불 판단",
+        "원거리 발령 판단": "📍 원거리 발령 판단",
+        "실업인정": "📄 실업인정",
+        "조기재취업수당": "🏗️ 조기재취업수당 요건 판단",
+        "실업급여 신청 가능 시점": "⏰ 실업급여 신청 가능 시점",
+        "일용직(건설일용포함)": "🚧 일용직(건설일용포함) 실업급여"
+    }
+
+    # 모든 메뉴 목록 (순서 중요) - menu_display_names의 키를 사용하여 생성
+    menus = ["메뉴 선택"] + list(menu_display_names.keys())
 
     # 1. 초기 메뉴 인덱스 결정 (URL 또는 세션 상태)
     menu_param_from_url = st.query_params.get("menu", None)
@@ -208,10 +210,11 @@ def main():
     selected_idx = st.session_state.current_menu_idx
     selected_menu_name = menus[selected_idx] # 현재 선택된 메뉴의 이름
 
-    # --- ★여기에 요청하신 공통 문구를 조건부로 추가합니다 (선택된 메뉴에 따라 다르게)★ ---
+    # --- ★ 변경된 부분: 공통 문구를 조건부로 추가 (선택된 메뉴에 따라 다르게) ★ ---
     if selected_idx != 0: # "메뉴 선택"이 아닐 때만 제목과 주의사항 표시
-        # 메뉴 이름 앞에 고정 아이콘 🏗️을 추가
-        display_title = f"🏗️ {selected_menu_name}"
+        # menu_display_names 딕셔너리에서 해당 메뉴의 표시 제목을 가져옴
+        # 만약 정의되지 않은 메뉴가 있다면, 그냥 메뉴 이름만 사용
+        display_title = menu_display_names.get(selected_menu_name, f"🏗️ {selected_menu_name}")
 
         st.markdown(
             f"<span style='font-size:22px; font-weight:600;'>{display_title}</span>",
