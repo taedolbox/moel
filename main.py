@@ -204,21 +204,39 @@ def main():
     # --- 콤보박스와 아래 콘텐츠를 구분하는 시각적 구분선 추가 ---
     st.markdown("---")
 
-    # --- ★여기에 요청하신 공통 문구를 추가합니다 (모든 페이지에 고정)★ ---
-    st.markdown(
-        "<span style='font-size:22px; font-weight:600;'>🏗️ 조기재취업수당 요건 판단</span>",
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        "<p style='font-size:18px; font-weight:700; margin-bottom:10px;'>ⓘ 실업급여 도우미는 참고용입니다. 실제 가능 여부는 고용센터 판단을 따릅니다.</p>",
-        unsafe_allow_html=True
-    )
-    st.markdown("---") # 공통 문구 아래 시각적 구분선 추가
-    # --- 공통 문구 추가 종료 ---
-
     # 3. 세션 상태의 current_menu_idx에 따라 화면 출력
     selected_idx = st.session_state.current_menu_idx
     selected_menu_name = menus[selected_idx] # 현재 선택된 메뉴의 이름
+
+    # --- ★여기에 요청하신 공통 문구를 조건부로 추가합니다 (선택된 메뉴에 따라 다르게)★ ---
+    if selected_idx != 0: # "메뉴 선택"이 아닐 때만 제목과 주의사항 표시
+        # 메뉴 이름에 따라 동적으로 타이틀 변경
+        display_title = selected_menu_name
+        if selected_menu_name == "조기재취업수당":
+            display_title = "🏗️ 조기재취업수당 요건 판단" # 조기재취업수당은 기존 타이틀 유지
+        elif selected_menu_name == "임금 체불 판단":
+            display_title = "💸 임금 체불 판단"
+        elif selected_menu_name == "원거리 발령 판단":
+            display_title = "📍 원거리 발령 판단"
+        elif selected_menu_name == "실업인정":
+            display_title = "📄 실업인정"
+        elif selected_menu_name == "실업급여 신청 가능 시점":
+            display_title = "⏰ 실업급여 신청 가능 시점"
+        elif selected_menu_name == "일용직(건설일용포함)":
+            display_title = "🚧 일용직(건설일용포함) 실업급여"
+
+
+        st.markdown(
+            f"<span style='font-size:22px; font-weight:600;'>{display_title}</span>",
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            "<p style='font-size:18px; font-weight:700; margin-bottom:10px;'>ⓘ 실업급여 도우미는 참고용입니다. 실제 가능 여부는 고용센터 판단을 따릅니다.</p>",
+            unsafe_allow_html=True
+        )
+        st.markdown("---") # 공통 문구 아래 시각적 구분선 추가
+    # --- 공통 문구 추가 종료 ---
+
 
     if selected_idx == 0:
         # "메뉴 선택" 시 보여줄 초기 화면 내용
