@@ -2,7 +2,7 @@ import streamlit as st
 from app.questions import get_remote_assignment_questions
 
 def remote_assignment_app():
-    st.subheader("🟠 원거리 발령에 따른 판단")
+#    st.subheader("🟠 원거리 발령에 따른 판단")
     questions = get_remote_assignment_questions()
 
     if "remote_step" not in st.session_state:
