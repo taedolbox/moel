@@ -26,19 +26,50 @@ def main():
     /* 상단 중앙에 "실업급여 도우미" 텍스트 추가 */
     .custom-header {
         position: fixed;
-        top: 15px;
+        top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 700;
         color: #2196F3;
         text-align: center;
-        z-index: 9999; /* 다른 요소 위에 표시되도록 높게 설정 */
-        background-color: rgba(255, 255, 255, 0.9); /* 배경 추가로 가독성 확보 */
-        padding: 5px 15px;
-        border-radius: 5px;
+        z-index: 10000; /* 매우 높은 z-index로 다른 요소 위에 표시 */
+        background-color: rgba(255, 255, 255, 0.95); /* 가독성 위한 배경 */
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: 1px solid #2196F3; /* 테두리 추가로 시각적 확인 */
         width: auto;
-        min-width: 200px; /* 텍스트가 너무 좁게 보이지 않도록 */
+        min-width: 220px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* iframe 환경에서 작동하지 않을 경우 대안 */
+    /* .custom-header {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 22px;
+        font-weight: 700;
+        color: #2196F3;
+        text-align: center;
+        z-index: 10000;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: 1px solid #2196F3;
+        width: auto;
+        min-width: 220px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    } */
+
+    /* 반응형 디자인: 모바일 화면 조정 */
+    @media (max-width: 768px) {
+        .custom-header {
+            font-size: 18px;
+            min-width: 180px;
+            padding: 6px 15px;
+        }
     }
 
     /* 기존 스타일 유지 */
@@ -58,7 +89,7 @@ def main():
 
     /* 드롭다운 리스트 컨테이너 */
     div[data-baseweb="popover"] {
-        z-index: 9998 !important; /* custom-header 아래에 위치하도록 */
+        z-index: 9999 !important; /* custom-header 아래에 위치 */
         background-color: #FFFFFF !important;
         border: 1px solid #2196F3 !important;
         border-radius: 8px !important;
@@ -93,7 +124,8 @@ def main():
     /* 다크 모드 스타일 */
     html[data-theme="dark"] .custom-header {
         color: #FAFAFA !important;
-        background-color: rgba(50, 50, 50, 0.9) !important; /* 다크 모드 배경 */
+        background-color: rgba(50, 50, 50, 0.95) !important;
+        border: 1px solid #4B4B4B !important;
     }
     html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
         background-color: #31333F !important;
@@ -172,6 +204,12 @@ def main():
     }
     </style>
     <div class="custom-header">실업급여 도우미</div>
+    <script>
+        console.log("Custom header element:", document.querySelector(".custom-header"));
+        if (!document.querySelector(".custom-header")) {
+            console.error("Custom header not found in DOM");
+        }
+    </script>
     """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
