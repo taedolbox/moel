@@ -17,6 +17,7 @@ def main():
         st.markdown("""
         <link rel="stylesheet" href="/static/styles.css">
         <div class="custom-header">실업급여 도우미</div>
+        <script src="/static/debug.js"></script>
         """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
