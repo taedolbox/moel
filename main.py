@@ -12,7 +12,7 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 모든 CSS 스타일 (오른쪽 상단 메뉴 숨기기 및 "실업급여 도우미" 텍스트 중앙 정렬)
+    # 모든 CSS 스타일 및 디버깅 스크립트
     st.markdown("""
     <style>
     /* 오른쪽 상단 메뉴(햄버거 메뉴) 숨기기 */
@@ -23,68 +23,71 @@ def main():
         display: none !important;
     }
 
-    /* 상단 중앙에 "실업급여 도우미" 텍스트 추가 */
+    /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
     .custom-header {
         position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 10px;
+        right: 20px;
         font-size: 22px;
         font-weight: 700;
         color: #2196F3;
         text-align: center;
-        z-index: 10000; /* 매우 높은 z-index로 다른 요소 위에 표시 */
-        background-color: rgba(255, 255, 255, 0.95); /* 가독성 위한 배경 */
-        padding: 8px 20px;
-        border-radius: 6px;
-        border: 1px solid #2196F3; /* 테두리 추가로 시각적 확인 */
-        width: auto;
-        min-width: 220px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    /* iframe 환경에서 작동하지 않을 경우 대안 */
-    /* .custom-header {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 22px;
-        font-weight: 700;
-        color: #2196F3;
-        text-align: center;
-        z-index: 10000;
+        z-index: 1000000; /* 극단적으로 높은 z-index */
         background-color: rgba(255, 255, 255, 0.95);
         padding: 8px 20px;
         border-radius: 6px;
-        border: 1px solid #2196F3;
+        border: 2px solid #2196F3;
         width: auto;
         min-width: 220px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        visibility: visible !important;
+        display: block !important;
+    }
+
+    /* iframe 환경 대안 */
+    /* .custom-header {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #2196F3;
+        text-align: center;
+        z-index: 1000000;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: 2px solid #2196F3;
+        width: auto;
+        min-width: 220px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        visibility: visible !important;
+        display: block !important;
     } */
 
-    /* 반응형 디자인: 모바일 화면 조정 */
+    /* 반응형 디자인: 모바일 화면 */
     @media (max-width: 768px) {
         .custom-header {
             font-size: 18px;
             min-width: 180px;
             padding: 6px 15px;
+            right: 10px;
+            top: 15px;
         }
     }
 
-    /* 기존 스타일 유지 */
+    /* Streamlit 메인 컨테이너 조정 (겹침 방지) */
+    div[data-testid="stAppViewContainer"] {
+        z-index: 1 !important;
+    }
+
     /* 콤보박스 선택 영역 */
     div[data-baseweb="select"] > div:first-child {
         border: 2px solid #2196F3 !important;
         color: #2196F3 !important;
         font-weight: 600 !important;
         background-color: #E3F2FD !important;
-    }
-
-    /* 콤보박스 내부 텍스트 */
-    div[data-baseweb="select"] span {
-        color: #2196F3 !important;
-        font-weight: 600 !important;
+        z-index: 2 !important;
     }
 
     /* 드롭다운 리스트 컨테이너 */
@@ -125,7 +128,7 @@ def main():
     html[data-theme="dark"] .custom-header {
         color: #FAFAFA !important;
         background-color: rgba(50, 50, 50, 0.95) !important;
-        border: 1px solid #4B4B4B !important;
+        border: 2px solid #4B4B4B !important;
     }
     html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
         background-color: #31333F !important;
@@ -208,6 +211,10 @@ def main():
         console.log("Custom header element:", document.querySelector(".custom-header"));
         if (!document.querySelector(".custom-header")) {
             console.error("Custom header not found in DOM");
+        } else {
+            const header = document.querySelector(".custom-header");
+            console.log("Custom header styles:", getComputedStyle(header));
+            console.log("Custom header position:", header.getBoundingClientRect());
         }
     </script>
     """, unsafe_allow_html=True)
