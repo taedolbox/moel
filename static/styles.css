@@ -4,12 +4,12 @@
 }
 
 /* Streamlit 헤더, 툴바, Manage app 버튼 숨기기 */
-.stAppHeader, [class*="stAppHeader"], [data-testid*="Header"],
-[data-testid*="Toolbar"], [data-testid*="MainMenu"],
-.stToolbarActions, .stMainMenu, [class*="stToolbar"], [class*="stMainMenu"],
-[class*="st-emotion-cache"], [data-testid*="st"], header, nav,
-[role="navigation"], [class*="StyledHeader"], [class*="StyledToolbar"],
-.stAppDeployButton, [data-testid="stAppDeployButton"] {
+.stAppHeader, [class*="stAppHeader"], [data-testid="stHeader"],
+[data-testid="stToolbar"], [data-testid="stToolbarActions"],
+[data-testid="stMainMenu"], .stToolbarActions, .stMainMenu,
+.stAppDeployButton, [data-testid="stAppDeployButton"],
+[class*="st-emotion-cache"], [data-testid*="st"],
+header, nav, [role="navigation"] {
     display: none !important;
     visibility: hidden !important;
 }
@@ -17,19 +17,17 @@
 /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
 .custom-header {
     position: fixed;
-    top: 0;
-    right: 0;
+    top: 10px;
+    right: 20px;
     font-size: 22px;
     font-weight: 700;
     color: #2196F3;
     text-align: center;
-    z-index: 40000000;
+    z-index: 3000000; /* 극단적으로 높은 z-index */
     background-color: rgba(255, 255, 255, 0.95);
     padding: 8px 20px;
-    border-radius: 0 0 0 6px;
+    border-radius: 6px;
     border: 2px solid #2196F3;
-    border-top: none;
-    border-right: none;
     width: auto;
     min-width: 220px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -37,12 +35,35 @@
     display: block !important;
 }
 
+/* iframe 환경 대안 (필요시 주석 해제) */
+/* .custom-header {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2196F3;
+    text-align: center;
+    z-index: 3000000;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: 2px solid #2196F3;
+    width: auto;
+    min-width: 220px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    visibility: visible !important;
+    display: block !important;
+} */
+
 /* 반응형 디자인: 모바일 화면 */
 @media (max-width: 768px) {
     .custom-header {
         font-size: 18px;
         min-width: 180px;
         padding: 6px 15px;
+        right: 10px;
+        top: 15px;
     }
 }
 
@@ -52,13 +73,11 @@ div[data-testid="stAppViewContainer"] {
 }
 
 /* 콤보박스 선택 영역 */
+div[data-baseweb="select"] > div:first-child,
 [data-testid="stSelectbox"], [data-testid="stSelectbox"] > div,
-div[data-baseweb="select"], div[data-baseweb="select"] > div,
 [data-testid="stSelectbox"] [role="combobox"],
 [class*="st-emotion-cache"][data-testid="stSelectbox"],
-[class*="st-emotion-cache"] [role="combobox"],
-[class*="StyledSelect"], [class*="stSelectbox"],
-[data-testid="stSelectbox"] div[class*="st-emotion-cache"] {
+[class*="st-emotion-cache"] [role="combobox"] {
     border: 2px solid #2196F3 !important;
     color: #2196F3 !important;
     font-weight: 600 !important;
@@ -69,17 +88,15 @@ div[data-baseweb="select"], div[data-baseweb="select"] > div,
 }
 
 /* 콤보박스 내부 텍스트 */
-[data-testid="stSelectbox"] span, div[data-baseweb="select"] span,
-[class*="st-emotion-cache"] span, [class*="StyledSelect"] span,
-[data-testid="stSelectbox"] div[class*="st-emotion-cache"] span {
+div[data-baseweb="select"] span, [data-testid="stSelectbox"] span,
+[class*="st-emotion-cache"] span {
     color: #2196F3 !important;
     font-weight: 600 !important;
 }
 
 /* 드롭다운 리스트 컨테이너 */
-div[data-baseweb="popover"], [class*="st-emotion-cache"][data-baseweb="popover"],
-[class*="StyledPopover"] {
-    z-index: 9999 !important;
+div[data-baseweb="popover"], [class*="st-emotion-cache"][data-baseweb="popover"] {
+    z-index: 9999 !important; /* custom-header 아래에 위치 */
     background-color: #FFFFFF !important;
     border: 1px solid #2196F3 !important;
     border-radius: 8px !important;
@@ -88,8 +105,7 @@ div[data-baseweb="popover"], [class*="st-emotion-cache"][data-baseweb="popover"]
 
 /* 드롭다운 리스트 항목 */
 div[data-baseweb="select"] ul[role="listbox"] li,
-[class*="st-emotion-cache"] ul[role="listbox"] li,
-[class*="StyledSelect"] ul[role="listbox"] li {
+[class*="st-emotion-cache"] ul[role="listbox"] li {
     color: #2196F3 !important;
     font-weight: 600 !important;
     padding: 10px 15px !important;
@@ -97,8 +113,7 @@ div[data-baseweb="select"] ul[role="listbox"] li,
 
 /* 드롭다운 리스트 항목 호버 시 */
 div[data-baseweb="select"] ul[role="listbox"] li:hover,
-[class*="st-emotion-cache"] ul[role="listbox"] li:hover,
-[class*="StyledSelect"] ul[role="listbox"] li:hover {
+[class*="st-emotion-cache"] ul[role="listbox"] li:hover {
     background-color: #2196F3 !important;
     color: white !important;
 }
@@ -123,44 +138,34 @@ html[data-theme="dark"] .custom-header {
     color: #FAFAFA !important;
     background-color: rgba(50, 50, 50, 0.95) !important;
     border: 2px solid #4B4B4B !important;
-    border-top: none;
-    border-right: none;
 }
+html[data-theme="dark"] div[data-baseweb="select"] > div:first-child,
 html[data-theme="dark"] [data-testid="stSelectbox"],
 html[data-theme="dark"] [data-testid="stSelectbox"] > div,
-html[data-theme="dark"] div[data-baseweb="select"],
-html[data-theme="dark"] div[data-baseweb="select"] > div,
 html[data-theme="dark"] [data-testid="stSelectbox"] [role="combobox"],
 html[data-theme="dark"] [class*="st-emotion-cache"][data-testid="stSelectbox"],
-html[data-theme="dark"] [class*="st-emotion-cache"] [role="combobox"],
-html[data-theme="dark"] [class*="StyledSelect"],
-html[data-theme="dark"] [data-testid="stSelectbox"] div[class*="st-emotion-cache"] {
+html[data-theme="dark"] [class*="st-emotion-cache"] [role="combobox"] {
     background-color: #31333F !important;
     color: #FAFAFA !important;
     border: 2px solid #4B4B4B !important;
 }
-html[data-theme="dark"] [data-testid="stSelectbox"] span,
 html[data-theme="dark"] div[data-baseweb="select"] span,
-html[data-theme="dark"] [class*="st-emotion-cache"] span,
-html[data-theme="dark"] [class*="StyledSelect"] span,
-html[data-theme="dark"] [data-testid="stSelectbox"] div[class*="st-emotion-cache"] span {
+html[data-theme="dark"] [data-testid="stSelectbox"] span,
+html[data-theme="dark"] [class*="st-emotion-cache"] span {
     color: #FAFAFA !important;
 }
 html[data-theme="dark"] div[data-baseweb="popover"],
-html[data-theme="dark"] [class*="st-emotion-cache"][data-baseweb="popover"],
-html[data-theme="dark"] [class*="StyledPopover"] {
+html[data-theme="dark"] [class*="st-emotion-cache"][data-baseweb="popover"] {
     background-color: #262730 !important;
     border: 1px solid #4B4B4B !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
 }
 html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li,
-html[data-theme="dark"] [class*="st-emotion-cache"] ul[role="listbox"] li,
-html[data-theme="dark"] [class*="StyledSelect"] ul[role="listbox"] li {
+html[data-theme="dark"] [class*="st-emotion-cache"] ul[role="listbox"] li {
     color: #FAFAFA !important;
 }
 html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover,
-html[data-theme="dark"] [class*="st-emotion-cache"] ul[role="listbox"] li:hover,
-html[data-theme="dark"] [class*="StyledSelect"] ul[role="listbox"] li:hover {
+html[data-theme="dark"] [class*="st-emotion-cache"] ul[role="listbox"] li:hover {
     background-color: #45475A !important;
     color: white !important;
 }
@@ -170,7 +175,8 @@ html[data-theme="dark"] [class*="StyledSelect"] ul[role="listbox"] li:hover {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
-    width: 100%;
+    width: Ideal Response:
+100%;
     background: #fff;
     padding: 10px;
     border-radius: 8px;
