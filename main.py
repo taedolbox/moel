@@ -12,7 +12,7 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 모든 CSS 스타일 (오른쪽 상단 메뉴 숨기기 및 "실업급여 도우미" 텍스트 추가)
+    # 모든 CSS 스타일 (오른쪽 상단 메뉴 숨기기 및 "실업급여 도우미" 텍스트 중앙 정렬)
     st.markdown("""
     <style>
     /* 오른쪽 상단 메뉴(햄버거 메뉴) 숨기기 */
@@ -23,11 +23,12 @@ def main():
         display: none !important;
     }
 
-    /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
+    /* 상단 중앙에 "실업급여 도우미" 텍스트 추가 */
     .custom-header {
-        position: absolute;
+        position: fixed;
         top: 10px;
-        right: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         font-size: 18px;
         font-weight: 600;
         color: #2196F3;
@@ -104,7 +105,7 @@ def main():
     html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
         color: #FAFAFA !important;
     }
-    html[data-baseweb="select"] ul[role="listbox"] li:hover {
+    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
         background-color: #45475A !important;
         color: white !important;
     }
