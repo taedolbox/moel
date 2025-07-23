@@ -12,20 +12,31 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 모든 CSS 스타일 (오른쪽 상단 메뉴 숨기기 추가)
+    # 모든 CSS 스타일 (오른쪽 상단 메뉴 숨기기 및 "실업급여 도우미" 텍스트 추가)
     st.markdown("""
     <style>
     /* 오른쪽 상단 메뉴(햄버거 메뉴) 숨기기 */
     [data-testid="stToolbar"] {
         display: none !important;
     }
-    /* 오른쪽 상단 메뉴 버튼(햄버거 아이콘) 숨기기 */
     [data-testid="stToolbarActions"] {
         display: none !important;
     }
 
+    /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
+    .custom-header {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #2196F3;
+        text-align: center;
+        z-index: 1000;
+    }
+
     /* 기존 스타일 유지 */
-    /* 콤보박스 선택 영역 (현재 선택된 값 표시되는 부분) */
+    /* 콤보박스 선택 영역 */
     div[data-baseweb="select"] > div:first-child {
         border: 2px solid #2196F3 !important;
         color: #2196F3 !important;
@@ -33,7 +44,7 @@ def main():
         background-color: #E3F2FD !important;
     }
 
-    /* 콤보박스 내부 텍스트 (현재 선택된 값) */
+    /* 콤보박스 내부 텍스트 */
     div[data-baseweb="select"] span {
         color: #2196F3 !important;
         font-weight: 600 !important;
@@ -74,6 +85,9 @@ def main():
     }
 
     /* 다크 모드 스타일 */
+    html[data-theme="dark"] .custom-header {
+        color: #FAFAFA !important;
+    }
     html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
         background-color: #31333F !important;
         color: #FAFAFA !important;
@@ -90,7 +104,7 @@ def main():
     html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
         color: #FAFAFA !important;
     }
-    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
+    html[data-baseweb="select"] ul[role="listbox"] li:hover {
         background-color: #45475A !important;
         color: white !important;
     }
@@ -150,6 +164,7 @@ def main():
         background: none;
     }
     </style>
+    <div class="custom-header">실업급여 도우미</div>
     """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
@@ -192,7 +207,7 @@ def main():
             if "menu" in st.query_params:
                 del st.query_params["menu"] # "메뉴 선택" 시 URL 파라미터 제거
         else:
-            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장 (사람에게 친숙한 1부터 시작)
+            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장 (사람에게 친화적인 1부터 시작)
             st.query_params["menu"] = str(st.session_state.current_menu_idx + 1)
 
     # 메인 화면에 메뉴 선택 콤보박스 배치
