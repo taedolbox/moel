@@ -5,12 +5,41 @@ function hideElements(selector, context) {
     });
 }
 
+function applySelectboxStyles(context) {
+    const selectBoxes = context.querySelectorAll(
+        "[data-testid='stSelectbox'], [data-testid='stSelectbox'] > div, " +
+        "div[data-baseweb='select'], div[data-baseweb='select'] > div, " +
+        "[data-testid='stSelectbox'] [role='combobox'], " +
+        "[class*='st-emotion-cache'][data-testid='stSelectbox'], " +
+        "[class*='st-emotion-cache'] [role='combobox']"
+    );
+    selectBoxes.forEach(el => {
+        el.style.border = "2px solid #2196F3";
+        el.style.color = "#2196F3";
+        el.style.backgroundColor = "#E3F2FD";
+        el.style.fontWeight = "600";
+        el.style.borderRadius = "4px";
+        el.style.zIndex = "2";
+        console.log("Applied styles to selectbox:", el);
+    });
+
+    const selectSpans = context.querySelectorAll(
+        "[data-testid='stSelectbox'] span, div[data-baseweb='select'] span, " +
+        "[class*='st-emotion-cache'] span"
+    );
+    selectSpans.forEach(span => {
+        span.style.color = "#2196F3";
+        span.style.fontWeight = "600";
+        console.log("Applied styles to selectbox span:", span);
+    });
+}
+
 function debugElements() {
     // 현재 문서, 부모 문서, 최상위 문서 검사
     const contexts = [document, window.parent?.document, window.top?.document].filter(ctx => ctx);
     contexts.forEach(ctx => {
         console.log("Inspecting context:", ctx === document ? "current" : ctx === window.parent?.document ? "parent" : "top");
-        
+
         // Custom header
         const customHeader = ctx.querySelector(".custom-header");
         if (customHeader) {
@@ -32,7 +61,11 @@ function debugElements() {
             "[class*='stMainMenu']",
             "[class*='st-emotion-cache'][data-testid*='Header']",
             "[class*='st-emotion-cache'][data-testid*='Toolbar']",
-            "[class*='st-emotion-cache'][data-testid*='MainMenu']"
+            "[class*='st-emotion-cache'][data-testid*='MainMenu']",
+            "[data-testid*='st']",
+            "header[data-testid]",
+            "div[data-testid*='Toolbar']",
+            "div[data-testid*='MainMenu']"
         ];
 
         selectors.forEach(selector => {
@@ -46,7 +79,8 @@ function debugElements() {
             }
         });
 
-        // 콤보박스 스타일 확인
+        // 콤보박스 스타일 적용 및 확인
+        applySelectboxStyles(ctx);
         const selectBox = ctx.querySelector("[data-testid='stSelectbox']");
         if (selectBox) {
             console.log("Selectbox found:", selectBox);
@@ -55,8 +89,12 @@ function debugElements() {
             console.error("Selectbox not found in context");
         }
     });
+
+    // Streamlit 버전 및 iframe 정보
+    console.log("Streamlit version:", window.Streamlit ? window.Streamlit.version : "Unknown");
+    console.log("Is in iframe:", window.self !== window.top);
 }
 
-// DOM 로드 후 실행
+// DOM 로드 후 실행 및 주기적 실행
 document.addEventListener("DOMContentLoaded", debugElements);
-setTimeout(debugElements, 1000); // 지연 실행으로 동적 로드 대응
+setInterval(debugElements, 1000); // 동적 로드 대응
