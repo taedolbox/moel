@@ -9,7 +9,7 @@ def main():
     st.set_page_config(
         page_title="실업급여 지원 시스템",
         page_icon="💼",
-        layout="centered" # 페이지 내용을 중앙에 정렬
+        layout="centered"
     )
 
     # CSS와 JavaScript 로드
@@ -57,9 +57,8 @@ def main():
 
         if st.session_state.current_menu_idx == 0:
             if "menu" in st.query_params:
-                del st.query_params["menu"] # "메뉴 선택" 시 URL 파라미터 제거
+                del st.query_params["menu"]
         else:
-            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장
             st.query_params["menu"] = str(st.session_state.current_menu_idx + 1)
 
     # 메인 화면에 메뉴 선택 콤보박스 배치
