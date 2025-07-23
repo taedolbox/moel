@@ -1,4 +1,5 @@
 import streamlit as st
+import os # os 모듈 임포트
 
 # 필요한 앱 함수들만 임포트
 from app.daily_worker_eligibility import daily_worker_eligibility_app
@@ -7,7 +8,11 @@ from app.unemployment_recognition import unemployment_recognition_app
 
 def load_css(file_name):
     """CSS 파일을 읽어 Streamlit에 적용합니다."""
-    with open(file_name) as f:
+    # os.path.join을 사용하여 OS에 독립적인 경로를 생성하는 것이 좋습니다.
+    # 현재 스크립트의 디렉토리를 기준으로 경로를 찾습니다.
+    current_dir = os.path.dirname(__file__)
+    css_path = os.path.join(current_dir, file_name) # 'static/styles.css'로 변경
+    with open(css_path) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 def main():
@@ -17,13 +22,15 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 외부 CSS 파일 로드
-    load_css('style.css')
+    # 외부 CSS 파일 로드 (경로 수정: 'static/styles.css')
+    load_css('static/styles.css')
 
     # 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 (CSS로 스타일링됨)
     st.markdown('<div class="custom-header">실업급여 도우미</div>', unsafe_allow_html=True)
 
     # 디버깅 스크립트 (개발 환경에서만 필요하며, 배포 시 제거 가능)
+    # debug.js 파일이 있다면 유사하게 로드할 수 있습니다.
+    # st.markdown("""<script src="static/debug.js"></script>""", unsafe_allow_html=True)
     st.markdown("""
     <script>
         console.log("Custom header element:", document.querySelector(".custom-header"));
@@ -48,6 +55,7 @@ def main():
         }
     </script>
     """, unsafe_allow_html=True)
+
 
     # 각 메뉴에 연결될 함수 매핑
     menu_functions = {
