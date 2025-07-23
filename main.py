@@ -12,222 +12,11 @@ def main():
         layout="centered" # 페이지 내용을 중앙에 정렬
     )
 
-    # 모든 CSS 스타일 및 디버깅 스크립트
+    # CSS와 JavaScript 로드
     st.markdown("""
-    <style>
-    /* Streamlit 헤더 및 툴바 완전 숨기기 */
-    .stAppHeader, [class*="stAppHeader"], [data-testid="stHeader"],
-    [data-testid="stToolbar"], [data-testid="stToolbarActions"],
-    [data-testid="stMainMenu"], .stToolbarActions, .stMainMenu {
-        display: none !important;
-    }
-
-    /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
-    .custom-header {
-        position: fixed;
-        top: 10px;
-        right: 20px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #2196F3;
-        text-align: center;
-        z-index: 3000000; /* 극단적으로 높은 z-index */
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 8px 20px;
-        border-radius: 6px;
-        border: 2px solid #2196F3;
-        width: auto;
-        min-width: 220px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        visibility: visible !important;
-        display: block !important;
-    }
-
-    /* iframe 환경 대안 */
-    /* .custom-header {
-        position: absolute;
-        top: 10px;
-        right: 20px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #2196F3;
-        text-align: center;
-        z-index: 3000000;
-        background-color: rgba(255, 255, 255, 0.95);
-        padding: 8px 20px;
-        border-radius: 6px;
-        border: 2px solid #2196F3;
-        width: auto;
-        min-width: 220px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        visibility: visible !important;
-        display: block !important;
-    } */
-
-    /* 반응형 디자인: 모바일 화면 */
-    @media (max-width: 768px) {
-        .custom-header {
-            font-size: 18px;
-            min-width: 180px;
-            padding: 6px 15px;
-            right: 10px;
-            top: 15px;
-        }
-    }
-
-    /* Streamlit 메인 컨테이너 z-index 조정 */
-    div[data-testid="stAppViewContainer"] {
-        z-index: 1 !important;
-    }
-
-    /* 콤보박스 선택 영역 */
-    div[data-baseweb="select"] > div:first-child {
-        border: 2px solid #2196F3 !important;
-        color: #2196F3 !important;
-        font-weight: 600 !important;
-        background-color: #E3F2FD !important;
-        z-index: 2 !important;
-    }
-
-    /* 드롭다운 리스트 컨테이너 */
-    div[data-baseweb="popover"] {
-        z-index: 9999 !important; /* custom-header 아래에 위치 */
-        background-color: #FFFFFF !important;
-        border: 1px solid #2196F3 !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    }
-
-    /* 드롭다운 리스트 항목 */
-    div[data-baseweb="select"] ul[role="listbox"] li {
-        color: #2196F3 !important;
-        font-weight: 600 !important;
-        padding: 10px 15px !important;
-    }
-
-    /* 드롭다운 리스트 항목 호버 시 */
-    div[data-baseweb="select"] ul[role="listbox"] li:hover {
-        background-color: #2196F3 !important;
-        color: white !important;
-    }
-
-    /* 스크롤바 스타일링 */
-    div[data-baseweb="popover"]::-webkit-scrollbar {
-        width: 8px;
-    }
-    div[data-baseweb="popover"]::-webkit-scrollbar-thumb {
-        background-color: #bbdefb;
-        border-radius: 4px;
-    }
-    div[data-baseweb="popover"]::-webkit-scrollbar-track {
-        background-color: #f1f1f1;
-    }
-
-    /* 다크 모드 스타일 */
-    html[data-theme="dark"] .custom-header {
-        color: #FAFAFA !important;
-        background-color: rgba(50, 50, 50, 0.95) !important;
-        border: 2px solid #4B4B4B !important;
-    }
-    html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
-        background-color: #31333F !important;
-        color: #FAFAFA !important;
-        border: 2px solid #4B4B4B !important;
-    }
-    html[data-theme="dark"] div[data-baseweb="select"] span {
-        color: #FAFAFA !important;
-    }
-    html[data-theme="dark"] div[data-baseweb="popover"] {
-        background-color: #262730 !important;
-        border: 1px solid #4B4B4B !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-    }
-    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
-        color: #FAFAFA !important;
-    }
-    html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
-        background-color: #45475A !important;
-        color: white !important;
-    }
-
-    /* 달력 그리드 */
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        width: 100%;
-        background: #fff;
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    /* 요일 헤더 */
-    .day-header {
-        aspect-ratio: 1/1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-        font-weight: bold;
-        color: #333;
-    }
-    .day-header.sunday {
-        color: red;
-    }
-    .day-header.saturday {
-        color: blue;
-    }
-
-    /* 날짜 */
-    .day {
-        aspect-ratio: 1/1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        color: #333;
-    }
-
-    .day.sunday {
-        color: red;
-    }
-    .day.saturday {
-        color: blue;
-    }
-
-    /* 빈칸 */
-    .day.empty {
-        border: none;
-        background: none;
-    }
-    </style>
+    <link rel="stylesheet" href="/app/static/styles.css">
     <div class="custom-header">실업급여 도우미</div>
-    <script>
-        console.log("Custom header element:", document.querySelector(".custom-header"));
-        console.log("stAppHeader element:", document.querySelector(".stAppHeader"));
-        console.log("stToolbar element:", document.querySelector("[data-testid='stToolbar']"));
-        console.log("stMainMenu element:", document.querySelector("[data-testid='stMainMenu']"));
-        if (!document.querySelector(".custom-header")) {
-            console.error("Custom header not found in DOM");
-        } else {
-            const header = document.querySelector(".custom-header");
-            console.log("Custom header styles:", getComputedStyle(header));
-            console.log("Custom header position:", header.getBoundingClientRect());
-        }
-        if (document.querySelector(".stAppHeader")) {
-            console.log("stAppHeader styles:", getComputedStyle(document.querySelector(".stAppHeader")));
-        }
-        if (document.querySelector("[data-testid='stToolbar']")) {
-            console.log("stToolbar styles:", getComputedStyle(document.querySelector("[data-testid='stToolbar']")));
-        }
-        if (document.querySelector("[data-testid='stMainMenu']")) {
-            console.log("stMainMenu styles:", getComputedStyle(document.querySelector("[data-testid='stMainMenu']")));
-        }
-    </script>
+    <script src="/app/static/debug.js"></script>
     """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
@@ -270,16 +59,16 @@ def main():
             if "menu" in st.query_params:
                 del st.query_params["menu"] # "메뉴 선택" 시 URL 파라미터 제거
         else:
-            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장 (사람에게 친화적인 1부터 시작)
+            # 선택된 메뉴의 인덱스를 1을 더하여 URL 파라미터로 저장
             st.query_params["menu"] = str(st.session_state.current_menu_idx + 1)
 
     # 메인 화면에 메뉴 선택 콤보박스 배치
     st.selectbox(
         "📋 메뉴 선택",
         menus,
-        index=st.session_state.current_menu_idx, # 현재 세션 상태의 인덱스 사용
-        key="main_menu_select_key", # 콜백 함수를 위한 키
-        on_change=on_menu_change # 값 변경 시 on_change 콜백 함수 호출
+        index=st.session_state.current_menu_idx,
+        key="main_menu_select_key",
+        on_change=on_menu_change
     )
 
     # --- 콤보박스와 아래 콘텐츠를 구분하는 시각적 구분선 추가 ---
@@ -287,7 +76,7 @@ def main():
 
     # 3. 세션 상태의 current_menu_idx에 따라 화면 출력
     selected_idx = st.session_state.current_menu_idx
-    selected_menu_name = menus[selected_idx] # 현재 선택된 메뉴의 이름
+    selected_menu_name = menus[selected_idx]
 
     # 메뉴 제목 표시
     display_text_title = menu_text_titles.get(selected_menu_name, selected_menu_name)
@@ -300,7 +89,7 @@ def main():
         "<p style='font-size:18px; font-weight:700; margin-bottom:10px;'>ⓘ 실업급여 도우미는 참고용입니다. 실제 가능 여부는 고용센터 판단을 따릅니다.</p>",
         unsafe_allow_html=True
     )
-    st.markdown("---") # 공통 문구 아래 시각적 구분선 추가
+    st.markdown("---")
 
     if selected_idx == 0:
         # "메뉴 선택" 시 보여줄 초기 화면 내용
@@ -323,7 +112,7 @@ def main():
             </div>
             """, unsafe_allow_html=True
         )
-        st.markdown("---") # 또 다른 시각적 구분선
+        st.markdown("---")
     else:
         # 선택된 메뉴에 해당하는 함수 호출
         if selected_menu_name in menu_functions:
