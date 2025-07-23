@@ -1,10 +1,18 @@
 import streamlit as st
+import os
 import time
 
 # 필요한 앱 함수들만 임포트
 from app.daily_worker_eligibility import daily_worker_eligibility_app
 from app.early_reemployment import early_reemployment_app
 from app.unemployment_recognition import unemployment_recognition_app
+
+def load_css(file_name):
+    """CSS 파일을 읽어 Streamlit에 적용합니다."""
+    current_dir = os.path.dirname(__file__)
+    css_path = os.path.join(current_dir, file_name)
+    with open(css_path) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 def main():
     st.set_page_config(
@@ -16,8 +24,9 @@ def main():
     # 캐싱 방지 위해 타임스탬프 추가
     cache_buster = int(time.time())
 
-    # 커스텀 헤더와 인라인 CSS로 스타일 강제 적용
+    # 외부 CSS 파일 로드 및 인라인 CSS 추가
     with st.container():
+        load_css('static/styles.css')
         st.markdown(f"""
         <link rel="stylesheet" href="/static/styles.css?v={cache_buster}">
         <style>
@@ -26,28 +35,57 @@ def main():
                 display: none !important;
                 visibility: hidden !important;
             }}
-            /* 콤보박스 스타일 */
+            /* 콤보박스 스타일 강화 */
+            div[data-baseweb="select"] > div:first-child,
             [data-testid="stSelectbox"], [data-testid="stSelectbox"] > div,
-            div[data-baseweb="select"], div[data-baseweb="select"] > div,
             [data-testid="stSelectbox"] [role="combobox"],
             [class*="st-emotion-cache"][data-testid="stSelectbox"],
-            [class*="st-emotion-cache"] [role="combobox"],
-            [class*="StyledSelect"] {{
+            [class*="st-emotion-cache"] [role="combobox"] {{
                 border: 2px solid #2196F3 !important;
                 color: #2196F3 !important;
                 font-weight: 600 !important;
                 background-color: #E3F2FD !important;
-                border-radius: 4px !important;
                 z-index: 2 !important;
+                border-radius: 4px !important;
                 box-sizing: border-box !important;
             }}
-            [data-testid="stSelectbox"] span, div[data-baseweb="select"] span,
-            [class*="st-emotion-cache"] span, [class*="StyledSelect"] span {{
+            div[data-baseweb="select"] span, [data-testid="stSelectbox"] span,
+            [class*="st-emotion-cache"] span {{
                 color: #2196F3 !important;
                 font-weight: 600 !important;
             }}
         </style>
         <div class="custom-header">실업급여 도우미</div>
+        <script>
+            console.log("Custom header element:", document.querySelector(".custom-header"));
+            console.log("stAppHeader element:", document.querySelector(".stAppHeader"));
+            console.log("stToolbar element:", document.querySelector("[data-testid='stToolbar']"));
+            console.log("stMainMenu element:", document.querySelector("[data-testid='stMainMenu']"));
+            console.log("stAppDeployButton element:", document.querySelector("[data-testid='stAppDeployButton']"));
+            console.log("Selectbox element:", document.querySelector("[data-testid='stSelectbox']"));
+            if (!document.querySelector(".custom-header")) {{
+                console.error("Custom header not found in DOM");
+            }} else {{
+                const header = document.querySelector(".custom-header");
+                console.log("Custom header styles:", getComputedStyle(header));
+                console.log("Custom header position:", header.getBoundingClientRect());
+            }}
+            if (document.querySelector(".stAppHeader")) {{
+                console.log("stAppHeader styles:", getComputedStyle(document.querySelector(".stAppHeader")));
+            }}
+            if (document.querySelector("[data-testid='stToolbar']")) {{
+                console.log("stToolbar styles:", getComputedStyle(document.querySelector("[data-testid='stToolbar']")));
+            }}
+            if (document.querySelector("[data-testid='stMainMenu']")) {{
+                console.log("stMainMenu styles:", getComputedStyle(document.querySelector("[data-testid='stMainMenu']")));
+            }}
+            if (document.querySelector("[data-testid='stAppDeployButton']")) {{
+                console.log("stAppDeployButton styles:", getComputedStyle(document.querySelector("[data-testid='stAppDeployButton']")));
+            }}
+            if (document.querySelector("[data-testid='stSelectbox']")) {{
+                console.log("Selectbox styles:", getComputedStyle(document.querySelector("[data-testid='stSelectbox']")));
+            }}
+        </script>
         """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
