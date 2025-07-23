@@ -196,4 +196,8 @@ html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
 button[kind="icon"] {
     display: none !important;
 }
+/* 오른쪽 하단 Streamlit 아이콘 버튼 숨기기 */
+[data-testid="stActionButtonIcon"] {
+    display: none !important;
+}
 
