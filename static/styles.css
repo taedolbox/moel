@@ -192,3 +192,8 @@ html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
     border: none;
     background: none;
 }
+/* 오른쪽 하단의 "Manage app" 버튼 숨기기 */
+button[kind="icon"] {
+    display: none !important;
+}
+
