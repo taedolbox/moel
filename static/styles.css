@@ -5,6 +5,12 @@
     display: none !important;
 }
 
+/* Manage app 버튼 숨기기 */
+.stAppDeployButton, [data-testid="stAppDeployButton"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
 /* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
 .custom-header {
     position: fixed;
@@ -174,7 +180,6 @@ html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
     font-size: 16px;
     color: #333;
 }
-
 .day.sunday {
     color: red;
 }
