@@ -15,11 +15,10 @@ def main():
     # 모든 CSS 스타일 및 디버깅 스크립트
     st.markdown("""
     <style>
-    /* 오른쪽 상단 메뉴(햄버거 메뉴) 숨기기 */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-    [data-testid="stToolbarActions"] {
+    /* Streamlit 헤더 및 툴바 완전 숨기기 */
+    .stAppHeader, [class*="stAppHeader"], [data-testid="stHeader"],
+    [data-testid="stToolbar"], [data-testid="stToolbarActions"],
+    [data-testid="stMainMenu"], .stToolbarActions, .stMainMenu {
         display: none !important;
     }
 
@@ -32,7 +31,7 @@ def main():
         font-weight: 700;
         color: #2196F3;
         text-align: center;
-        z-index: 1000000; /* 극단적으로 높은 z-index */
+        z-index: 3000000; /* 극단적으로 높은 z-index */
         background-color: rgba(255, 255, 255, 0.95);
         padding: 8px 20px;
         border-radius: 6px;
@@ -53,7 +52,7 @@ def main():
         font-weight: 700;
         color: #2196F3;
         text-align: center;
-        z-index: 1000000;
+        z-index: 3000000;
         background-color: rgba(255, 255, 255, 0.95);
         padding: 8px 20px;
         border-radius: 6px;
@@ -76,7 +75,7 @@ def main():
         }
     }
 
-    /* Streamlit 메인 컨테이너 조정 (겹침 방지) */
+    /* Streamlit 메인 컨테이너 z-index 조정 */
     div[data-testid="stAppViewContainer"] {
         z-index: 1 !important;
     }
@@ -209,12 +208,24 @@ def main():
     <div class="custom-header">실업급여 도우미</div>
     <script>
         console.log("Custom header element:", document.querySelector(".custom-header"));
+        console.log("stAppHeader element:", document.querySelector(".stAppHeader"));
+        console.log("stToolbar element:", document.querySelector("[data-testid='stToolbar']"));
+        console.log("stMainMenu element:", document.querySelector("[data-testid='stMainMenu']"));
         if (!document.querySelector(".custom-header")) {
             console.error("Custom header not found in DOM");
         } else {
             const header = document.querySelector(".custom-header");
             console.log("Custom header styles:", getComputedStyle(header));
             console.log("Custom header position:", header.getBoundingClientRect());
+        }
+        if (document.querySelector(".stAppHeader")) {
+            console.log("stAppHeader styles:", getComputedStyle(document.querySelector(".stAppHeader")));
+        }
+        if (document.querySelector("[data-testid='stToolbar']")) {
+            console.log("stToolbar styles:", getComputedStyle(document.querySelector("[data-testid='stToolbar']")));
+        }
+        if (document.querySelector("[data-testid='stMainMenu']")) {
+            console.log("stMainMenu styles:", getComputedStyle(document.querySelector("[data-testid='stMainMenu']")));
         }
     </script>
     """, unsafe_allow_html=True)
