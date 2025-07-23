@@ -1,17 +1,9 @@
-/* Streamlit 헤더 및 툴바 완전 숨기기 */
-.stAppHeader, [class*="stAppHeader"], [data-testid="stHeader"],
-[data-testid="stToolbar"], [data-testid="stToolbarActions"],
-[data-testid="stMainMenu"], .stToolbarActions, .stMainMenu {
+/* 기본 Streamlit UI 제거 */
+.stAppHeader, [data-testid="stToolbar"], [data-testid="stMainMenu"] {
     display: none !important;
 }
 
-/* Manage app 버튼 숨기기 */
-.stAppDeployButton, [data-testid="stAppDeployButton"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-
-/* 오른쪽 상단에 "실업급여 도우미" 텍스트 추가 */
+/* 상단 고정 텍스트 박스 */
 .custom-header {
     position: fixed;
     top: 10px;
@@ -19,185 +11,27 @@
     font-size: 22px;
     font-weight: 700;
     color: #2196F3;
-    text-align: center;
-    z-index: 3000000; /* 극단적으로 높은 z-index */
     background-color: rgba(255, 255, 255, 0.95);
-    padding: 8px 20px;
-    border-radius: 6px;
     border: 2px solid #2196F3;
-    width: auto;
-    min-width: 220px;
+    border-radius: 6px;
+    padding: 8px 20px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    visibility: visible !important;
-    display: block !important;
+    z-index: 10000;
 }
 
-/* iframe 환경 대안 (필요시 주석 해제) */
-/* .custom-header {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 22px;
-    font-weight: 700;
-    color: #2196F3;
-    text-align: center;
-    z-index: 3000000;
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 8px 20px;
-    border-radius: 6px;
-    border: 2px solid #2196F3;
-    width: auto;
-    min-width: 220px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    visibility: visible !important;
-    display: block !important;
-} */
-
-/* 반응형 디자인: 모바일 화면 */
+/* 반응형 (모바일 대응) */
 @media (max-width: 768px) {
     .custom-header {
         font-size: 18px;
-        min-width: 180px;
-        padding: 6px 15px;
         right: 10px;
-        top: 15px;
+        padding: 6px 15px;
     }
 }
 
-/* Streamlit 메인 컨테이너 z-index 조정 */
-div[data-testid="stAppViewContainer"] {
-    z-index: 1 !important;
-}
-
-/* 콤보박스 선택 영역 */
+/* 콤보박스 스타일 */
 div[data-baseweb="select"] > div:first-child {
     border: 2px solid #2196F3 !important;
-    color: #2196F3 !important;
-    font-weight: 600 !important;
     background-color: #E3F2FD !important;
-    z-index: 2 !important;
-}
-
-/* 드롭다운 리스트 컨테이너 */
-div[data-baseweb="popover"] {
-    z-index: 9999 !important; /* custom-header 아래에 위치 */
-    background-color: #FFFFFF !important;
-    border: 1px solid #2196F3 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-}
-
-/* 드롭다운 리스트 항목 */
-div[data-baseweb="select"] ul[role="listbox"] li {
-    color: #2196F3 !important;
     font-weight: 600 !important;
-    padding: 10px 15px !important;
+    color: #2196F3 !important;
 }
-
-/* 드롭다운 리스트 항목 호버 시 */
-div[data-baseweb="select"] ul[role="listbox"] li:hover {
-    background-color: #2196F3 !important;
-    color: white !important;
-}
-
-/* 스크롤바 스타일링 */
-div[data-baseweb="popover"]::-webkit-scrollbar {
-    width: 8px;
-}
-div[data-baseweb="popover"]::-webkit-scrollbar-thumb {
-    background-color: #bbdefb;
-    border-radius: 4px;
-}
-div[data-baseweb="popover"]::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-}
-
-/* 다크 모드 스타일 */
-html[data-theme="dark"] .custom-header {
-    color: #FAFAFA !important;
-    background-color: rgba(50, 50, 50, 0.95) !important;
-    border: 2px solid #4B4B4B !important;
-}
-html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
-    background-color: #31333F !important;
-    color: #FAFAFA !important;
-    border: 2px solid #4B4B4B !important;
-}
-html[data-theme="dark"] div[data-baseweb="select"] span {
-    color: #FAFAFA !important;
-}
-html[data-theme="dark"] div[data-baseweb="popover"] {
-    background-color: #262730 !important;
-    border: 1px solid #4B4B4B !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
-html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li {
-    color: #FAFAFA !important;
-}
-html[data-theme="dark"] div[data-baseweb="select"] ul[role="listbox"] li:hover {
-    background-color: #45475A !important;
-    color: white !important;
-}
-
-/* 달력 그리드 */
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    width: 100%;
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-}
-
-/* 요일 헤더 */
-.day-header {
-    aspect-ratio: 1/1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-}
-.day-header.sunday {
-    color: red;
-}
-.day-header.saturday {
-    color: blue;
-}
-
-/* 날짜 */
-.day {
-    aspect-ratio: 1/1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    color: #333;
-}
-.day.sunday {
-    color: red;
-}
-.day.saturday {
-    color: blue;
-}
-
-/* 빈칸 */
-.day.empty {
-    border: none;
-    background: none;
-}
-/* 오른쪽 하단의 "Manage app" 버튼 숨기기 */
-button[kind="icon"] {
-    display: none !important;
-}
-/* 오른쪽 하단 Streamlit 아이콘 버튼 숨기기 */
-[data-testid="stActionButtonIcon"] {
-    display: none !important;
-}
-
