@@ -12,12 +12,13 @@ def main():
         layout="centered"
     )
 
-    # CSS와 JavaScript 로드
-    st.markdown("""
-    <link rel="stylesheet" href="/app/static/styles.css">
-    <div class="custom-header">실업급여 도우미</div>
-    <script src="/app/static/debug.js"></script>
-    """, unsafe_allow_html=True)
+    # 커스텀 헤더를 컨테이너로 감싸 최상단 고정
+    with st.container():
+        st.markdown("""
+        <link rel="stylesheet" href="/static/styles.css">
+        <div class="custom-header">실업급여 도우미</div>
+        <script src="/static/debug.js"></script>
+        """, unsafe_allow_html=True)
 
     # 각 메뉴에 연결될 함수 매핑
     menu_functions = {
