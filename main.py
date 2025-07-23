@@ -26,14 +26,19 @@ def main():
     /* 상단 중앙에 "실업급여 도우미" 텍스트 추가 */
     .custom-header {
         position: fixed;
-        top: 10px;
+        top: 15px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 18px;
-        font-weight: 600;
+        font-size: 20px;
+        font-weight: 700;
         color: #2196F3;
         text-align: center;
-        z-index: 1000;
+        z-index: 9999; /* 다른 요소 위에 표시되도록 높게 설정 */
+        background-color: rgba(255, 255, 255, 0.9); /* 배경 추가로 가독성 확보 */
+        padding: 5px 15px;
+        border-radius: 5px;
+        width: auto;
+        min-width: 200px; /* 텍스트가 너무 좁게 보이지 않도록 */
     }
 
     /* 기존 스타일 유지 */
@@ -53,7 +58,7 @@ def main():
 
     /* 드롭다운 리스트 컨테이너 */
     div[data-baseweb="popover"] {
-        z-index: 9999 !important;
+        z-index: 9998 !important; /* custom-header 아래에 위치하도록 */
         background-color: #FFFFFF !important;
         border: 1px solid #2196F3 !important;
         border-radius: 8px !important;
@@ -88,6 +93,7 @@ def main():
     /* 다크 모드 스타일 */
     html[data-theme="dark"] .custom-header {
         color: #FAFAFA !important;
+        background-color: rgba(50, 50, 50, 0.9) !important; /* 다크 모드 배경 */
     }
     html[data-theme="dark"] div[data-baseweb="select"] > div:first-child {
         background-color: #31333F !important;
